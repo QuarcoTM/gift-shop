@@ -10,7 +10,7 @@ const PAGES = new Set(["/","/products/","/collections/","/collection/","/product
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 const setText = (selector, value) => { const el = $(selector); if (el) el.textContent = value; };
-let currentCampaign = null;
+let currentCampaign = document.documentElement.dataset.campaign || null;
 let inflightCampaign = null;
 let lastReadAt = 0;
 
@@ -21,12 +21,8 @@ function sitePath() {
   return PAGES.has(normalized) ? normalized : "";
 }
 function campaignLinks() {
-  const standard = Object.values(CAMPAIGNS).map((item) => item.slug);
-  for (const link of $$('a[href*="category=koleda"]')) link.dataset.seasonLink = "true";
-  return $$("a[data-season-link]").filter((link) => {
-    try { return standard.includes(new URL(link.href).searchParams.get("category")); }
-    catch { return false; }
-  });
+  // Explicit campaign shortcuts only. Ordinary category links stay intact.
+  return $("a[data-season-link]");
 }
 function updateSeasonalImages(campaign) {
   const assign = (img, alt) => {
@@ -94,24 +90,13 @@ function applyCampaign(key, onCampaign) {
   // Campaign state must remain usable even if an optional catalog rendering callback fails.
   try { onCampaign?.(campaign); }
   catch (error) { console.error("Campaign catalog refresh:", error); }
-  // Keep the bootstrap cover until the main photo is decoded. Otherwise
-  // Safari can briefly paint the original HTML image after the heading changes.
-  if (document.documentElement.dataset.campaignReady !== "true") {
-    const mainPhoto = $(".hero-image img") || $(".collections-grid .collection-card-large img");
-    if (mainPhoto && typeof mainPhoto.decode === "function") {
-      let settled = false;
-      const reveal = () => {
-        if (settled) return;
-        settled = true;
-        document.documentElement.dataset.campaignReady = "true";
-      };
-      const limit = setTimeout(reveal, 550);
-      mainPhoto.decode().then(() => { clearTimeout(limit); reveal(); },
-        () => { clearTimeout(limit); reveal(); });
-    } else {
-      document.documentElement.dataset.campaignReady = "true";
-    }
-  }
+  // Keep the chosen presentation in the current history entry (not in
+  // cookies or localStorage), so a refresh of this tab can paint it immediately.
+  try {
+    const previous = (history.state && typeof history.state === "object") ? history.state : {};
+    if (previous.sabranoCampaign !== key) history.replaceState({ ...previous, sabranoCampaign: key }, "");
+  } catch { /* History state is optional; the static page remains usable. */ }
+  document.documentElement.dataset.campaignReady = "true";
   return key;
 }
 async function fetchCampaign(onCampaign, force = false) {
@@ -168,6 +153,13 @@ async function recordVisit() {
   if (!result.ok) throw Error("Analytics HTTP " + result.status);
 }
 export function initSiteFeatures(options = {}) {
+  // The HTML already contains the currently published campaign. No loader.
+  // The pre-paint inline code also handles a campaign passed from the admin
+  // preview or retained in browser history during refresh.
+  const inline = document.documentElement.dataset.campaign;
+  if (Object.hasOwn(CAMPAIGNS, inline) && inline !== currentCampaign) {
+    applyCampaign(inline, options.onCampaign);
+  }
   const sync = () => fetchCampaign(options.onCampaign, true);
   fetchCampaign(options.onCampaign);
   initCookieManager();
