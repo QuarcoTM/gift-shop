@@ -144,13 +144,13 @@ function catalogProducts() {
 function productCard(item) {
   const liked = data.favorites.has(item.id);
   return '<article class="product-card">' +
-    '<a href="./product.html?id=' + encodeURIComponent(item.id) + '" class="product-image-link" aria-label="Виж ' + escapeHTML(item.name) + '">' +
+    '<a href="./product/?id=' + encodeURIComponent(item.id) + '" class="product-image-link" aria-label="Виж ' + escapeHTML(item.name) + '">' +
       '<div class="product-image-wrap">' + photo(productPhoto(item), item.name) +
         '<span class="product-tag">' + escapeHTML(groupInfo(item.group).label) + '</span></div></a>' +
       '<button class="favorite-button' + (liked ? ' is-liked' : '') + '" type="button" data-favorite="' + escapeHTML(item.id) + '" aria-label="' + (liked ? "Премахни от любими" : "Добави в любими") + '">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.5c0 4.4-8.5 10.2-8.5 10.2S3.5 12.9 3.5 8.5a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg></button>' +
     '<div class="product-info"><div class="product-kicker">' + escapeHTML(groupInfo(item.group).label) + '</div>' +
-      '<h3 class="product-title"><a href="./product.html?id=' + encodeURIComponent(item.id) + '">' + escapeHTML(item.name) + '</a></h3>' +
+      '<h3 class="product-title"><a href="./product/?id=' + encodeURIComponent(item.id) + '">' + escapeHTML(item.name) + '</a></h3>' +
       '<div class="product-row"><strong class="price">' + escapeHTML(price(item.price_eur)) + '</strong>' +
       '<button class="product-cta" type="button" data-add="' + escapeHTML(item.id) + '"' + (item.stock_quantity > 0 ? "" : " disabled") + '>' +
         (item.stock_quantity > 0 ? "Добави +": "Изчерпан") + '</button></div></div></article>';
@@ -169,7 +169,7 @@ function renderCatalog() {
   }
   if (!items.length) {
     grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h3>Тук скоро ще има подаръци.</h3>' +
-      '<p>Разгледай останалите колекции.</p><a class="button button-dark" href="./collections.html">Виж колекциите <span aria-hidden="true"></span></a></div>';
+      '<p>Разгледай останалите колекции.</p><a class="button button-dark" href="./collections/">Виж колекциите <span aria-hidden="true"></span></a></div>';
     return;
   }
   grid.innerHTML = items.map(productCard).join("");
@@ -197,7 +197,7 @@ function renderCustomCategories() {
     grid.querySelectorAll(".collection-card-custom").forEach((node) => node.remove());
     for (const category of custom) {
       const link = document.createElement("a");
-      link.href = "./collection.html?category=" + encodeURIComponent(category.slug);
+      link.href = "./collection/?category=" + encodeURIComponent(category.slug);
       link.className = "collection-card collection-card-custom";
       const label = document.createElement("span");
       label.className = "collection-number";
@@ -231,7 +231,7 @@ function renderProduct() {
   if (!wrapper) return;
   const item = productById(params.get("id"));
   if (!item) {
-    wrapper.innerHTML = '<div class="catalog-empty"><h2>Не открихме този подарък.</h2><p>Разгледай останалите предложения.</p><a class="button button-dark" href="./products.html">Всички подаръци <span aria-hidden="true"></span></a></div>';
+    wrapper.innerHTML = '<div class="catalog-empty"><h2>Не открихме този подарък.</h2><p>Разгледай останалите предложения.</p><a class="button button-dark" href="./products/">Всички подаръци <span aria-hidden="true"></span></a></div>';
     return;
   }
   document.title = item.name + " | събрано.";
@@ -257,14 +257,14 @@ function renderCart() {
   }, 0);
   totalField.textContent = price(total);
   if (!data.cart.length) {
-    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h2>Количката е празна.</h2><p>Избери подарък от колекциите.</p><a class="button button-dark" href="./products.html">Виж подаръците <span aria-hidden="true"></span></a></div>';
+    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h2>Количката е празна.</h2><p>Избери подарък от колекциите.</p><a class="button button-dark" href="./products/">Виж подаръците <span aria-hidden="true"></span></a></div>';
     return;
   }
   grid.innerHTML = data.cart.map((entry) => {
     const item = productById(entry.id);
     if (!item) return "";
-    return '<article class="cart-page-line"><a href="./product.html?id=' + encodeURIComponent(item.id) + '" class="cart-line-image">' + photo(productPhoto(item), item.name) + '</a>' +
-      '<div><a class="cart-line-name" href="./product.html?id=' + encodeURIComponent(item.id) + '">' + escapeHTML(item.name) + '</a>' +
+    return '<article class="cart-page-line"><a href="./product/?id=' + encodeURIComponent(item.id) + '" class="cart-line-image">' + photo(productPhoto(item), item.name) + '</a>' +
+      '<div><a class="cart-line-name" href="./product/?id=' + encodeURIComponent(item.id) + '">' + escapeHTML(item.name) + '</a>' +
         '<span class="cart-line-price">' + escapeHTML(price(item.price_eur * entry.qty)) + '</span>' +
         '<div class="cart-line-controls"><button class="qty-button" type="button" data-qty="-1" data-id="' + escapeHTML(item.id) + '" aria-label="Намали">−</button>' +
         '<span>' + entry.qty + '</span><button class="qty-button" type="button" data-qty="1" data-id="' + escapeHTML(item.id) + '" aria-label="Увеличи">+</button>' +
