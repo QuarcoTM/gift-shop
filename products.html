@@ -3,6 +3,7 @@
 <head>
   <script>if (location.pathname.endsWith("/products.html")) location.replace("./products/" + location.search + location.hash);</script>
   <meta charset="UTF-8" />
+  <script>/* Visible failsafe, independent from modules and remote APIs. */setTimeout(function(){if(document.documentElement.dataset.campaignReady!=="true")document.documentElement.dataset.campaignReady="true"},3200);</script>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7f2e9" />
   <meta name="description" content="Разгледай подбраните подаръчни комплекти." />
@@ -12,9 +13,9 @@
   <title>Подаръци | събрано.</title>
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
 
-  <link rel="stylesheet" href="./styles.css?v=20261118-d" />
+  <link rel="stylesheet" href="./styles.css?v=20261118-e" />
   <script src="./refresh.js"></script>
-  <script type="module" src="./app.js?v=20261118-d"></script>
+  <script type="module" src="./app.js?v=20261118-e"></script>
 </head>
 <body data-page="products">
   <a class="skip-link" href="#content">Към съдържанието</a>
