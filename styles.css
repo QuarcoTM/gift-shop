@@ -794,3 +794,44 @@ html[data-campaign="everyday"] .hero-image{background-color:#d2c0ad}
 .checkout-success .button{margin-top:28px}
 @media(max-width:900px){.checkout-form{grid-template-columns:1fr;gap:23px}.checkout-summary{position:static}}
 @media(max-width:620px){.checkout-panel{padding-bottom:75px}.checkout-heading{padding-top:28px}.checkout-form-grid{grid-template-columns:1fr;gap:15px}.checkout-summary{padding:20px}.checkout-heading h2{font-size:38px}}
+
+
+/* Checkout: courier offices picker — only loads third-party maps on click. */
+.checkout-office-tools{grid-column:1/-1;display:grid;gap:8px;margin:2px 0 5px}
+.checkout-office-tools[hidden]{display:none!important}
+.checkout-office-pick{display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  align-self:start;min-height:48px;border:1px solid #a8b6aa;border-radius:5px;padding:12px 19px;
+  background:#eaf0e8;color:var(--forest);font-size:13px;font-weight:800;cursor:pointer;
+  transition:background .18s ease,border-color .18s ease}
+.checkout-office-pick:hover,.checkout-office-pick:focus-visible{background:#e0e9de;border-color:var(--forest)}
+.checkout-office-pick span{font-size:23px;font-weight:500;line-height:1}
+.checkout-office-tools p{color:var(--muted);margin:0;font-size:11px;line-height:1.55}
+.checkout-office-dialog{padding:0;border:1px solid #dbd5c9;border-radius:10px;
+  width:min(760px,calc(100vw - 24px));max-width:760px;max-height:min(95vh,850px);
+  overflow:auto;background:var(--cream);color:var(--forest);box-shadow:0 18px 80px #161c16a0}
+.checkout-office-dialog::backdrop{background:#101c19b8;backdrop-filter:blur(2px)}
+.checkout-office-dialog-head{display:flex;align-items:center;justify-content:space-between;
+  gap:20px;padding:22px 24px 12px}
+.checkout-office-dialog-head h3{font:500 31px/1.2 "Iowan Old Style","Baskerville",Georgia,serif;
+  margin:6px 0 0}
+.checkout-office-close{font-size:30px;line-height:1;background:transparent;border:0;
+  color:var(--forest);cursor:pointer;width:44px;height:44px}
+.checkout-office-instructions{font-size:12px;line-height:1.7;color:var(--muted);
+  margin:0 24px 14px}
+#checkout-office-map{width:100%;height:min(56vh,500px);min-height:320px;border:0;
+  display:block;background:#e7e9e4}
+.checkout-office-dialog-footer{display:flex;gap:14px;justify-content:space-between;
+  align-items:center;padding:16px 24px 23px;border-top:1px solid var(--line)}
+.checkout-office-external{font-size:12px;text-decoration:underline;text-underline-offset:3px;
+  line-height:1.6;color:var(--forest)}
+.checkout-office-done{font-size:12px;font-weight:800;padding:13px 20px;border:0;
+  border-radius:5px;background:var(--forest);color:white;cursor:pointer;white-space:nowrap}
+@media(max-width:620px){
+  .checkout-office-tools{margin:0}
+  .checkout-office-pick{width:100%}
+  .checkout-office-dialog-head{padding:17px 16px 10px}
+  .checkout-office-instructions{margin:0 16px 12px}
+  #checkout-office-map{height:54vh;min-height:270px}
+  .checkout-office-dialog-footer{padding:14px 16px 18px;align-items:stretch;flex-direction:column}
+  .checkout-office-done{width:100%}
+}
