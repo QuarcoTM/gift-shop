@@ -204,3 +204,18 @@ test("storefront never hides core sections awaiting a remote campaign request", 
   assert.doesNotMatch(home, /<section class="home-season" id="christmas">/);
   assert.match(read("site-features.js"), /catch \(error\) \{ console\.error\("Campaign catalog refresh:", error\); \}/);
 });
+
+
+test("seasonal bootstrap never flashes stale HTML and cannot cover the page permanently", () => {
+  const css = read("styles.css");
+  const homepage = read("index.html");
+  const features = read("site-features.js");
+  assert.match(css, /html:not\(\[data-campaign-ready="true"\]\) body\[data-page\]::before/);
+  assert.match(css, /position:fixed/);
+  assert.match(homepage, /Visible failsafe, independent from modules and remote APIs/);
+  assert.match(homepage, /setTimeout\(function\(\)\{if\(document\.documentElement\.dataset\.campaignReady/);
+  assert.match(features, /const controller = new AbortController\(\)/);
+  assert.match(features, /signal: controller\.signal/);
+  assert.match(features, /mainPhoto\.decode\(\)/);
+  assert.doesNotMatch(css, /html:not\(\[data-campaign-ready="true"\]\)[\s\S]*?visibility:hidden!important/);
+});
