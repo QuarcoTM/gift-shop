@@ -16,6 +16,7 @@ test("checkout with a sample catalog works in mobile Chromium without submitting
     'if(u.includes("gift_categories"))return response([{id:"11111111-1111-4111-8111-111111111111",name:"Тестови",slug:"povodi"}]);'+
     'if(u.includes("gift_products"))return response([{id:"08b9dab4-b860-44ad-8ecf-57ee12002000",category_id:"11111111-1111-4111-8111-111111111111",name:"Тестов комплект",slug:"test-set",price_eur:19.9,stock_quantity:5,is_published:true}]);'+
     'if(u.includes("gift_product_images"))return response([]);'+
+    'if(u.includes("/functions/v1/speedy-offices"))return response({offices:[{id:"23",name:"КЮСТЕНДИЛ",address:"гр. Кюстендил [2500] ул. Христо Ботев No 51"},{id:"385",name:"КЮСТЕНДИЛ - ЦЕНТЪР",address:"гр. Кюстендил [2500] ул. Цар Симеон I No 23"}]});'+
     'if(u.includes("gift_submit_order"))return response({order_code:"SBR-TEST-OK",subtotal_eur:39.8,shipping_pending:true});'+
     'return response([])};'+
     '</script>';
@@ -29,6 +30,16 @@ test("checkout with a sample catalog works in mobile Chromium without submitting
     'var frame=document.getElementById("checkout-office-map");if(!frame.src.includes("officelocator.econt.com"))throw Error("wrong map");'+
     'window.dispatchEvent(new MessageEvent("message",{origin:"https://officelocator.econt.com",source:frame.contentWindow,data:{office:{code:"1234",name:"Тест Център",address:{city:{name:"София"},fullAddress:"София, ул. Тест 123"}}}}));'+
     'if(!f.elements.delivery_location.value.includes("1234")||f.elements.delivery_city.value!=="София")throw Error("map did not fill fields");'+
+    'f.elements.courier.value="speedy";f.elements.courier.dispatchEvent(new Event("change",{bubbles:true}));'+
+    'document.getElementById("checkout-office-picker").click();'+
+    'if(!dlg.open&&document.getElementById("checkout-speedy-panel").hidden)throw Error("Speedy dropdown not expanded");'+
+    'if(!document.getElementById("checkout-speedy-panel").hidden){'+
+    'var input=document.getElementById("checkout-speedy-search");input.value="Кюстендил";input.dispatchEvent(new Event("input",{bubbles:true}));'+
+    'await new Promise(function(r){setTimeout(r,200)});'+
+    'var opts=document.querySelectorAll("#checkout-speedy-options button");if(opts.length!==2)throw Error("Speedy offices missing: "+opts.length);'+
+    'opts[0].click();if(!f.elements.delivery_location.value.includes("Спиди офис 23"))throw Error("Speedy office not selected");'+
+    'if(f.elements.delivery_city.value.toLocaleLowerCase("bg-BG")!=="кюстендил")throw Error("Speedy city not filled");'+
+    '}else throw Error("Speedy still opens a map");'+
     'f.elements.shipping_ack.checked=true;f.elements.contact_ack.checked=true;'+
     'f.requestSubmit();await new Promise(function(r){setTimeout(r,300)});'+
     'if(document.getElementById("checkout-order-code").textContent!=="SBR-TEST-OK"||document.getElementById("checkout-success").hidden)throw Error("no success");'+
