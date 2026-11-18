@@ -397,11 +397,14 @@ async function loadCatalog() {
 initUI();
 initSiteFeatures({
   onCampaign(campaign) {
-    groups[campaign.slug] = {
-      label: campaign.label,
-      title: campaign.collectionTitle,
-      subtitle: campaign.collectionSubtitle
-    };
+    // Everyday mode keeps the default "За поводи" product labels.
+    if (campaign.slug !== "povodi") {
+      groups[campaign.slug] = {
+        label: campaign.label,
+        title: campaign.collectionTitle,
+        subtitle: campaign.collectionSubtitle
+      };
+    }
     renderCollectionHeading();
     renderCatalog();
     renderProduct();
