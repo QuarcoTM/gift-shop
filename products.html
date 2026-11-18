@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="bg">
 <head>
+  <script>if (location.pathname.endsWith("/products.html")) location.replace("./products/" + location.search + location.hash);</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7f2e9" />
@@ -20,30 +21,30 @@
 </head>
 <body data-page="products">
   <a class="skip-link" href="#content">Към съдържанието</a>
-  <div class="announcement"><div class="container announcement-inner"><span>Малки жестове, които остават в сърцето.</span><span class="announcement-rule"></span><a href="./collection.html?category=koleda">Колекция Коледа 2026 </a></div></div>
+  <div class="announcement"><div class="container announcement-inner"><span>Малки жестове, които остават в сърцето.</span><span class="announcement-rule"></span><a href="./collection/?category=koleda">Колекция Коледа 2026 </a></div></div>
   <header class="site-header" id="top">
     <div class="container header-inner">
-      <a class="brand" href="./index.html" aria-label="СЪБРАНО. — начало">
+      <a class="brand" href="./" aria-label="СЪБРАНО. — начало">
         <span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 46 46" fill="none"><path d="M23 11v28M9 23h28" stroke="currentColor" stroke-width="2"/><path d="M23 23C9 22 8 11 14 9c5-2 9 7 9 14Zm0 0c14-1 15-12 9-14-5-2-9 7-9 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 23h28v16H9V23Z" stroke="currentColor" stroke-width="2"/></svg></span>
         <span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span>
       </a>
       <nav class="desktop-nav" aria-label="Основна навигация">
-        <a href="./collection.html?category=koleda" class="nav-season">Коледа </a>
-        <a href="./collections.html">Колекции</a>
-        <a href="./collection.html?category=deca">За деца</a>
-        <a href="./products.html">Подаръци</a>
-        <a href="./about.html">Нашата идея</a>
-        <a href="./bulk.html">За събития</a>
+        <a href="./collection/?category=koleda" class="nav-season">Коледа </a>
+        <a href="./collections/">Колекции</a>
+        <a href="./collection/?category=deca">За деца</a>
+        <a href="./products/">Подаръци</a>
+        <a href="./about/">Нашата идея</a>
+        <a href="./bulk/">За събития</a>
       </nav>
       <div class="header-tools">
-        <a class="icon-button search-trigger" href="./products.html?search=1" aria-label="Търси"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.6"/><path d="m16 16 5 5"/></svg></a>
-        <a class="icon-button favorites-trigger" href="./products.html?favorites=1" aria-label="Любими"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.5c0 4.4-8.5 10.2-8.5 10.2S3.5 12.9 3.5 8.5a4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="counter" id="favorite-count" hidden>0</span></a>
-        <a class="icon-button cart-trigger" href="./cart.html" aria-label="Количка"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h11l3-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span class="counter" id="cart-count" hidden>0</span></a>
+        <a class="icon-button search-trigger" href="./products/?search=1" aria-label="Търси"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.6"/><path d="m16 16 5 5"/></svg></a>
+        <a class="icon-button favorites-trigger" href="./products/?favorites=1" aria-label="Любими"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.5c0 4.4-8.5 10.2-8.5 10.2S3.5 12.9 3.5 8.5a4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="counter" id="favorite-count" hidden>0</span></a>
+        <a class="icon-button cart-trigger" href="./cart/" aria-label="Количка"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h11l3-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span class="counter" id="cart-count" hidden>0</span></a>
         <button class="icon-button menu-trigger" type="button" aria-label="Отвори менюто" aria-expanded="false" aria-controls="mobile-nav" data-action="menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
       </div>
     </div>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Мобилна навигация" hidden>
-      <a href="./collection.html?category=koleda">Коледа 2026 </a><a href="./collections.html">Колекции </a><a href="./collection.html?category=deca">За деца </a><a href="./products.html">Подаръци </a><a href="./about.html">Нашата идея </a><a href="./bulk.html">За събития </a>
+      <a href="./collection/?category=koleda">Коледа 2026 </a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
     </nav>
   </header>
     <main id="content">
@@ -60,11 +61,11 @@
   </main>
 <footer class="footer" id="contact">
     <div class="container footer-main">
-      <div class="footer-brand"><a class="brand brand-footer" href="./index.html"><span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 46 46" fill="none"><path d="M23 11v28M9 23h28" stroke="currentColor" stroke-width="2"/><path d="M23 23C9 22 8 11 14 9c5-2 9 7 9 14Zm0 0c14-1 15-12 9-14-5-2-9 7-9 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 23h28v16H9V23Z" stroke="currentColor" stroke-width="2"/></svg></span><span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span></a><p>Малки неща, подбрани с повече сърце. За всеки, когото искаш да зарадваш.</p></div>
-      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a href="./collection.html?category=koleda">Коледа</a><a href="./collections.html">Колекции</a><a href="./products.html">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about.html">Нашата идея</a><a href="./bulk.html">Подаръци в количество</a><a href="./about.html">Защо събрано.</a></div></div>
+      <div class="footer-brand"><a class="brand brand-footer" href="./"><span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 46 46" fill="none"><path d="M23 11v28M9 23h28" stroke="currentColor" stroke-width="2"/><path d="M23 23C9 22 8 11 14 9c5-2 9 7 9 14Zm0 0c14-1 15-12 9-14-5-2-9 7-9 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 23h28v16H9V23Z" stroke="currentColor" stroke-width="2"/></svg></span><span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span></a><p>Малки неща, подбрани с повече сърце. За всеки, когото искаш да зарадваш.</p></div>
+      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a href="./collection/?category=koleda">Коледа</a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./about/">Защо събрано.</a></div></div>
       <div class="footer-contact"><span class="footer-heading">Да останем във връзка</span><p>Имаш въпрос за подарък или поръчка в количество?</p><a class="footer-email" id="public-email" hidden></a><p id="contact-coming" class="footer-hint">Контактите ще бъдат публикувани при отварянето на магазина.</p></div>
     </div>
-    <div class="container footer-bottom"><span>© <span id="current-year">2026</span> събрано.</span><span>Направено с внимание към малките неща.</span><a href="./index.html">Обратно нагоре </a></div>
+    <div class="container footer-bottom"><span>© <span id="current-year">2026</span> събрано.</span><span>Направено с внимание към малките неща.</span><a href="./">Обратно нагоре </a></div>
   </footer>
 
   
