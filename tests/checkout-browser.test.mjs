@@ -22,8 +22,14 @@ test("checkout with a sample catalog works in mobile Chromium without submitting
   const testBody='<output id="checkout-test-result"></output><script>window.addEventListener("load",function(){setTimeout(async function(){try{'+
     'var button=document.getElementById("checkout-button");if(button.disabled)throw Error("disabled checkout");'+
     'button.click();if(document.getElementById("checkout-panel").hidden)throw Error("hidden form");'+
-    'var f=document.getElementById("checkout-form");var data={customer_name:"Тест Клиент",customer_phone:"0888777666",customer_email:"test@example.invalid",courier:"econt",delivery_type:"office",delivery_city:"София",delivery_location:"Офис ТЕСТ 123"};'+
-    'for(var key in data)f.elements[key].value=data[key];f.elements.shipping_ack.checked=true;f.elements.contact_ack.checked=true;'+
+    'var f=document.getElementById("checkout-form");var data={customer_name:"Тест Клиент",customer_phone:"0888777666",customer_email:"test@example.invalid",courier:"econt",delivery_type:"office"};'+
+    'for(var key in data)f.elements[key].value=data[key];f.elements.courier.dispatchEvent(new Event("change",{bubbles:true}));'+
+    'document.getElementById("checkout-office-picker").click();'+
+    'var dlg=document.getElementById("checkout-office-dialog");if(!dlg.open)throw Error("locator did not open");'+
+    'var frame=document.getElementById("checkout-office-map");if(!frame.src.includes("officelocator.econt.com"))throw Error("wrong map");'+
+    'window.dispatchEvent(new MessageEvent("message",{origin:"https://officelocator.econt.com",source:frame.contentWindow,data:{office:{code:"1234",name:"Тест Център",address:{city:{name:"София"},fullAddress:"София, ул. Тест 123"}}}}));'+
+    'if(!f.elements.delivery_location.value.includes("1234")||f.elements.delivery_city.value!=="София")throw Error("map did not fill fields");'+
+    'f.elements.shipping_ack.checked=true;f.elements.contact_ack.checked=true;'+
     'f.requestSubmit();await new Promise(function(r){setTimeout(r,300)});'+
     'if(document.getElementById("checkout-order-code").textContent!=="SBR-TEST-OK"||document.getElementById("checkout-success").hidden)throw Error("no success");'+
     'document.getElementById("checkout-test-result").textContent="CHECKOUT_SMOKE:PASS";'+
