@@ -329,7 +329,7 @@ h1,h2{hyphens:auto}
 .home-season p{font-size:14px;color:#e5e2d8;line-height:1.8;margin-bottom:25px}
 .home-season-image{min-height:340px;position:relative;overflow:hidden}
 .home-season-image img{height:100%;width:100%;object-fit:cover;position:absolute;inset:0}
-.home-more{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:45px;padding-top:80px;padding-bottom:100px}
+.home-more{display:grid;grid-template-columns:minmax(0,1fr);gap:45px;padding-top:65px;padding-bottom:80px}
 .home-more>div{min-width:0;padding:34px 35px 45px;border:1px solid var(--line);background:rgba(255,252,246,.45)}
 .home-more h2{font-size:clamp(32px,3vw,49px);margin:25px 0 12px}
 .home-more p{max-width:370px;font-size:13px;line-height:1.8;color:var(--muted)}
@@ -528,7 +528,7 @@ h1,h2{hyphens:auto}
 .collection-card:hover{box-shadow:0 14px 36px rgba(45,31,25,.13)}
 .collection-card:focus-visible{outline:3px solid var(--wine);outline-offset:4px}
 .collection-card:hover .collection-title{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
-.hero-photo-caption,.hero-stamp,.topline-accent,.announcement-star,.nav-sparkle,.footnote-mark,.collection-arrow{
+.hero-photo-caption,.topline-accent,.announcement-star,.nav-sparkle,.footnote-mark,.collection-arrow{
   display:none!important;
 }
 @media(max-width:620px){
@@ -550,3 +550,10 @@ h1,h2{hyphens:auto}
 @media(max-width:365px){
   .hero-actions{grid-template-columns:1fr}
 }
+
+/* Scrollbar: discreet wine accent matching the brand (where browser supports styling). */
+html{scrollbar-color:var(--wine) var(--sand);scrollbar-width:thin}
+html::-webkit-scrollbar{width:11px}
+html::-webkit-scrollbar-track{background:var(--sand)}
+html::-webkit-scrollbar-thumb{background:var(--wine);border:2px solid var(--sand);border-radius:10px}
+html::-webkit-scrollbar-thumb:hover{background:var(--wine-dark)}
