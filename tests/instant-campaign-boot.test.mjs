@@ -2,67 +2,63 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
-const boot = html.match(/<script id="instant-season-boot">([\s\S]*?)<\/script>/)?.[1];
+const home = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const css = readFileSync(new URL("../styles.css", import.meta.url), "utf8");
+const features = readFileSync(new URL("../site-features.js", import.meta.url), "utf8");
+const presets = readFileSync(new URL("../campaigns.js", import.meta.url), "utf8");
+const routes = ["index.html","collections/index.html","products/index.html","collection/index.html",
+  "product/index.html","about/index.html","bulk/index.html","contact/index.html","cart/index.html","cookies/index.html"];
+const keys = ["christmas","easter","valentine","womens_day","martenitsa","everyday"];
+const read = (name) => readFileSync(new URL("../" + name, import.meta.url), "utf8");
 
-class Element {
-  constructor(attributes = {}) { this.attrs = {...attributes}; this.textContent=""; this.innerHTML=""; this.dataset={}; this.alt=""; this.src=""; }
-  setAttribute(key,val){this.attrs[key]=String(val)}
-  getAttribute(key){return this.attrs[key]??null}
-  querySelector(key){return this.children?.[key]??null}
-}
-
-function firstPaint(selected, query="") {
-  const url = "https://quarcotm.github.io/gift-shop/" + query;
-  const links=Array.from({length:7},()=>new Element({href:"./collection/?category=koleda"}));
-  const sections=new Map();
-  for (const name of [
-    ".announcement a",".desktop-nav .nav-season",".mobile-nav a:first-child",
-    ".hero-actions .button-outline",".footer-nav a[data-season-link]",
-    ".hero-copy h1",".hero-subtitle",".hero-image img",
-    ".home-season-copy .eyebrow",".home-season-copy h2",
-    ".home-season-copy p",".home-season-copy a",".home-season-image img"
-  ])sections.set(name,new Element());
-  const card=new Element();
-  card.children={".collection-title":new Element(),".collection-number":new Element(),"img":new Element()};
-  sections.set(".collections-grid .collection-card-large",card);
-  const doc={
-    baseURI:"https://quarcotm.github.io/gift-shop/",
-    documentElement:{dataset:{campaign:"christmas",campaignReady:"true"}},
-    querySelector(sel){return sections.get(sel)??null},
-    querySelectorAll(sel){return sel==="a[data-season-link]"?links:[]}
-  };
-  const state={sabranoCampaign:selected};
-  const history={state,replaceState(next,unused,relative){this.state=next;this.uri=relative;}};
-  const location={href:url};
-  assert.ok(boot);
-  assert.doesNotMatch(boot,/fetch\(|localStorage|sessionStorage|XMLHttpRequest/);
-  new Function("document","history","location","URL","console",boot)(doc,history,location,URL,console);
-  return {doc,history,links,sections,card};
-}
-
-test("first paint is static active Christmas, without a loading screen",()=>{
-  assert.match(html,/<html lang="bg" data-campaign="christmas" data-static-campaign="christmas" data-campaign-ready="true">/);
-  assert.match(html,/<h1>Коледа, която/);
-  assert.match(html,/src="\.\/assets\/images\/christmas\.webp"/);
-  assert.doesNotMatch(html,/Visible failsafe/);
+test("all six holiday photographs and labels are pre-rendered for instant first paint", () => {
+  for (const key of keys) {
+    assert.match(home, new RegExp('data-season-content="' + key + '"'));
+    assert.match(css, new RegExp('html\\[data-campaign="' + key + '"\\]\\{--instant-season-photo:url'));
+    assert.ok(presets.includes(key + ": {"));
+  }
+  assert.match(home, /class="seasonal-photo"/);
+  assert.match(home, /data-campaign="valentine"/);
+  assert.doesNotMatch(home, /id="instant-season-boot"/);
+  assert.doesNotMatch(css, /Campaign boot screen|body\[data-page\]::before/);
+  assert.doesNotMatch(features, /mainPhoto\.decode\(\)/);
 });
 
-test("refresh of the same tab synchronously restores Easter without any network request",()=>{
-  const p=firstPaint("easter");
-  assert.equal(p.doc.documentElement.dataset.campaign,"easter");
-  assert.match(p.sections.get(".hero-copy h1").innerHTML,/Великден/);
-  assert.ok(p.sections.get(".hero-image img").src.endsWith("/assets/images/easter.webp"));
-  assert.ok(p.card.children["img"].src.endsWith("/assets/images/easter.webp"));
-  assert.ok(p.links.every(link=>link.getAttribute("href").endsWith("category=velikden")));
-  assert.equal(p.history.state.sabranoCampaign,"easter");
+test("all pages show a valid first-paint holiday without executing async JavaScript", () => {
+  for (const route of routes) {
+    const html = read(route);
+    assert.match(html, /data-campaign="valentine"/, route);
+    assert.match(html, /data-season-content="christmas"/, route);
+    assert.match(html, /data-season-content="easter"/, route);
+    assert.match(html, /data-season-content="valentine"/, route);
+    assert.doesNotMatch(html, /Visible failsafe|instant-season-boot/, route);
+    const early = html.match(/<script>\/\* (?:Set active appearance before CSS|Choose before paint)[\s\S]*?<\/script>/)?.[0];
+    assert.ok(early, "Missing early holiday selection script in " + route);
+    assert.doesNotMatch(early,/fetch\(|localStorage|sessionStorage|document\.write|document\.body/);
+  }
 });
 
-test("admin preview query selects the current holiday on initial paint and cleans the address",()=>{
-  const p=firstPaint("christmas","?campaign=valentine");
-  assert.equal(p.doc.documentElement.dataset.campaign,"valentine");
-  assert.match(p.sections.get(".hero-copy h1").innerHTML,/Любовта/);
-  assert.ok(p.sections.get(".hero-image img").src.endsWith("/assets/images/valentine.webp"));
-  assert.equal(p.history.uri,"/gift-shop/");
-  assert.equal(p.history.state.sabranoCampaign,"valentine");
+test("holiday choice is based on query and history without moving or blanking the page", () => {
+  const script = home.match(/<script>\/\* Set active appearance before CSS[\s\S]*?<\/script>/)?.[0];
+  assert.ok(script);
+  const code = script.replace(/^<script>/,"").replace(/<\/script>$/,"");
+  for (const key of keys) {
+    const doc = {documentElement:{dataset:{campaign:"valentine"}}};
+    const location={search:"?campaign="+key};
+    const history={state:null};
+    new Function("document","location","history","URLSearchParams",code)(doc,location,history,URLSearchParams);
+    assert.equal(doc.documentElement.dataset.campaign,key);
+  }
+  const bad={documentElement:{dataset:{campaign:"valentine"}}};
+  new Function("document","location","history","URLSearchParams",code)(
+    bad,{search:"?campaign=invalid"},{state:null},URLSearchParams
+  );
+  assert.equal(bad.documentElement.dataset.campaign,"valentine");
+});
+
+test("subsequent campaign switches retain the preset DOM and URL on refresh", () => {
+  assert.match(features, /querySelector\?\.\("\[data-season-content\]"\)/);
+  assert.match(features, /address\.searchParams\.set\("campaign", key\)/);
+  assert.match(features, /history\.replaceState/);
+  assert.doesNotMatch(features,/mainPhoto\.decode\(\)/);
 });
