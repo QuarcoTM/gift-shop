@@ -152,6 +152,7 @@ function renderCatalog() {
   const grid = $("#product-grid");
   if (!grid) return;
   const items = catalogProducts();
+  $("[data-filter]").forEach((btn) => btn.classList.toggle("is-active", btn.dataset.filter === data.filter));
   const counter = $("#catalog-count");
   if (counter) counter.textContent = page === "home" ? "" : items.length + (items.length === 1 ? " подарък" : " подаръка");
   if (page === "home" && !items.length) {
