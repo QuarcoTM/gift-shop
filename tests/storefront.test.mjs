@@ -130,7 +130,7 @@ test("no fabricated contact data or delivery offers", () => {
 test("home hero uses two identifiable buttons without false photo controls", () => {
   const home = read("index.html");
   assert.match(home, /class="button button-dark" href="\.\/collections\/"/);
-  assert.match(home, /class="button button-outline" href="\.\/collection\/\?category=koleda"/);
+  assert.match(home, /data-season-link class="button button-outline" href="\.\/collection\/\?category=povodi"/);
   assert.match(home, /class="hero-stamp"/);
   assert.doesNotMatch(home, /hero-photo-caption|class="button button-text"/);
 });
@@ -174,7 +174,7 @@ test("storefront uses locally hosted realistic photography, not image CDNs", () 
   const home = read("index.html");
   assert.match(home, /assets\/images\/hero\.webp/);
   assert.match(home, /assets\/images\/kids\.webp/);
-  assert.match(home, /assets\/images\/christmas\.webp/);
+  assert.match(home, /assets\/images\/everyday\.webp/);
   assert.match(home, /assets\/images\/baby\.webp/);
   assert.match(home, /assets\/images\/occasions\.webp/);
   const uniqueNames = ["hero","baby","kids","occasions","christmas","easter","valentine","womens_day","martenitsa","everyday","bulk","about"];
@@ -192,4 +192,15 @@ test("home keeps the event gifts and removes only the bottom idea tile", () => {
   assert.match(home, /Подаръци за повече хора/);
   assert.doesNotMatch(home, /<div><span class="eyebrow">Нашата идея<\/span><h2>Подаръкът е/);
   assert.match(css, /scrollbar-color:var\(--wine\) var\(--sand\)/);
+});
+
+
+test("storefront never hides core sections awaiting a remote campaign request", () => {
+  const css = read("styles.css");
+  assert.doesNotMatch(css, /html:not\(\[data-campaign-ready="true"\]\)[\s\S]*?visibility:hidden!important/);
+  const home = read("index.html");
+  assert.match(home, /<h1>Малките/);
+  assert.match(home, /data-season-link/);
+  assert.doesNotMatch(home, /<section class="home-season" id="christmas">/);
+  assert.match(read("site-features.js"), /catch \(error\) \{ console\.error\("Campaign catalog refresh:", error\); \}/);
 });
