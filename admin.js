@@ -364,7 +364,7 @@ function campaignsView() {
     everyday:"Универсален облик без конкретен празник."
   };
   let html = heading("ВИЗИЯ НА МАГАЗИНА", "Празнични кампании", "Избери кампания и я активирай с един бутон. Обновяват се празничните текстове, акценти и връзки в целия публичен магазин.");
-  html += '<div class="campaign-live-preview"><div><strong>Текуща кампания: ' + esc(CAMPAIGNS[state.campaign]?.label || "Коледа") + '</strong><small>Промените се отразяват в отворените прозорци на магазина. Изборът се запазва в Supabase.</small></div><a href="./" target="_blank" rel="noopener">Виж магазина ↗</a></div>';
+  html += '<div class="campaign-live-preview"><div><strong>Текуща кампания: ' + esc(CAMPAIGNS[state.campaign]?.label || "Коледа") + '</strong><small>Промените се отразяват в отворените прозорци на магазина. Изборът се запазва в Supabase.</small></div><a href="./?campaign=' + encodeURIComponent(state.campaign) + '" target="_blank" rel="noopener">Виж магазина ↗</a></div>';
   html += '<div class="campaign-grid">' +
     Object.entries(CAMPAIGNS).map(([key,c]) => {
       const active = key === state.campaign;
