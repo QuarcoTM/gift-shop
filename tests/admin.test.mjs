@@ -107,5 +107,8 @@ test("campaigns are read from DB and admin sets them with a confirmed protected 
   }
   assert.match(sql, /security_invoker=true/);
   assert.match(sql, /gift_private\.is_gift_admin\(\)/);
-  assert.match(features, /photo\.hidden = kind !== "christmas"/);
+  assert.match(features, /assign\(\$\("\.hero-image img"\)/);
+  assert.match(features, /new BroadcastChannel\(CAMPAIGN_CHANNEL\)/);
+  assert.match(admin, /channel\.postMessage\(\{ type: "campaign-changed", key \}\)/);
+  assert.match(presets, /assets\/images\/easter\.svg/);
 });
