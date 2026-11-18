@@ -293,6 +293,87 @@ function orders() {
   }
   return html + "</section>";
 }
+function analytics() {
+  const days = dailyDates(14);
+  const rows = days.map(trafficFor);
+  const totalSessions = rows.reduce((sum,row)=>sum + Number(row.unique_sessions || 0),0);
+  const totalViews = rows.reduce((sum,row)=>sum + Number(row.pageviews || 0),0);
+  const max = Math.max(1,...rows.map((row)=>Number(row.unique_sessions || 0)));
+  const today = trafficFor(localDay());
+  let html = heading("ДАННИ ЗА ПОСЕЩЕНИЯТА", "Статистика", "Дневни посещения по българско време. Отчитат се само сесиите на посетители, разрешили статистика.");
+  html += '<div class="metric-grid">' +
+    metric("Сесии днес",number(today.unique_sessions),"Прието съгласие","◉") +
+    metric("Преглеждания днес",number(today.pageviews),"Отворени страници","◫") +
+    metric("Сесии за 14 дни",number(totalSessions),"Сбор по дни","▥") +
+    metric("Преглеждания за 14 дни",number(totalViews),"Общо зареждания","▦") + '</div>';
+  html += '<section class="panel analytics-panel"><div class="panel-header"><div><h2 class="panel-title">Посещения през последните 14 дни</h2><p class="panel-subtitle">Уникални сесии на ден</p></div><span class="analytics-period">ПО ДНИ</span></div>';
+  html += '<div class="daily-chart" role="img" aria-label="Сесии по дни">' + rows.map((row,i)=>{
+    const visitors = Number(row.unique_sessions || 0);
+    const height = Math.max(visitors ? 8:2,Math.round(visitors/max*100));
+    return '<div class="chart-column"><div class="chart-value">' + number(visitors) +
+      '</div><div class="chart-track"><div class="chart-bar' + (i===rows.length-1?' current':'') +
+      '" style="height:' + height + '%"></div></div><span class="chart-day">' +
+      esc(row.day.slice(8,10) + "." + row.day.slice(5,7)) + '</span></div>';
+  }).join("") + '</div></section>';
+  html += '<div class="content-grid traffic-detail"><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Дневна разбивка</h2><p class="panel-subtitle">Последни 14 календарни дни</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>ДАТА</th><th>СЕСИИ</th><th>ПРЕГЛЕЖДАНИЯ</th></tr></thead><tbody>' +
+    rows.slice().reverse().map((row)=>'<tr><td><strong>' + esc(row.day) +
+    '</strong></td><td>' + number(row.unique_sessions) +
+    '</td><td>' + number(row.pageviews) + '</td></tr>').join('') +
+    '</tbody></table></div></section>';
+  const cutoff = dailyDates(30)[0];
+  const pageMap = new Map();
+  const pageNames = {"/":"Начална страница","/products/":"Всички подаръци","/collections/":"Колекции","/collection/":"Отделна колекция","/product/":"Продукт","/cart/":"Количка","/about/":"За нас","/bulk/":"За събития","/contact/":"Контакти"};
+  for(const item of state.pageStats) {
+    if(item.day < cutoff) continue;
+    const key = item.page_path;
+    pageMap.set(key, (pageMap.get(key)||0)+Number(item.pageviews||0));
+  }
+  const popular = [...pageMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
+  html += '<section class="panel"><div class="panel-header"><div><h2 class="panel-title">Най-посещавани страници</h2><p class="panel-subtitle">Последни 30 дни · преглеждания</p></div></div>' +
+    (popular.length ? popular.map(([path,views],i)=>
+      '<div class="popular-row"><span class="popular-rank">' + String(i+1).padStart(2,"0") +
+      '</span><div><strong>'+esc(pageNames[path]||path)+'</strong><small>'+esc(path)+'</small></div><span>'+number(views)+'</span></div>'
+    ).join('') : blank("⌁","Все още няма посещения","Статистиката ще започне да се попълва след като посетителите дадат съгласие.")) +
+    '</section></div>';
+  html += '<p class="analytics-disclaimer">Стойностите са от момента на включване на аналитиката, не са исторически данни. „Уникални сесии“ не означава точен брой отделни хора. Посетителите без съгласие не се броят; автоматичният трафик също може да повлияе.</p>';
+  return html;
+}
+function campaignsView() {
+  const descriptions = {
+    christmas:"Топла коледна атмосфера и празнична колекция.",
+    easter:"Пролетно настроение и великденски подаръци.",
+    valentine:"Нежни акценти за подаръци с обич.",
+    womens_day:"Подаръци за нея и благодарност.",
+    martenitsa:"Светла пролетна кампания за Баба Марта.",
+    everyday:"Универсален облик без конкретен празник."
+  };
+  let html = heading("ВИЗИЯ НА МАГАЗИНА", "Празнични кампании", "Избери кампания и я активирай с един бутон. Обновяват се празничните текстове, акценти и връзки в целия публичен магазин.");
+  html += '<div class="campaign-grid">' +
+    Object.entries(CAMPAIGNS).map(([key,c]) => {
+      const active = key === state.campaign;
+      return '<article class="campaign-card campaign-' + esc(key) + (active?' is-active':'') + '">' +
+        '<div class="campaign-preview"><span class="campaign-preview-logo">събрано.</span><span class="campaign-preview-mark">' + esc(c.mark) +
+        '</span><small>' + esc(c.eyebrow) + '</small></div><div class="campaign-card-body"><div class="campaign-title-row"><h2>' +
+        esc(c.label) + '</h2>' + (active?badge("Активна"):'')+'</div><p>' + esc(descriptions[key]) +
+        '</p><button type="button" data-campaign-key="' + esc(key) + '" data-busy class="' + (active?'secondary-button':'primary-button') +
+        '" '+(active?'disabled':'')+'>' + (active?'Текуща визия':'Активирай тази визия')+'</button></div></article>';
+    }).join("") + '</div><p class="campaign-note">Промяната не изтрива продукти и колекции. Всеки празник използва собствена категория; за да се появят продукти в нея, добави ги в съответната колекция. Коледните снимки не се използват за другите кампании.</p>';
+  return html;
+}
+async function activateCampaign(key) {
+  if (!Object.hasOwn(CAMPAIGNS,key) || state.campaign === key || state.busy) return;
+  wait(true);
+  try {
+    const updated = await rest("gift_shop_settings?id=eq.main","PATCH", {active_campaign:key,updated_at:new Date().toISOString()});
+    if (!Array.isArray(updated) || updated.length !== 1 || updated[0].active_campaign !== key) {
+      throw Error("Промяната не беше потвърдена от базата.");
+    }
+    await loadAll();
+    render();
+    toast("Активирана е кампания „" + CAMPAIGNS[key].label + "“.");
+  } catch(error) {toast(readableError(error));}
+  finally {wait(false);}
+}
 function settings() {
   const email = state.session?.user?.email || "—";
   return heading("ПРЕДПОЧИТАНИЯ", "Настройки", "Основна информация за управлението и сигурността на магазина.") +
@@ -305,7 +386,7 @@ function settings() {
 function render() {
   $("#breadcrumb-current").textContent = pages[state.view];
   document.querySelectorAll("[data-view].nav-item").forEach((item) => item.classList.toggle("active", item.dataset.view === state.view));
-  const content = { dashboard, products, categories, orders, analytics, campaignsView, settings }[state.view]();
+  const content = { dashboard, products, categories, orders, analytics, campaigns: campaignsView, settings }[state.view]();
   $("#workspace-content").innerHTML = content;
 }
 function closeMenu() {
