@@ -184,6 +184,16 @@ function addFooterControls() {
 export function initCookieManager() {
   if (initialized) return;
   initialized = true;
+  // Retire legacy analytics permission and session without accepting it silently.
+  // Fresh visitors still incur ZERO storage writes before their first choice.
+  if (!getCookiePreferences()) {
+    try {
+      if (localStorage.getItem(LEGACY_ANALYTICS_KEY) !== null) localStorage.removeItem(LEGACY_ANALYTICS_KEY);
+    } catch { /* blocked */ }
+    try {
+      if (sessionStorage.getItem(ANALYTICS_SESSION_KEY) !== null) sessionStorage.removeItem(ANALYTICS_SESSION_KEY);
+    } catch { /* blocked */ }
+  }
   document.body.append(createBanner(), createDialog());
   addFooterControls();
   document.querySelectorAll("[data-cookie-summary]").forEach((node) => {
