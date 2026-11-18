@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Independent Bulgarian boutique gift shop storefront",
   "scripts": {
-    "check": "node --check app.js && node --check site-config.js && node --test",
+    "check": "node --check app.js && node --check site-config.js && node --check site-features.js && node --check cookie-consent.js && node --check campaigns.js && node --check admin.js && node --test",
     "test": "node --test"
   },
   "engines": {
