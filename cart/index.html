@@ -54,14 +54,14 @@
   <div class="checkout-heading"><span class="eyebrow">СЪБРАНО. / ЗАЯВКА</span><h2 id="checkout-title">Завърши <em>поръчката.</em></h2><p>Без регистрация. Плащане с наложен платеж след потвърждение на доставката.</p></div>
   <form id="checkout-form" class="checkout-form" novalidate>
     <div class="checkout-fields">
-      <fieldset><legend>01 / Данни за контакт</legend>
+      <fieldset><legend>Данни за контакт</legend>
         <div class="checkout-form-grid">
           <label class="checkout-field checkout-wide">Име и фамилия <input name="customer_name" autocomplete="name" maxlength="120" minlength="3" placeholder="Име и фамилия" required /></label>
           <label class="checkout-field">Телефон <input name="customer_phone" type="tel" autocomplete="tel" maxlength="30" placeholder="08… или +359…" required /></label>
           <label class="checkout-field">Имейл <input name="customer_email" type="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required /></label>
         </div>
       </fieldset>
-      <fieldset><legend>02 / Доставка</legend>
+      <fieldset><legend>Доставка</legend>
         <div class="checkout-form-grid">
           <label class="checkout-field">Куриер
             <select name="courier" required><option value="">Избери куриер</option><option value="econt">Еконт</option><option value="speedy">Спиди</option></select>
@@ -72,11 +72,17 @@
           <label class="checkout-field">Населено място <input name="delivery_city" autocomplete="address-level2" maxlength="100" placeholder="Град или село" required /></label>
           <label class="checkout-field" id="checkout-location-label">Офис на куриера <input name="delivery_location" id="checkout-location" maxlength="220" placeholder="Точен офис на Еконт или Спиди" required /></label>
         </div>
+        <div class="checkout-office-tools checkout-wide" id="checkout-office-tools">
+          <button type="button" class="checkout-office-pick" id="checkout-office-picker" aria-haspopup="dialog" aria-controls="checkout-office-dialog">
+            <span aria-hidden="true">⌖</span> Избери офис от карта
+          </button>
+          <p id="checkout-office-hint">Не е нужно да знаеш точния адрес. Избери куриер, после отвори картата с офисите.</p>
+        </div>
         <label class="checkout-field checkout-wide checkout-note-label">Бележка към поръчката (по желание)
           <textarea name="customer_note" maxlength="600" rows="3" placeholder="Уточнение към доставката"></textarea>
         </label>
       </fieldset>
-      <fieldset><legend>03 / Плащане и потвърждение</legend>
+      <fieldset><legend>Плащане и потвърждение</legend>
         <div class="checkout-payment"><strong>Наложен платеж</strong><span>Плащаш при получаване от куриера.</span></div>
         <label class="checkout-check"><input type="checkbox" name="shipping_ack" required /><span>Разбирам, че куриерската доставка <strong>не е включена</strong> в сумата на продуктите. Цената ѝ ще бъде уточнена преди изпращане.</span></label>
         <label class="checkout-check"><input type="checkbox" name="contact_ack" required /><span>Запознах се с информацията за обработване на данните ми при изпращане и изпълнение на заявката. <a href="./privacy/" target="_blank" rel="noopener">Информация за личните данни</a>.</span></label>
@@ -93,6 +99,18 @@
     </aside>
   </form>
 </section>
+<dialog id="checkout-office-dialog" class="checkout-office-dialog" aria-labelledby="checkout-office-dialog-title">
+  <div class="checkout-office-dialog-head">
+    <div><span class="eyebrow">ДОСТАВКА ДО ОФИС</span><h3 id="checkout-office-dialog-title">Избери офис</h3></div>
+    <button type="button" id="checkout-office-close" aria-label="Затвори картата" class="checkout-office-close">×</button>
+  </div>
+  <p id="checkout-office-instructions" class="checkout-office-instructions">Избери офис от картата.</p>
+  <iframe id="checkout-office-map" title="Карта с офиси на куриера" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="geolocation"></iframe>
+  <div class="checkout-office-dialog-footer">
+    <a id="checkout-office-external" href="#" target="_blank" rel="noopener noreferrer" class="checkout-office-external">Отвори официалната карта в нов прозорец</a>
+    <button type="button" class="checkout-office-done" id="checkout-office-done">Готово</button>
+  </div>
+</dialog>
 <section id="checkout-success" class="checkout-success container" hidden role="status" aria-live="polite">
   <span class="checkout-success-mark" aria-hidden="true">✓</span>
   <span class="eyebrow">ЗАЯВКАТА Е ПОЛУЧЕНА</span>
