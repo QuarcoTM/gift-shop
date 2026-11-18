@@ -2,7 +2,7 @@
 
 ## Адрес
 Публичен магазин: https://quarcotm.github.io/gift-shop/
-Управление: https://quarcotm.github.io/gift-shop/admin.html
+Управление: https://quarcotm.github.io/gift-shop/admin/
 
 Админ панелът е отделна страница. Няма публичен бутон за регистрация. Достъпът до базата е ограничен със Supabase Auth, RLS политики и таблица public.gift_admins.
 
@@ -19,7 +19,7 @@
     where lower(email) = lower('ADMIN_EMAIL_HERE')
     on conflict (user_id) do update set is_active = true;
 
-4. Провери, че е засегнат 1 ред. Влез през admin.html със същия имейл и парола.
+4. Провери, че е засегнат 1 ред. Влез през /admin/ със същия имейл и парола.
 
 Не записвай пароли и служебни ключове в GitHub и не ги изпращай в чат.
 
