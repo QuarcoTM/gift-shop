@@ -16,3 +16,15 @@ jobs:
           node-version: '22'
       - name: Run syntax and structure checks
         run: npm run check
+
+      - name: Validate original SVG illustration files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree
+          assets = sorted(Path('assets/images').glob('*.svg'))
+          assert len(assets) >= 12, f"Expected at least 12 original illustrations, found {len(assets)}"
+          for file in assets:
+              ElementTree.parse(file)
+              print("Valid SVG:", file)
+          PY
