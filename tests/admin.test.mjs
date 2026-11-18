@@ -44,3 +44,43 @@ test("admin has a responsive, cohesive standalone style", () => {
   assert.match(css, /\.editor-dialog/);
   assert.match(css, /@media\(max-width:660px\)/);
 });
+
+
+test("navigation uses real SVG icons rather than placeholder stripe glyphs", () => {
+  for (const name of ["admin/index.html", "admin.html"]) {
+    const html = read(name);
+    assert.match(html, /data-view="analytics"/);
+    assert.match(html, /data-view="campaigns"/);
+    assert.match(html, /class="nav-icon"><svg /);
+    assert.doesNotMatch(html, /class="nav-icon">[◫▦▤▧⚙↗]/);
+  }
+});
+test("analytics collects only after consent and does not store personal contact data", () => {
+  const features = read("site-features.js");
+  assert.match(features, /getConsent\(\) !== "yes"/);
+  assert.match(features, /sessionStorage\.setItem\(SESSION_KEY/);
+  assert.match(features, /crypto\.randomUUID\(\)/);
+  assert.match(features, /gift_visit_events/);
+  assert.match(features, /page_path: path/);
+  assert.doesNotMatch(features, /document\.cookie/);
+  assert.doesNotMatch(features, /navigator\.userAgent/);
+  assert.match(read("admin.js"), /gift_daily_analytics/);
+  assert.match(read("admin.js"), /gift_page_analytics/);
+  assert.match(read("admin.js"), /timeZone: "Europe\/Sofia"/);
+});
+test("campaigns are read from DB and admin sets them with a confirmed protected PATCH", () => {
+  const features = read("site-features.js");
+  const admin = read("admin.js");
+  const presets = read("campaigns.js");
+  const sql = read("sql/gift-seasons-analytics.sql");
+  assert.match(features, /gift_shop_settings\?select=active_campaign/);
+  assert.match(admin, /gift_shop_settings\?select=id,active_campaign/);
+  assert.match(admin, /rest\("gift_shop_settings\?id=eq\.main","PATCH"/);
+  assert.match(admin, /updated\[0\]\.active_campaign !== key/);
+  for (const campaign of ["christmas","easter","valentine","womens_day","martenitsa","everyday"]) {
+    assert.ok(presets.includes(campaign + ": {"));
+  }
+  assert.match(sql, /security_invoker=true/);
+  assert.match(sql, /gift_private\.is_gift_admin\(\)/);
+  assert.match(features, /photo\.hidden = kind !== "christmas"/);
+});
