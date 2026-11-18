@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ECONT_MAP_ORIGIN, SPEEDY_OFFICES_URL, getOfficeMapURL, readEcontSelection } from "../office-picker.js";
+import { ECONT_MAP_ORIGIN, SPEEDY_OFFICES_URL, SPEEDY_OFFICES_ENDPOINT, getOfficeMapURL, readEcontSelection, filterSpeedyOffices, cityForSpeedyOffice } from "../office-picker.js";
 
 const read=(name)=>readFileSync(new URL("../"+name,import.meta.url),"utf8");
 
@@ -33,7 +33,8 @@ test("Econt office map URL follows official integration parameters",()=>{
   assert.equal(url.searchParams.get("lang"),"bg");
   assert.equal(url.searchParams.get("city"),"Кюстендил");
   assert.equal(url.searchParams.get("shopUrl"),"https://quarcotm.github.io/gift-shop/");
-  assert.equal(getOfficeMapURL("speedy","Кюстендил"),SPEEDY_OFFICES_URL);
+  assert.equal(getOfficeMapURL("speedy","Кюстендил"),"");
+  assert.match(SPEEDY_OFFICES_URL,/services\.speedy\.bg\/office_locator_widget_v2\/offices_list\.php/);
   assert.equal(getOfficeMapURL("unknown"),"");
 });
 
@@ -51,4 +52,38 @@ test("Econt can fill office ID, address and city, but untrusted messages are ign
   assert.equal(readEcontSelection({...event,source:{}},source),null);
   assert.equal(readEcontSelection({...event,data:{office:{...payload.office,isAPS:true}}},source),null);
   assert.equal(readEcontSelection({...event,data:{office:{...payload.office,code:"<script>"}}},source),null);
+});
+
+
+test("Speedy office list expands below the form instead of opening a map",()=>{
+  const html=read("cart/index.html");
+  const module=read("office-picker.js");
+  assert.match(html,/id="checkout-speedy-panel"[^>]*hidden/);
+  assert.match(html,/id="checkout-speedy-search"/);
+  assert.match(html,/id="checkout-speedy-options"/);
+  assert.match(html,/id="checkout-speedy-feedback"/);
+  assert.match(html,/Избери офис от списък|Избери офис/);
+  assert.match(module,/if\(courier\.value==="speedy"\)return toggleSpeedy\(\)/);
+  assert.match(module,/speedyPanel\.hidden=false/);
+  assert.match(module,/speedyOptions\.append\(option\)/);
+  assert.match(module,/address\.value=\("Спиди офис "/);
+  assert.match(module,/SPEEDY_OFFICES_ENDPOINT/);
+  assert.match(module,/loadSpeedy\(\)/);
+  assert.doesNotMatch(module,/iframe\.src = SPEEDY_OFFICES_URL/);
+});
+
+test("Speedy office search filters real-office shaped entries and excludes lockers",()=>{
+  const offices=[
+    {id:"23",name:"КЮСТЕНДИЛ",address:"гр. Кюстендил [2500] ул. Христо Ботев No 51"},
+    {id:"385",name:"КЮСТЕНДИЛ - ЦЕНТЪР",address:"гр. Кюстендил [2500] ул. Цар Симеон I No 23"},
+    {id:"9656",name:"КЮСТЕНДИЛ (АВТОМАТ)",address:"гр. Кюстендил [2500] ул. Александър Димитров No 7"},
+    {id:"212",name:"СОФИЯ - БАНИШОРА",address:"гр. София жк Банишора бл. 53"}
+  ];
+  assert.equal(filterSpeedyOffices(offices,"кюстендил").length,2);
+  assert.equal(filterSpeedyOffices(offices,"цар симеон").length,1);
+  assert.equal(filterSpeedyOffices(offices,"385").length,1);
+  assert.equal(filterSpeedyOffices(offices,"кюстендил",1).length,1);
+  assert.equal(cityForSpeedyOffice(offices[0]),"Кюстендил");
+  assert.equal(filterSpeedyOffices(offices,"несъществуващ").length,0);
+  assert.match(SPEEDY_OFFICES_ENDPOINT,/supabase\.co\/functions\/v1\/speedy-offices$/);
 });
