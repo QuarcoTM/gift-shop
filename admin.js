@@ -14,7 +14,7 @@ const escapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => escapes[c]);
 const statuses = { pending: "Нова", confirmed: "Потвърдена", preparing: "Подготовка", shipped: "Изпратена", delivered: "Доставена", cancelled: "Отказана" };
 const pages = { dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", settings: "Настройки" };
-const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", view: "dashboard", search: "", productFilter: "all", busy: false };
+const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", busy: false };
 let toastTimer = null;
 
 function safeImage(url) {
@@ -143,7 +143,7 @@ async function loadAll() {
     "gift_order_items?select=*&order=created_at.desc&limit=2000",
     "gift_daily_analytics?select=day,pageviews,unique_sessions&order=day.desc&limit=90",
     "gift_page_analytics?select=day,page_path,pageviews,unique_sessions&order=day.desc&limit=700",
-    "gift_shop_settings?select=id,active_campaign&id=eq.main&limit=1"
+    "gift_shop_settings?select=id,active_campaign,checkout_enabled&id=eq.main&limit=1"
   ];
   const [categories, products, images, orders, orderItems, dailyStats, pageStats, shopSettings] = await Promise.all(requests.map((path) => rest(path)));
   state.categories = categories || [];
@@ -154,6 +154,7 @@ async function loadAll() {
   state.dailyStats = dailyStats || [];
   state.pageStats = pageStats || [];
   state.campaign = shopSettings?.[0]?.active_campaign || "christmas";
+  state.checkoutEnabled = shopSettings?.[0]?.checkout_enabled===true;
   $("#nav-product-count").textContent = number(products.length);
   $("#nav-order-count").textContent = number(orders.filter((item) => item.status === "pending").length);
 }
@@ -296,12 +297,12 @@ function categories() {
   return html + "</section>";
 }
 function orders() {
-  let html = heading("ПРОДАЖБИ", "Поръчки", "Преглеждай заявките и отбелязвай етапа на изпълнение. Приемането на онлайн поръчки предстои.");
+  let html = heading("ПРОДАЖБИ", "Поръчки", "Клиентски заявки, начин на доставка, продукти, наличности и обработка на наложен платеж.");
   html += '<section class="data-panel">';
-  if (!state.orders.length) html += blank("▧", "Все още няма поръчки", "Тук ще следиш клиентите, доставката, сумите и статуса след активиране на поръчките.");
+  if (!state.orders.length) html += blank("▧", "Все още няма поръчки", "Новите заявки ще се появяват тук след активиране на приемането и публикуване на продукти.");
   else {
     html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>ПОРЪЧКА</th><th>КЛИЕНТ</th><th>ДАТА</th><th>СУМА</th><th>СТАТУС</th><th></th></tr></thead><tbody>';
-    html += state.orders.map((o) => '<tr><td><strong>#' + esc(String(o.id).slice(0, 8).toUpperCase()) +
+    html += state.orders.map((o) => '<tr><td><strong>#' + esc(o.order_number ? 'SBR-'+String(o.order_number).padStart(6,'0') : String(o.id).slice(0,8).toUpperCase()) +
       '</strong></td><td>' + esc(o.customer_name) + '</td><td>' + esc(date(o.created_at)) + '</td><td>' +
       esc(money(o.total_eur)) + '</td><td>' + badge(statuses[o.status] || o.status, o.status) +
       '</td><td><button class="table-action" type="button" data-order="' + esc(o.id) + '">Отвори</button></td></tr>').join("");
@@ -403,7 +404,7 @@ function settings() {
     '<div class="settings-grid"><article class="settings-card"><span class="overline">АДМИНИСТРАТОР</span><h3>Достъп до панела</h3><p>Вписан профил: <strong>' +
     esc(email) + '</strong>. Достъпът се проверява в Supabase и се ограничава от правила на базата данни.</p></article>' +
     '<article class="settings-card"><span class="overline">КАТАЛОГ</span><h3>Снимки и продукти</h3><p>Снимките се съхраняват в отделно хранилище за магазина. Непубликуваните продукти не се виждат от посетителите.</p></article>' +
-    '<article class="settings-card"><span class="overline">ПОРЪЧКИ</span><h3>Онлайн финализиране</h3><p>Все още е <strong>неактивно</strong>. Предстоят сървърна валидация на цени и наличности, доставка и плащане.</p></article>' +
+    '<article class="settings-card"><span class="overline">ПОРЪЧКИ</span><h3>Приемане на заявки</h3><p>Статус: <strong>' + (state.checkoutEnabled ? 'Активно' : 'Неактивно') + '</strong>. Сървърната проверка на цена и наличност, резервация на бройки и наложен платеж са изградени. Приемането остава изключено до публикуване на данните за търговеца и условията за доставка. Няма автоматично изпращане на имейли или товарителници.</p></article>' +
     '<article class="settings-card"><span class="overline">СИСТЕМА</span><h3>Supabase</h3><p>Данните за магазина се управляват в отделен проект. <a href="https://supabase.com/dashboard/project/ycsjfsoijafepgslzzlz" rel="noopener" target="_blank">Отвори техническото табло</a>.</p></article></div>';
 }
 function render() {
@@ -504,17 +505,18 @@ function openOrder(id) {
     '</p></div><div class="field"><label>Дата</label><p>' + esc(date(o.created_at)) + '</p></div>' +
     '<div class="field"><label>Телефон</label><p>' + esc(o.customer_phone) + '</p></div>' +
     '<div class="field"><label>Имейл</label><p>' + esc(o.customer_email || "—") + '</p></div></div>' +
-    '<div class="note-box"><strong>Доставка:</strong> ' + esc([o.delivery_method, o.delivery_city, o.delivery_address].filter(Boolean).join(", ") || "Не е посочена") +
+    '<div class="note-box"><strong>Доставка:</strong> ' + esc([o.delivery_courier === 'econt' ? 'Еконт' : o.delivery_courier === 'speedy' ? 'Спиди' : o.delivery_courier, o.delivery_method?.endsWith('_office') ? 'до офис' : 'до адрес', o.delivery_city, o.delivery_address].filter(Boolean).join(", ") || "Не е посочена") +
     (o.customer_note ? '<p style="margin:9px 0 0">Бележка: ' + esc(o.customer_note) + '</p>' : "") + '</div>' +
     '<section class="panel"><div class="panel-header"><h3 class="panel-title">Артикули</h3></div>' +
     (items.length ? items.map((item) => '<div class="list-row"><div class="row-main"><strong>' +
       esc(item.product_name) + '</strong><small>' + esc(item.quantity + " × " + money(item.unit_price_eur)) +
       '</small></div><strong>' + esc(money(item.quantity * item.unit_price_eur)) + '</strong></div>').join("") :
       '<div class="list-row">Няма данни за артикули.</div>') +
-    '</section><div class="table-bottom"><span>Обща сума</span><strong>' + esc(money(o.total_eur)) + '</strong></div>' +
+    '</section><div class="table-bottom"><span>Сума за продукти</span><strong>' + esc(money(o.subtotal_eur)) + '</strong></div>' +
+    '<div class="note-box"><strong>Наложен платеж</strong> · ' + (o.shipping_quote_pending ? 'Куриерската такса се уточнява отделно преди изпращане.' : 'Доставка: ' + esc(money(o.shipping_eur))) + '</div>' +
     '<form id="edit-form" data-kind="order" data-id="' + esc(o.id) + '"><div class="field"><label for="field-status">Статус</label><select id="field-status" name="status">' +
     statusOpts + '</select></div>' + dialogActions() + "</form>";
-  dialog("Поръчка #" + String(o.id).slice(0,8).toUpperCase(), "ПОРЪЧКИ / ДЕТАЙЛИ", html);
+  dialog("Поръчка " + (o.order_number ? "SBR-"+String(o.order_number).padStart(6,"0") : "#"+String(o.id).slice(0,8).toUpperCase()), "ПОРЪЧКИ / ДЕТАЙЛИ", html);
 }
 async function saveForm(form) {
   if (state.busy) return;
