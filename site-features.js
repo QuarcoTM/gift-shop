@@ -91,8 +91,9 @@ function applyCampaign(key, onCampaign) {
   if (isNew) {
     window.dispatchEvent(new CustomEvent("sabrano:campaign-applied", { detail: { key, label: campaign.label } }));
   }
-  onCampaign?.(campaign);
-  // Reveal holiday content only after every image, heading and link is updated.
+  // Campaign state must remain usable even if an optional catalog rendering callback fails.
+  try { onCampaign?.(campaign); }
+  catch (error) { console.error("Campaign catalog refresh:", error); }
   document.documentElement.dataset.campaignReady = "true";
   return key;
 }
