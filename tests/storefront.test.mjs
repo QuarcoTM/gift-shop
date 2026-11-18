@@ -170,7 +170,7 @@ test("refresh script is valid JavaScript", () => {
   );
 });
 
-test("storefront uses locally hosted original illustrations, not image CDNs", () => {
+test("storefront uses locally hosted realistic photography, not image CDNs", () => {
   const home = read("index.html");
   assert.match(home, /assets\/images\/hero\.svg/);
   assert.match(home, /assets\/images\/kids\.svg/);
@@ -179,7 +179,7 @@ test("storefront uses locally hosted original illustrations, not image CDNs", ()
   assert.match(home, /assets\/images\/occasions\.svg/);
   const uniqueNames = ["hero","baby","kids","occasions","christmas","easter","valentine","womens_day","martenitsa","everyday","bulk","about"];
   for (const name of uniqueNames) {
-    assert.ok(existsSync(path("assets/images/" + name + ".svg")), "Missing original artwork: " + name);
+    assert.ok(existsSync(path("assets/images/" + name + ".svg")), "Missing realistic photo: " + name);
   }
   for (const { name, content } of pages) {
     assert.doesNotMatch(content, /images\.unsplash\.com|fonts\.googleapis\.com|fonts\.gstatic\.com/, name);
