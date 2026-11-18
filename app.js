@@ -283,6 +283,19 @@ function configureContact() {
   if (hint) hint.hidden = true;
 }
 function initUI() {
+  // The <base> element on clean directory URLs changes fragment resolution.
+  // Keep the accessible skip link on the current page, including its query.
+  const skip = $(".skip-link");
+  if (skip) {
+    skip.addEventListener("click", (event) => {
+      const destination = $("#content");
+      if (!destination) return;
+      event.preventDefault();
+      destination.setAttribute("tabindex", "-1");
+      destination.focus({ preventScroll: true });
+      destination.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+  }
   $("#current-year").textContent = String(new Date().getFullYear());
   configureContact();
   const menuButton = $(".menu-trigger"), mobileMenu = $("#mobile-nav");
