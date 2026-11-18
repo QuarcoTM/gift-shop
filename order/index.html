@@ -11,7 +11,7 @@
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
   <link rel="stylesheet" href="./styles.css?v=20261118-o" />
   <link rel="stylesheet" href="./order-management.css?v=20261118-a" />
-  <script type="module" src="./order-management.js?v=20261118-b"></script>
+  <script type="module" src="./order-management.js?v=20261118-c"></script>
 </head>
 <body data-page="order">
   <a class="skip-link" href="#content">Към съдържанието</a>
@@ -65,11 +65,10 @@
     </section>
     <section id="order-find" class="order-manager-card" hidden aria-labelledby="order-find-title">
       <h2 id="order-find-title">Намери своята поръчка</h2>
-      <p>Имаш линк „Управление на поръчката“ в имейла за поръчката? Отвори него. Ако си изгубил линка, можеш да поискаш нов на същия имейл адрес.</p>
+      <p>Изтрил си имейла с поръчката или не помниш номера ѝ? Въведи само имейл адреса, с който си поръчал. Ще получиш писмо с номерата на поръчките си и личен линк за управление на всяка от тях.</p>
       <form id="order-find-form" class="order-manager-recovery">
-        <label>Номер на поръчката<input name="order_code" autocomplete="off" placeholder="SBR-000125" maxlength="30" required /></label>
         <label>Имейл от поръчката<input name="email" type="email" autocomplete="email" maxlength="254" required /></label>
-        <button class="order-manager-button" type="submit">Изпрати ми линк</button>
+        <button class="order-manager-button" type="submit">Изпрати номерата на поръчките</button>
       </form>
       <p id="order-find-result" role="status" hidden></p>
       <p class="order-manager-small">За сигурност не показваме дали поръчка с посочените данни съществува.</p>
