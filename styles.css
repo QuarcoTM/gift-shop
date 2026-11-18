@@ -804,7 +804,11 @@ html[data-campaign="everyday"] .hero-image{background-color:#d2c0ad}
   background:#eaf0e8;color:var(--forest);font-size:13px;font-weight:800;cursor:pointer;
   transition:background .18s ease,border-color .18s ease}
 .checkout-office-pick:hover,.checkout-office-pick:focus-visible{background:#e0e9de;border-color:var(--forest)}
-.checkout-office-pick span{font-size:23px;font-weight:500;line-height:1}
+.checkout-office-pick .checkout-office-arrow{font-size:19px;font-weight:500;line-height:1}
+.checkout-office-pick #checkout-office-picker-label{font-size:13px;font-weight:800;line-height:1.4}
+.checkout-office-pick{width:100%;justify-content:flex-start}
+.checkout-office-tools .checkout-office-selected{font-size:12px;color:var(--forest);line-height:1.6;margin:0}
+.checkout-office-selected[hidden],.checkout-field[hidden]{display:none!important}
 .checkout-office-tools p{color:var(--muted);margin:0;font-size:11px;line-height:1.55}
 .checkout-office-dialog{padding:0;border:1px solid #dbd5c9;border-radius:10px;
   width:min(760px,calc(100vw - 24px));max-width:760px;max-height:min(95vh,850px);
@@ -837,23 +841,32 @@ html[data-campaign="everyday"] .hero-image{background-color:#d2c0ad}
 }
 
 
-/* Speedy: real inline searchable office dropdown; never a map. */
-.checkout-speedy-panel{border:1px solid var(--line);background:#fffdf8;
+/* One city field and the same inline office list for Econt and Speedy. */
+.checkout-office-panel{border:1px solid var(--line);background:#fffdf8;
   border-radius:5px;padding:16px;display:flex;flex-direction:column;gap:11px;
   box-shadow:0 9px 24px rgba(31,48,37,.05)}
-.checkout-speedy-panel[hidden]{display:none!important}
-.checkout-speedy-panel .checkout-field{margin:0}
-.checkout-speedy-feedback{font-size:11px;color:var(--muted);margin:0;line-height:1.5}
-.checkout-speedy-options{max-height:300px;overflow-y:auto;overscroll-behavior:contain;
+.checkout-office-panel[hidden],.checkout-office-fallback[hidden],
+#checkout-office-map-fallback[hidden]{display:none!important}
+.checkout-office-feedback{font-size:12px;color:var(--muted);margin:0;line-height:1.6}
+.checkout-office-options{max-height:300px;overflow-y:auto;overscroll-behavior:contain;
   display:flex;flex-direction:column;border:1px solid var(--line);border-radius:3px}
-.checkout-speedy-options:empty{display:none}
-.checkout-speedy-option{display:flex;flex-direction:column;text-align:left;gap:4px;
-  width:100%;padding:12px 15px;background:#fffdf8;color:var(--forest);
+.checkout-office-options:empty{display:none}
+.checkout-office-option{display:flex;flex-direction:column;text-align:left;gap:5px;
+  width:100%;padding:13px 15px;background:#fffdf8;color:var(--forest);
   border:0;border-bottom:1px solid var(--line);cursor:pointer;line-height:1.45}
-.checkout-speedy-option:last-child{border-bottom:0}
-.checkout-speedy-option:hover,.checkout-speedy-option:focus-visible{background:#eaf0e8;outline:2px solid #a3b9aa;outline-offset:-2px}
-.checkout-speedy-option strong{font-size:12px;font-weight:800}
-.checkout-speedy-option small{font-size:11px;color:var(--muted)}
-.checkout-speedy-fallback{font-size:11px;color:var(--muted);line-height:1.7;margin:0}
-.checkout-speedy-fallback a{color:var(--wine);text-decoration:underline;text-underline-offset:3px}
-@media(max-width:620px){.checkout-speedy-panel{padding:13px}.checkout-speedy-options{max-height:44vh}}
+.checkout-office-option:last-child{border-bottom:0}
+.checkout-office-option:hover,.checkout-office-option:focus-visible{
+  background:#eaf0e8;outline:2px solid #a3b9aa;outline-offset:-2px}
+.checkout-office-option strong{font-size:12px;font-weight:800}
+.checkout-office-option small{font-size:11px;color:var(--muted)}
+.checkout-office-fallback{display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+  font-size:11px;line-height:1.6}
+.checkout-office-fallback button{padding:7px 0;background:transparent;border:0;
+  color:var(--forest);font-size:11px;font-weight:700;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px}
+.checkout-office-fallback a{color:var(--wine);text-decoration:underline;
+  text-underline-offset:3px}
+@media(max-width:620px){
+  .checkout-office-panel{padding:13px}
+  .checkout-office-options{max-height:44vh}
+}
