@@ -301,8 +301,8 @@ function orders() {
   html += '<section class="data-panel">';
   if (!state.orders.length) html += blank("▧", "Все още няма поръчки", "Новите заявки ще се появяват тук след активиране на приемането и публикуване на продукти.");
   else {
-    html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>ПОРЪЧКА</th><th>КЛИЕНТ</th><th>ДАТА</th><th>СУМА</th><th>СТАТУС</th><th></th></tr></thead><tbody>';
-    html += state.orders.map((o) => '<tr><td><strong>#' + esc(o.order_number ? 'SBR-'+String(o.order_number).padStart(6,'0') : String(o.id).slice(0,8).toUpperCase()) +
+    html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>ПОРЪЧКА</th><th>КЛИЕНТ</th><th>ДАТА</th><th>ПРОДУКТИ</th><th>СТАТУС</th><th></th></tr></thead><tbody>';
+    html += state.orders.map((o) => '<tr><td><strong>' + esc(o.order_number ? 'SBR-'+String(o.order_number).padStart(6,'0') : String(o.id).slice(0,8).toUpperCase()) +
       '</strong></td><td>' + esc(o.customer_name) + '</td><td>' + esc(date(o.created_at)) + '</td><td>' +
       esc(money(o.total_eur)) + '</td><td>' + badge(statuses[o.status] || o.status, o.status) +
       '</td><td><button class="table-action" type="button" data-order="' + esc(o.id) + '">Отвори</button></td></tr>').join("");
