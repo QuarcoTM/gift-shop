@@ -29,14 +29,14 @@ const CORS = {
 type Order = {
   id:string; order_number:number; customer_email:string; customer_name:string;
   request_key:string; status:string; created_at:string;
-  delivery_city:string; delivery_courier:string; delivery_address:string;
+  delivery_city:string; delivery_courier:string; delivery_address:string; waybill_number:string|null;
   subtotal_eur:number; shipping_eur:number; shipping_quote_pending:boolean;
   withdrawal_requested_at:string|null; withdrawal_note:string|null;
   delivered_at:string|null; receipt_email_sent_at:string|null;
   receipt_email_attempted_at:string|null; withdrawal_ack_email_sent_at:string|null;
   link_email_last_sent_at:string|null;
 };
-const ORDER_FIELDS = "id,order_number,customer_email,customer_name,request_key,status,created_at,delivery_city,delivery_courier,delivery_address,subtotal_eur,shipping_eur,shipping_quote_pending,withdrawal_requested_at,withdrawal_note,delivered_at,receipt_email_sent_at,receipt_email_attempted_at,withdrawal_ack_email_sent_at,link_email_last_sent_at";
+const ORDER_FIELDS = "id,order_number,customer_email,customer_name,request_key,status,created_at,delivery_city,delivery_courier,delivery_address,waybill_number,subtotal_eur,shipping_eur,shipping_quote_pending,withdrawal_requested_at,withdrawal_note,delivered_at,receipt_email_sent_at,receipt_email_attempted_at,withdrawal_ack_email_sent_at,link_email_last_sent_at";
 function respond(value:unknown,status=200){return new Response(JSON.stringify(value),{status,headers:CORS})}
 function validToken(value:unknown):value is string{
   return typeof value==="string"&&/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value);
@@ -173,7 +173,7 @@ async function view(order:Order){
     products,subtotal_eur:order.subtotal_eur,shipping_eur:order.shipping_eur,
     shipping_quote_pending:order.shipping_quote_pending,
     courier:order.delivery_courier,city:order.delivery_city,
-    delivery_address:order.delivery_address,
+    delivery_address:order.delivery_address,waybill_number:order.waybill_number,
     delivered_at:order.delivered_at,
     withdrawal_requested_at:order.withdrawal_requested_at,
     withdrawal_note:order.withdrawal_note||"",
