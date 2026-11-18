@@ -397,6 +397,14 @@ function setupCheckout() {
         throw Error(message.slice(0,220));
       }
       $("#checkout-order-code").textContent=value.order_code;
+      const managementToken=checkoutRequestKey;
+      const managementLink=new URL("./order/#token="+encodeURIComponent(managementToken),document.baseURI).href;
+      const manage=$("#checkout-manage");
+      const manageAnchor=$("#checkout-manage-link");
+      if(manageAnchor)manageAnchor.href=managementLink;
+      if(manage)manage.hidden=false;
+      const emailResult=$("#checkout-email-result");
+      if(emailResult)emailResult.textContent="Проверяваме изпращането на имейла…";
       data.cart=[];
       save(CART_KEY,[]);
       checkoutRequestKey=null;
@@ -405,6 +413,18 @@ function setupCheckout() {
       $("#checkout-success").hidden=false;
       updateCounters();
       $("#checkout-success").scrollIntoView({block:"start",behavior:"smooth"});
+      // The customer can always use the personal link even when mail is not configured.
+      // Never claim an email was delivered before the server confirms success.
+      fetch(config.supabaseUrl.replace(/\/+$/,"")+"/functions/v1/order-management",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({action:"receipt",token:managementToken}),cache:"no-store"
+      }).then(response=>response.json()).then(result=>{
+        if(emailResult)emailResult.textContent=result.email_sent
+          ?"Изпратихме потвърждение с личния линк на имейла ти."
+          :"Автоматичните имейли още не са активни. Запази линка по-горе.";
+      }).catch(()=>{
+        if(emailResult)emailResult.textContent="Не успяхме да потвърдим изпращането на имейла. Запази личния линк.";
+      });
     } catch(error) {
       checkoutError(String(error?.message||"Възникна проблем. Опитай отново.").slice(0,220));
       // Keep the same request key for safe network retries / idempotency.
