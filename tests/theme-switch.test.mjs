@@ -21,7 +21,7 @@ test("active holiday switches actual headlines, category links and local picture
     set href(value){this.setAttribute("href",value)}
   }
   class Img extends Element{
-    constructor(){super();this.src=base+"assets/images/christmas.svg"}
+    constructor(){super();this.src=base+"assets/images/christmas.webp"}
   }
   const textElements=[
     ".desktop-nav .nav-season",".mobile-nav a:first-child",".announcement a",
@@ -87,15 +87,15 @@ test("active holiday switches actual headlines, category links and local picture
   assert.equal(page.documentElement.dataset.campaign,"easter");
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Великден/);
   assert.match(selectors.get(".desktop-nav .nav-season").textContent,/Великден/);
-  assert.ok(heroImg.src.endsWith("/assets/images/easter.svg"));
-  assert.ok(cardImg.src.endsWith("/assets/images/easter.svg"));
-  assert.ok(seasonImg.src.endsWith("/assets/images/easter.svg"));
+  assert.ok(heroImg.src.endsWith("/assets/images/easter.webp"));
+  assert.ok(cardImg.src.endsWith("/assets/images/easter.webp"));
+  assert.ok(seasonImg.src.endsWith("/assets/images/easter.webp"));
   assert.ok(links.every(x=>x.href.includes("category=velikden")));
   assert.match(card.children.get(".collection-title").innerHTML,/Великден/);
 
   Channel.current.messageHandler({data:{type:"campaign-changed",key:"valentine"}});
   assert.equal(page.documentElement.dataset.campaign,"valentine");
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Любовта/);
-  assert.ok(heroImg.src.endsWith("/assets/images/valentine.svg"));
+  assert.ok(heroImg.src.endsWith("/assets/images/valentine.webp"));
   assert.ok(links.every(x=>x.href.includes("category=sveti-valentin")));
 });
