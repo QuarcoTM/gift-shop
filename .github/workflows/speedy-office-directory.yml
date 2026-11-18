@@ -1,0 +1,19 @@
+name: Speedy office directory live check
+on:
+  push:
+    paths:
+      - 'supabase/functions/speedy-offices/index.ts'
+      - 'tests/speedy-office-directory.live.mjs'
+      - '.github/workflows/speedy-office-directory.yml'
+  workflow_dispatch:
+jobs:
+  check-speedy-directory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check current official Speedy office directory via Supabase proxy
+        run: node tests/speedy-office-directory.live.mjs
