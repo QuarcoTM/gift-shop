@@ -557,3 +557,8 @@ html::-webkit-scrollbar{width:11px}
 html::-webkit-scrollbar-track{background:var(--sand)}
 html::-webkit-scrollbar-thumb{background:var(--wine);border:2px solid var(--sand);border-radius:10px}
 html::-webkit-scrollbar-thumb:hover{background:var(--wine-dark)}
+
+/* Cards added by the admin-managed catalog keep the same editorial style. */
+.collection-card-custom{background:radial-gradient(circle at 92% 15%,#557063,var(--green) 68%);min-height:330px}
+.collection-card-custom .collection-number{color:#e5c7a5}
+.collections-grid .collection-card-custom:last-child{grid-column:auto}
