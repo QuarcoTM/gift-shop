@@ -1,5 +1,5 @@
 import { config } from "./site-config.js";
-import { CAMPAIGNS, campaignOf } from "./campaigns.js?v=20261118-i";
+import { CAMPAIGNS, campaignOf } from "./campaigns.js?v=20261118-n";
 import { initCookieManager, allowsStorage } from "./cookie-consent.js?v=20261118-i";
 
 const API = String(config.supabaseUrl || "").replace(/\/+$/, "");
