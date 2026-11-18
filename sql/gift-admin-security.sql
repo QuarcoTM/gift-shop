@@ -98,4 +98,56 @@ drop policy if exists gift_product_storage_admin_delete on storage.objects;
 create policy gift_product_storage_admin_delete on storage.objects
   for delete to authenticated using (bucket_id='gift-product-images' and (select gift_private.is_gift_admin()));
 
+
+-- One-time approved email for the initial administrator.
+-- The actual Auth user is created separately from Authentication > Users.
+-- A verified email is necessary before membership is created automatically.
+create table if not exists gift_private.gift_admin_invites (
+  email text primary key,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(),
+  constraint gift_admin_invite_email_normalized check (email = lower(btrim(email)))
+);
+revoke all on gift_private.gift_admin_invites from public, anon, authenticated;
+
+insert into gift_private.gift_admin_invites (email, enabled)
+values ('t.miladinov@abv.bg', true)
+on conflict (email) do update set enabled = excluded.enabled;
+
+create or replace function gift_private.activate_verified_gift_admin()
+returns trigger
+language plpgsql security definer set search_path = ''
+as $
+begin
+  if new.email_confirmed_at is not null
+     and new.is_anonymous is distinct from true
+     and (tg_op = 'INSERT' or lower(coalesce(old.email,'')) = lower(coalesce(new.email,'')))
+     and exists (
+       select 1 from gift_private.gift_admin_invites i
+       where i.email = lower(btrim(new.email)) and i.enabled = true
+     )
+  then
+    insert into public.gift_admins (user_id, is_active)
+    values (new.id, true)
+    on conflict (user_id) do nothing;
+  end if;
+  return new;
+end;
+$;
+revoke all on function gift_private.activate_verified_gift_admin() from public, anon, authenticated;
+
+drop trigger if exists gift_admin_verified_email on auth.users;
+create trigger gift_admin_verified_email
+after insert or update of email_confirmed_at on auth.users
+for each row execute function gift_private.activate_verified_gift_admin();
+
+insert into public.gift_admins (user_id, is_active)
+select u.id, true
+from auth.users u
+join gift_private.gift_admin_invites a
+  on a.email = lower(btrim(u.email)) and a.enabled
+where u.email_confirmed_at is not null
+  and u.is_anonymous is distinct from true
+on conflict (user_id) do nothing;
+
 commit;
