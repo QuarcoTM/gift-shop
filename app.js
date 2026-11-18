@@ -47,7 +47,7 @@ function photo(url, alt, loading = "lazy") {
   const src = imageURL(url);
   return src
     ? '<img loading="' + loading + '" src="' + escapeHTML(src) + '" alt="' + escapeHTML(alt) + '" />'
-    : '<div class="photo-unavailable" role="img" aria-label="Снимка предстои"><span>✳</span></div>';
+    : '<div class="photo-unavailable" role="img" aria-label="Снимка предстои"><span>♡</span></div>';
 }
 function price(value) { return priceFormatter.format(Number(value)); }
 function productById(id) { return data.products.find((product) => product.id === id); }
@@ -155,14 +155,14 @@ function renderCatalog() {
   $("[data-filter]").forEach((btn) => btn.classList.toggle("is-active", btn.dataset.filter === data.filter));
   const counter = $("#catalog-count");
   if (counter) counter.textContent = page === "home" ? "" : items.length + (items.length === 1 ? " подарък" : " подаръка");
-  if (page === "home" && !items.length) {
+  if (page === "home") {
     const section = $(".home-products-section");
-    if (section) section.hidden = true;
-    return;
+    if (section) section.hidden = items.length === 0;
+    if (!items.length) return;
   }
   if (!items.length) {
-    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">✳</span><h3>Тук скоро ще има подаръци.</h3>' +
-      '<p>Разгледай останалите колекции.</p><a class="button button-dark" href="./collections.html">Виж колекциите <span aria-hidden="true">↗</span></a></div>';
+    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h3>Тук скоро ще има подаръци.</h3>' +
+      '<p>Разгледай останалите колекции.</p><a class="button button-dark" href="./collections.html">Виж колекциите <span aria-hidden="true"></span></a></div>';
     return;
   }
   grid.innerHTML = items.map(productCard).join("");
@@ -189,7 +189,7 @@ function renderProduct() {
   if (!wrapper) return;
   const item = productById(params.get("id"));
   if (!item) {
-    wrapper.innerHTML = '<div class="catalog-empty"><h2>Не открихме този подарък.</h2><p>Разгледай останалите предложения.</p><a class="button button-dark" href="./products.html">Всички подаръци <span aria-hidden="true">↗</span></a></div>';
+    wrapper.innerHTML = '<div class="catalog-empty"><h2>Не открихме този подарък.</h2><p>Разгледай останалите предложения.</p><a class="button button-dark" href="./products.html">Всички подаръци <span aria-hidden="true"></span></a></div>';
     return;
   }
   document.title = item.name + " | събрано.";
@@ -199,7 +199,7 @@ function renderProduct() {
       '<h1>' + escapeHTML(item.name) + '</h1><p class="product-page-description">' + escapeHTML(item.description || "Красиво подбран подаръчен комплект.") + '</p>' +
       '<div class="product-page-price">' + escapeHTML(price(item.price_eur)) + '</div>' +
       '<div class="product-page-buttons"><button type="button" class="button button-dark" data-add="' + escapeHTML(item.id) + '"' + (item.stock_quantity > 0 ? "" : " disabled") + '>' +
-        (item.stock_quantity > 0 ? "Добави в количката" : "Временно изчерпан") + ' <span aria-hidden="true">↗</span></button>' +
+        (item.stock_quantity > 0 ? "Добави в количката" : "Временно изчерпан") + ' <span aria-hidden="true"></span></button>' +
         '<button type="button" class="detail-favorite' + (liked ? " is-liked" : "") + '" data-favorite="' + escapeHTML(item.id) + '">' +
         (liked ? "♥ В любими" : "♡ Добави в любими") + '</button></div>' +
       '<div class="product-page-footnote">Готов за подаряване. Доставката и плащането ще бъдат активирани при откриването на магазина.</div>' +
@@ -215,7 +215,7 @@ function renderCart() {
   }, 0);
   totalField.textContent = price(total);
   if (!data.cart.length) {
-    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h2>Количката е празна.</h2><p>Избери подарък от колекциите.</p><a class="button button-dark" href="./products.html">Виж подаръците <span aria-hidden="true">↗</span></a></div>';
+    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h2>Количката е празна.</h2><p>Избери подарък от колекциите.</p><a class="button button-dark" href="./products.html">Виж подаръците <span aria-hidden="true"></span></a></div>';
     return;
   }
   grid.innerHTML = data.cart.map((entry) => {
