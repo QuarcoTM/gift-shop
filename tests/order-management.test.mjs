@@ -75,11 +75,43 @@ test("order-management backend only permits pre-dispatch cancellation, tracks wi
   assert.match(sql,/stock_quantity=p\.stock_quantity\+i\.quantity/);
 });
 
-test("withdrawal request is shown in order management admin",()=>{
+test("admin exposes a searchable order queue, waybills and return requests",()=>{
   const admin=read("admin.js");
+  const html=read("admin/index.html");
+  assert.match(admin,/id="order-search"/);
+  assert.match(admin,/id="order-filter"/);
+  assert.match(admin,/data-order-action/);
+  assert.match(admin,/data-order-copy/);
+  assert.match(admin,/orderSearch:/);
+  assert.match(admin,/orderFilter:/);
   assert.match(admin,/Заявено връщане/);
-  assert.match(admin,/ЗАЯВКА ЗА ВРЪЩАНЕ/);
   assert.match(admin,/withdrawal_ack_email_sent_at/);
+  for(const action of ["quote","confirm","prepare","ship","deliver","cancel",
+    "correct_waybill","return_transit","return_received","restore_stock","return_refunded"]){
+    assert.ok(admin.includes('"' + action + '"'),"Missing admin action "+action);
+  }
+  assert.match(admin,/rpc\/gift_admin_order_action/);
+  assert.doesNotMatch(admin,/rest\("gift_orders\?id=eq\." \+ encodeURIComponent\(id\), "PATCH", \{ status \}\)/);
+  assert.match(html,/admin\.js\?v=20261118-m/);
+  assert.match(html,/admin\.css\?v=20261118-m/);
+});
+
+test("server guards admin access, stock and sequential fulfillment",()=>{
+  const sql=read("sql/gift-admin-orders.sql");
+  assert.match(sql,/where a\.user_id = \(select auth\.uid\(\)\) and a\.is_active = true/);
+  assert.match(sql,/p_expected_updated_at/);
+  assert.match(sql,/for update/);
+  assert.match(sql,/v\.status <> 'pending'/);
+  assert.match(sql,/v\.shipping_quote_pending/);
+  assert.match(sql,/v\.status <> 'preparing'/);
+  assert.match(sql,/when 'ship' then/);
+  assert.match(sql,/when 'return_received' then/);
+  assert.match(sql,/when 'return_refunded' then/);
+  assert.match(sql,/p_confirmed_with_customer is distinct from true/);
+  assert.match(sql,/return_stock_restored_at is not null/);
+  assert.match(sql,/revoke update\(status\) on public\.gift_orders from authenticated/);
+  assert.match(sql,/from public,anon,authenticated/);
+  assert.match(sql,/to authenticated/);
 });
 
 test("the public footer exposes withdrawal link from every storefront page",()=>{
