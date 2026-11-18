@@ -55,21 +55,23 @@ test("Econt can fill office ID, address and city, but untrusted messages are ign
 });
 
 
-test("Speedy office list expands below the form instead of opening a map",()=>{
-  const html=read("cart/index.html");
-  const module=read("office-picker.js");
-  assert.match(html,/id="checkout-speedy-panel"[^>]*hidden/);
-  assert.match(html,/id="checkout-speedy-search"/);
-  assert.match(html,/id="checkout-speedy-options"/);
-  assert.match(html,/id="checkout-speedy-feedback"/);
-  assert.match(html,/Избери офис от списък|Избери офис/);
-  assert.match(module,/if\(courier\.value==="speedy"\)return toggleSpeedy\(\)/);
-  assert.match(module,/speedyPanel\.hidden=false/);
-  assert.match(module,/speedyOptions\.append\(option\)/);
-  assert.match(module,/address\.value=\("Спиди офис "/);
+test("Econt and Speedy share a single city-driven office dropdown",()=>{
+  const html=read("cart/index.html"),module=read("office-picker.js");
+  assert.equal((html.match(/name="delivery_city"/g)||[]).length,1);
+  assert.match(html,/id="checkout-office-panel"[^>]*hidden/);
+  assert.match(html,/id="checkout-office-options"/);
+  assert.match(html,/id="checkout-office-feedback"/);
+  assert.match(html,/id="checkout-office-selected"/);
+  assert.doesNotMatch(html,/checkout-speedy-search/);
+  assert.doesNotMatch(html,/Избери офис от списък/);
+  assert.match(html,/id="checkout-office-picker-label">Избери офис/);
+  assert.match(module,/ECONT_OFFICES_ENDPOINT/);
   assert.match(module,/SPEEDY_OFFICES_ENDPOINT/);
-  assert.match(module,/loadSpeedy\(\)/);
-  assert.doesNotMatch(module,/iframe\.src = SPEEDY_OFFICES_URL/);
+  assert.match(module,/panel\.hidden=false/);
+  assert.match(module,/options\.append\(option\)/);
+  assert.match(module,/address\.type=toOffice\?"hidden":"text"/);
+  assert.match(module,/cityOf\(item\)===entered/);
+  assert.doesNotMatch(module,/checkout-speedy-search/);
 });
 
 test("Speedy office search filters real-office shaped entries and excludes lockers",()=>{
