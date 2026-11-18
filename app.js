@@ -324,10 +324,12 @@ async function loadCatalog() {
       product.group = productGroup(product);
       return product;
     });
+    syncCart();
   } catch (error) {
     console.error("Store catalog:", error);
+    // Do not erase saved cart entries when the catalog is temporarily offline.
+    updateCounters();
   }
-  syncCart();
   renderCatalog();
   renderCart();
   renderProduct();
