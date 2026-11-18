@@ -17,6 +17,9 @@ jobs:
       - name: Run syntax and structure checks
         run: npm run check
 
+      - name: Browser smoke — all six holiday themes on mobile
+        run: node tests/browser-smoke.mjs
+
       - name: Validate locally hosted realistic WebP photos
         run: |
           python3 - <<'PY'
