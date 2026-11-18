@@ -146,7 +146,7 @@ test("sale image has been removed from all storefront pages", () => {
   for (const { name, content } of pages) {
     assert.doesNotMatch(content, /photo-1607082350899-7e105aa886ae/, name);
   }
-  assert.match(read("about.html"), /assets\/images\/about\.svg/);
+  assert.match(read("about.html"), /assets\/images\/about\.webp/);
   assert.doesNotMatch(read("about.html"), /images\.unsplash\.com/);
 });
 
@@ -172,14 +172,14 @@ test("refresh script is valid JavaScript", () => {
 
 test("storefront uses locally hosted realistic photography, not image CDNs", () => {
   const home = read("index.html");
-  assert.match(home, /assets\/images\/hero\.svg/);
-  assert.match(home, /assets\/images\/kids\.svg/);
-  assert.match(home, /assets\/images\/christmas\.svg/);
-  assert.match(home, /assets\/images\/baby\.svg/);
-  assert.match(home, /assets\/images\/occasions\.svg/);
+  assert.match(home, /assets\/images\/hero\.webp/);
+  assert.match(home, /assets\/images\/kids\.webp/);
+  assert.match(home, /assets\/images\/christmas\.webp/);
+  assert.match(home, /assets\/images\/baby\.webp/);
+  assert.match(home, /assets\/images\/occasions\.webp/);
   const uniqueNames = ["hero","baby","kids","occasions","christmas","easter","valentine","womens_day","martenitsa","everyday","bulk","about"];
   for (const name of uniqueNames) {
-    assert.ok(existsSync(path("assets/images/" + name + ".svg")), "Missing realistic photo: " + name);
+    assert.ok(existsSync(path("assets/images/" + name + ".webp")), "Missing realistic photo: " + name);
   }
   for (const { name, content } of pages) {
     assert.doesNotMatch(content, /images\.unsplash\.com|fonts\.googleapis\.com|fonts\.gstatic\.com/, name);
