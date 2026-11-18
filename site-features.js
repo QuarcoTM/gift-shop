@@ -1,11 +1,11 @@
 import { config } from "./site-config.js";
 import { campaignOf } from "./campaigns.js";
+import { initCookieManager, allowsStorage } from "./cookie-consent.js";
 
 const API = String(config.supabaseUrl || "").replace(/\/+$/, "");
 const KEY = config.supabasePublishableKey;
-const CONSENT_KEY = "sabrano_analytics_consent_v1";
 const SESSION_KEY = "sabrano_analytics_session_v1";
-const PAGES = new Set(["/","/products/","/collections/","/collection/","/product/","/cart/","/about/","/bulk/","/contact/"]);
+const PAGES = new Set(["/","/products/","/collections/","/collection/","/product/","/cart/","/about/","/bulk/","/contact/","/cookies/"]);
 const $ = (selector) => document.querySelector(selector);
 const setText = (selector, value) => { const el = $(selector); if (el) el.textContent = value; };
 
@@ -80,12 +80,6 @@ async function fetchCampaign(onCampaign) {
     applyCampaign("christmas", onCampaign);
   }
 }
-function getConsent() {
-  try { return localStorage.getItem(CONSENT_KEY); } catch { return null; }
-}
-function setConsent(value) {
-  try { localStorage.setItem(CONSENT_KEY, value); } catch { /* no persistent choice */ }
-}
 function sessionId() {
   try {
     let id = sessionStorage.getItem(SESSION_KEY);
@@ -97,7 +91,7 @@ function sessionId() {
   } catch { return crypto.randomUUID(); }
 }
 async function recordVisit() {
-  if (getConsent() !== "yes" || !API || !KEY) return;
+  if (!allowsStorage("analytics") || !API || !KEY) return;
   const path = sitePath();
   if (!path) return;
   const result = await fetch(API + "/rest/v1/gift_visit_events", {
@@ -108,46 +102,15 @@ async function recordVisit() {
   });
   if (!result.ok) throw Error("Analytics HTTP " + result.status);
 }
-function openConsentBanner() {
-  const existing = $("#analytics-choice");
-  if (existing) existing.hidden = false;
-}
-function setupConsent() {
-  if ($("#analytics-choice")) return;
-  const panel = document.createElement("aside");
-  panel.id = "analytics-choice";
-  panel.className = "analytics-choice";
-  panel.setAttribute("aria-label", "Настройки за посещенията");
-  panel.innerHTML = '<div class="analytics-choice-main"><strong>Статистика на посещенията</strong>' +
-    '<p>Събираме анонимни данни за преглеждания и сесии само с твое разрешение. Не записваме имена или IP адреси в статистиката. Можеш да промениш избора си по всяко време.</p></div>' +
-    '<div class="analytics-choice-actions"><button type="button" class="analytics-no" data-choice="no">Само необходими</button>' +
-    '<button type="button" class="analytics-yes" data-choice="yes">Разрешавам статистика</button></div>';
-  document.body.append(panel);
-  const footer = $(".footer-bottom");
-  if (footer) {
-    const control = document.createElement("button");
-    control.type = "button"; control.className = "analytics-preferences";
-    control.textContent = "Настройки за статистиката";
-    control.addEventListener("click", openConsentBanner);
-    footer.append(control);
+export function initSiteFeatures(options = {}) {
+  fetchCampaign(options.onCampaign);
+  initCookieManager();
+  if (allowsStorage("analytics")) {
+    recordVisit().catch((error) => console.warn("Anonymous analytics:", error));
   }
-  panel.addEventListener("click", (event) => {
-    const btn = event.target.closest("[data-choice]");
-    if (!btn) return;
-    const choice = btn.dataset.choice;
-    setConsent(choice);
-    panel.hidden = true;
-    if (choice === "no") {
-      try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
-    } else {
+  window.addEventListener("sabrano:consentchange", (event) => {
+    if (event.detail.analytics && event.detail.previous?.analytics !== true) {
       recordVisit().catch((error) => console.warn("Anonymous analytics:", error));
     }
   });
-  panel.hidden = getConsent() !== null;
-  if (getConsent() === "yes") recordVisit().catch((error) => console.warn("Anonymous analytics:", error));
-}
-
-export function initSiteFeatures(options = {}) {
-  fetchCampaign(options.onCampaign);
-  setupConsent();
 }
