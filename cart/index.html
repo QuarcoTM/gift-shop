@@ -15,9 +15,9 @@
   <title>Количка | събрано.</title>
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
 
-  <link rel="stylesheet" href="./styles.css?v=20261118-n" />
+  <link rel="stylesheet" href="./styles.css?v=20261118-o" />
   <script src="./refresh.js"></script>
-  <script type="module" src="./app.js?v=20261118-n"></script>
+  <script type="module" src="./app.js?v=20261118-o"></script>
 </head>
 <body data-page="cart">
   <a class="skip-link" href="#content">Към съдържанието</a>
@@ -73,18 +73,20 @@
           <label class="checkout-field" id="checkout-location-label">Офис на куриера <input name="delivery_location" id="checkout-location" maxlength="220" placeholder="Точен офис на Еконт или Спиди" required /></label>
         </div>
         <div class="checkout-office-tools checkout-wide" id="checkout-office-tools">
-          <button type="button" class="checkout-office-pick" id="checkout-office-picker" aria-controls="checkout-office-dialog checkout-speedy-panel" aria-expanded="false">
-            <span aria-hidden="true">⌄</span> <span id="checkout-office-picker-label">Избери офис</span>
+          <button type="button" class="checkout-office-pick" id="checkout-office-picker" aria-controls="checkout-office-panel" aria-expanded="false">
+            <span class="checkout-office-arrow" aria-hidden="true">⌄</span>
+            <span id="checkout-office-picker-label">Избери офис</span>
           </button>
-          <p id="checkout-office-hint">Не е нужно да знаеш точния адрес. Избери куриер, после отвори картата с офисите.</p>
+          <p id="checkout-office-selected" class="checkout-office-selected" hidden></p>
         </div>
-        <section class="checkout-speedy-panel checkout-wide" id="checkout-speedy-panel" aria-label="Офиси на Спиди" hidden>
-          <label class="checkout-field" for="checkout-speedy-search">Намери офис на Спиди
-            <input id="checkout-speedy-search" type="search" inputmode="search" placeholder="Търси по населено място, офис или улица" autocomplete="off" />
-          </label>
-          <p class="checkout-speedy-feedback" id="checkout-speedy-feedback" role="status">Списъкът с офисите се зарежда само при отваряне.</p>
-          <div class="checkout-speedy-options" id="checkout-speedy-options" role="listbox" aria-label="Избор на офис на Спиди"></div>
-          <p class="checkout-speedy-fallback">Не откриваш офиса? Можеш да го въведеш ръчно горе или да провериш <a href="https://services.speedy.bg/office_locator_widget_v2/offices_list.php?lang=bg" target="_blank" rel="noopener noreferrer">официалния списък на Спиди</a>.</p>
+        <section class="checkout-office-panel checkout-wide" id="checkout-office-panel" aria-label="Списък с офиси на куриера" hidden>
+          <p class="checkout-office-feedback" id="checkout-office-feedback" role="status"></p>
+          <div class="checkout-office-options" id="checkout-office-options" role="listbox" aria-label="Избор на офис"></div>
+          <div class="checkout-office-fallback" id="checkout-office-fallback" hidden>
+            <button type="button" id="checkout-office-manual">Въведи офис ръчно</button>
+            <button type="button" id="checkout-office-map-fallback" hidden>Отвори картата на Еконт</button>
+            <a id="checkout-office-fallback-link" target="_blank" rel="noopener noreferrer" href="https://officelocator.econt.com/">Официален списък с офиси</a>
+          </div>
         </section>
         <label class="checkout-field checkout-wide checkout-note-label">Бележка към поръчката (по желание)
           <textarea name="customer_note" maxlength="600" rows="3" placeholder="Уточнение към доставката"></textarea>
