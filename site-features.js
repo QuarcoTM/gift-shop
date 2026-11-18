@@ -103,10 +103,18 @@ async function fetchCampaign(onCampaign, force = false) {
   if (!force && currentCampaign && Date.now() - lastReadAt < 800) return;
   inflightCampaign = (async () => {
     try {
-      const response = await fetch(API + "/rest/v1/gift_shop_settings?select=active_campaign&id=eq.main&limit=1", {
-        headers: { apikey: KEY, Accept: "application/json", "Cache-Control": "no-cache" },
-        cache: "no-store"
-      });
+      const controller = new AbortController();
+      const deadline = setTimeout(() => controller.abort(), 2400);
+      let response;
+      try {
+        response = await fetch(API + "/rest/v1/gift_shop_settings?select=active_campaign&id=eq.main&limit=1", {
+          headers: { apikey: KEY, Accept: "application/json", "Cache-Control": "no-cache" },
+          cache: "no-store",
+          signal: controller.signal
+        });
+      } finally {
+        clearTimeout(deadline);
+      }
       if (!response.ok) throw Error("Campaign settings HTTP " + response.status);
       const result = await response.json();
       if (!result?.[0]?.active_campaign) throw Error("Missing active campaign record");
