@@ -1,6 +1,6 @@
 import { config } from "./site-config.js";
-import { CAMPAIGNS, campaignOf } from "./campaigns.js?v=20261118-f";
-import { initCookieManager, allowsStorage } from "./cookie-consent.js?v=20261118-f";
+import { CAMPAIGNS, campaignOf } from "./campaigns.js?v=20261118-h";
+import { initCookieManager, allowsStorage } from "./cookie-consent.js?v=20261118-h";
 
 const API = String(config.supabaseUrl || "").replace(/\/+$/, "");
 const KEY = config.supabasePublishableKey;
