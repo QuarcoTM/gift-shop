@@ -1,6 +1,6 @@
 import { config } from "./site-config.js";
-import { initSiteFeatures } from "./site-features.js?v=20261118-n";
-import { CAMPAIGNS } from "./campaigns.js?v=20261118-n";
+import { initSiteFeatures } from "./site-features.js?v=20261118-categories";
+import { CAMPAIGNS } from "./campaigns.js?v=20261118-categories";
 import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
 import { initOfficePicker } from "./office-picker.js?v=20261118-o";
 
@@ -182,37 +182,71 @@ function renderCatalog() {
   $$("[data-filter]").forEach((btn) => btn.classList.toggle("is-active", btn.dataset.filter === data.filter));
 }
 function renderCustomCategories() {
-  const reserved = new Set(["koleda", "bebe", "deca", "povodi", ...Object.values(CAMPAIGNS).map((item) => item.slug)]);
-  const custom = data.categories.filter((cat) => !reserved.has(cat.slug) &&
-    data.products.some((product) => product.category_id === cat.id));
+  const campaign = CAMPAIGNS[document.documentElement.dataset.campaign];
+  const featuredSlug = campaign && campaign.slug !== "povodi" ? campaign.slug : "";
   const filters = $(".catalog-filters");
   if (filters) {
-    filters.querySelectorAll(".dynamic-filter").forEach((node) => node.remove());
-    for (const category of custom) {
-      const button = document.createElement("button");
-      button.className = "filter-button dynamic-filter";
-      button.type = "button";
-      button.dataset.filter = category.slug;
-      button.textContent = category.name;
-      filters.append(button);
+    // Keep every catalog category visible, including holidays without products.
+    // The holiday only changes which category is promoted next to "Всички".
+    const buttons = new Map(Array.from(filters.querySelectorAll("button[data-filter]"))
+      .map(button => [button.dataset.filter, button]));
+    const allButton = buttons.get("all");
+    const slugs = [...new Set([
+      ...data.categories.map(category => category.slug),
+      ...Array.from(buttons.keys()).filter(slug => slug !== "all")
+    ])].filter(slug => slug !== "all");
+    const sorted = featuredSlug && slugs.includes(featuredSlug)
+      ? [featuredSlug, ...slugs.filter(slug => slug !== featuredSlug)]
+      : slugs;
+    const ordered = [];
+    if (allButton) ordered.push(allButton);
+    for (const slug of sorted) {
+      let button = buttons.get(slug);
+      if (!button) {
+        button = document.createElement("button");
+        button.className = "filter-button dynamic-filter";
+        button.type = "button";
+        button.dataset.filter = slug;
+      }
+      const category = data.categories.find(item => item.slug === slug);
+      if (category) button.textContent = category.name;
+      button.classList.toggle("is-featured", slug === featuredSlug);
+      button.classList.toggle("is-active", slug === data.filter);
+      ordered.push(button);
     }
+    filters.replaceChildren(...ordered);
   }
   if (page === "collections") {
     const grid = $(".collections-grid");
     if (!grid) return;
-    grid.querySelectorAll(".collection-card-custom").forEach((node) => node.remove());
-    for (const category of custom) {
+    grid.querySelectorAll(".collection-card-custom").forEach(node => node.remove());
+    // The large tile is reserved for the current holiday; show the other
+    // holidays as separate permanent cards, even while their catalogs are empty.
+    const staticSlugs = new Set(["bebe", "deca", "povodi"]);
+    const holidayCampaigns = Object.values(CAMPAIGNS).filter(item => item.slug !== "povodi");
+    const anchor = grid.querySelector(".collection-card:not(.collection-card-large)");
+    const everydayCard = grid.querySelector('.collection-card[href="./collection/?category=povodi"]');
+    if (everydayCard) everydayCard.hidden = campaign?.slug === "povodi";
+    for (const category of data.categories) {
+      if (category.slug === featuredSlug || staticSlugs.has(category.slug)) continue;
+      const season = holidayCampaigns.find(item => item.slug === category.slug);
       const link = document.createElement("a");
       link.href = "./collection/?category=" + encodeURIComponent(category.slug);
       link.className = "collection-card collection-card-custom";
+      const image = document.createElement("img");
+      image.src = season?.image || "./assets/images/occasions.webp";
+      image.alt = "Подаръци за " + category.name;
+      image.loading = "lazy";
+      const shade = document.createElement("span");
+      shade.className = "collection-shade";
       const label = document.createElement("span");
       label.className = "collection-number";
-      label.textContent = "подаръчна колекция";
+      label.textContent = season ? "празнична колекция" : "колекция";
       const title = document.createElement("span");
       title.className = "collection-title";
       title.textContent = category.name;
-      link.append(label, title);
-      grid.append(link);
+      link.append(image, shade, label, title);
+      grid.insertBefore(link, anchor);
     }
   }
 }
@@ -590,6 +624,7 @@ initSiteFeatures({
         subtitle: campaign.collectionSubtitle
       };
     }
+    renderCustomCategories();
     renderCollectionHeading();
     renderCatalog();
     renderProduct();
