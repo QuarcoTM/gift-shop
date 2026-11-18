@@ -22,14 +22,14 @@ function sitePath() {
 }
 function campaignLinks() {
   // Explicit campaign shortcuts only. Ordinary category links stay intact.
-  return $("a[data-season-link]");
+  return $$("a[data-season-link]");
 }
 function carryCampaignAcrossNavigation(key) {
   // Pages served by GitHub Pages are static. Carry the current public campaign
   // in internal links until the published HTML catches up, without cookies,
   // localStorage, blocking network calls or a splash screen.
   const baked = document.documentElement.dataset.staticCampaign || "christmas";
-  for (const link of $('a[href^="./"]')) {
+  for (const link of $$('a[href^="./"]')) {
     const href = link.getAttribute("href");
     const prefix = href.split(/[?#]/)[0];
     try {
