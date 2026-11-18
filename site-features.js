@@ -24,6 +24,23 @@ function campaignLinks() {
   // Explicit campaign shortcuts only. Ordinary category links stay intact.
   return $("a[data-season-link]");
 }
+function carryCampaignAcrossNavigation(key) {
+  // Pages served by GitHub Pages are static. Carry the current public campaign
+  // in internal links until the published HTML catches up, without cookies,
+  // localStorage, blocking network calls or a splash screen.
+  const baked = document.documentElement.dataset.staticCampaign || "christmas";
+  for (const link of $('a[href^="./"]')) {
+    const href = link.getAttribute("href");
+    const prefix = href.split(/[?#]/)[0];
+    try {
+      const url = new URL(href, document.baseURI);
+      if (!url.pathname.startsWith("/gift-shop/") || url.pathname.startsWith("/gift-shop/admin/")) continue;
+      if (key !== baked) url.searchParams.set("campaign", key);
+      else url.searchParams.delete("campaign");
+      link.setAttribute("href", prefix + url.search + url.hash);
+    } catch { /* Ignore invalid or external links. */ }
+  }
+}
 function updateSeasonalImages(campaign) {
   const assign = (img, alt) => {
     if (!img) return;
@@ -56,6 +73,7 @@ function applyCampaign(key, onCampaign) {
     link.setAttribute("href", "./collection/?category=" + encodeURIComponent(campaign.slug));
   }
   updateSeasonalImages(campaign);
+  carryCampaignAcrossNavigation(key);
   setText(".desktop-nav .nav-season", campaign.nav);
   setText(".mobile-nav a:first-child", campaign.nav);
   setText(".announcement a", campaign.announcement);
