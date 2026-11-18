@@ -4,7 +4,7 @@
   <base href="../" />
   <link rel="canonical" href="https://quarcotm.github.io/gift-shop/product/" />
   <meta charset="UTF-8" />
-  <script>/* Choose before paint. */(function(){try{var q=new URLSearchParams(location.search).get("campaign"),h=history.state&&history.state.sabranoCampaign,r=/^(christmas|easter|valentine|womens_day|martenitsa|everyday)$/;var k=r.test(q)?q:r.test(h)?h:null;if(k)document.documentElement.dataset.campaign=k}catch(e){}})();</script>
+  <script>/* Choose before paint. */(function(){try{var q=new URLSearchParams(location.search).get("campaign"),h=history.state&&history.state.sabranoCampaign,r=/^(christmas|new_year|easter|valentine|womens_day|martenitsa|everyday)$/;var k=r.test(q)?q:r.test(h)?h:null;if(k)document.documentElement.dataset.campaign=k}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7f2e9" />
   <meta name="description" content="Подробности за избрания подаръчен комплект." />
@@ -16,11 +16,11 @@
 
   <link rel="stylesheet" href="./styles.css?v=20261118-m" />
   <script src="./refresh.js"></script>
-  <script type="module" src="./app.js?v=20261118-brand"></script>
+  <script type="module" src="./app.js?v=20261118-categories"></script>
 </head>
 <body data-page="product">
   <a class="skip-link" href="#content">Към съдържанието</a>
-  <div class="announcement"><div class="container announcement-inner"><span>Подаръци, които оставят спомен.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледна колекция</span><span data-season-content="easter">Великденска колекция</span><span data-season-content="valentine">Колекция за любовта</span><span data-season-content="womens_day">Подаръци за 8 март</span><span data-season-content="martenitsa">Колекция Баба Марта</span><span data-season-content="everyday">Подаръци за всеки повод</span></a></div></div>
+  <div class="announcement"><div class="container announcement-inner"><span>Подаръци, които оставят спомен.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледна колекция</span><span data-season-content="new_year">Новогодишна колекция</span><span data-season-content="easter">Великденска колекция</span><span data-season-content="valentine">Колекция за любовта</span><span data-season-content="womens_day">Подаръци за 8 март</span><span data-season-content="martenitsa">Колекция Баба Марта</span><span data-season-content="everyday">Подаръци за всеки повод</span></a></div></div>
   <header class="site-header" id="top">
     <div class="container header-inner">
       <a class="brand" href="./" aria-label="СЪБРАНО. — начало">
@@ -28,7 +28,7 @@
         <span class="brand-type">събрано<span class="brand-dot">.</span><small>подаръци с отношение</small></span>
       </a>
       <nav class="desktop-nav" aria-label="Основна навигация">
-        <a data-season-link href="./collection/?category=sveti-valentin" class="nav-season"><span data-season-content="christmas">Коледа</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a>
+        <a data-season-link href="./collection/?category=sveti-valentin" class="nav-season"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a>
         <a href="./collections/">Колекции</a>
         <a href="./collection/?category=deca">За деца</a>
         <a href="./products/">Подаръци</a>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Мобилна навигация" hidden>
-      <a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
+      <a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
     </nav>
   </header>
     <main id="content">
@@ -53,7 +53,7 @@
 <footer class="footer" id="contact">
     <div class="container footer-main">
       <div class="footer-brand"><a class="brand brand-footer" href="./"><span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 46 46" fill="none"><path d="M23 11v28M9 23h28" stroke="currentColor" stroke-width="2"/><path d="M23 23C9 22 8 11 14 9c5-2 9 7 9 14Zm0 0c14-1 15-12 9-14-5-2-9 7-9 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 23h28v16H9V23Z" stroke="currentColor" stroke-width="2"/></svg></span><span class="brand-type">събрано<span class="brand-dot">.</span><small>подаръци с отношение</small></span></a><p>Подаръци с отношение. За хората и поводите, които имат значение.</p></div>
-      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./order/">Отказ и връщане</a><a href="./about/">Защо събрано.</a></div></div>
+      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./order/">Отказ и връщане</a><a href="./about/">Защо събрано.</a></div></div>
       <div class="footer-contact"><span class="footer-heading">Да останем във връзка</span><p>Имаш въпрос за подарък или поръчка в количество?</p><a class="footer-email" id="public-email" hidden></a><p id="contact-coming" class="footer-hint">Контактите ще бъдат публикувани при отварянето на магазина.</p></div>
     </div>
     <div class="container footer-bottom"><span>© <span id="current-year">2026</span> събрано.</span><span>С внимание към всеки повод.</span><a href="./">Обратно нагоре </a></div>
