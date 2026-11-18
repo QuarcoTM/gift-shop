@@ -18,6 +18,37 @@ test("customers can manage a guest order using one personal link",()=>{
   assert.doesNotMatch(js,/SERVICE_ROLE_KEY|RESEND_API_KEY|ORDER_MAIL_FROM/);
 });
 
+test("lost order number recovery needs only email and sends one protected list",()=>{
+  const html=read("order/index.html"), js=read("order-management.js");
+  const backend=read("supabase/functions/order-management/index.ts");
+  assert.match(html,/name="email" type="email"/);
+  assert.doesNotMatch(html,/name="order_code"/);
+  assert.match(html,/Изпрати номерата на поръчките/);
+  assert.match(js,/call\("request_link",\{email:/);
+  assert.doesNotMatch(js,/form\.get\("order_code"\)/);
+  assert.match(backend,/async function byCustomerEmail\(email:string\)/);
+  assert.match(backend,/customer_email=eq\./);
+  assert.match(backend,/function recoveryEmail\(orders:Order\[\]\):string/);
+  assert.match(backend,/orders\.map\(\(order\)=>/);
+  assert.match(backend,/escapeHtml\(code\(order\)\)/);
+  assert.match(backend,/manageUrl\(order\.request_key\)/);
+  assert.match(backend,/email\(customerEmail,"Твоите номера на поръчки/);
+  assert.match(backend,/link_email_last_sent_at/);
+  assert.match(backend,/return respond\(\{ok:true,mail_available:emailConfigured\(\)\}\)/);
+  assert.doesNotMatch(backend,/byNumberEmail/);
+  assert.doesNotMatch(backend,/payload\?\.order_code/);
+});
+
+test("SMTP integration for hosting uses TLS 465 and private server-side credentials",()=>{
+  const backend=read("supabase/functions/order-management/index.ts");
+  assert.match(backend,/npm:nodemailer@10\.6\.0/);
+  assert.match(backend,/SMTP_PORT===465/);
+  assert.match(backend,/secure:true/);
+  assert.match(backend,/SMTP_PASSWORD/);
+  const client=read("order-management.js");
+  assert.doesNotMatch(client,/SMTP_PASSWORD|SMTP_USERNAME|RESEND_API_KEY/);
+});
+
 test("checkout exposes a private link and asks server to send an email without claiming success",()=>{
   const html=read("cart/index.html"), js=read("app.js");
   assert.match(html,/id="checkout-manage-link"/);
