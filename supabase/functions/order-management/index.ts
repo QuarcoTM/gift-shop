@@ -38,7 +38,7 @@ function clean(value:unknown,max=600){return typeof value==="string"?value.trim(
 function code(order:Order){return "SBR-"+String(order.order_number).padStart(6,"0")}
 function manageUrl(token:string){return SHOP_URL+"order/#token="+encodeURIComponent(token)}
 function escapeHtml(value:unknown){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]||ch))}
-function formattedDate(value:string){return new Date(value).toLocaleString("bg-BG",{timeZone:"Europe/Sofia",dateStyle:"medium",timeStyle:"short"})}
+function formattedDate(value:string){return new Date(value).toLocaleString("bg-BG",{timeZone:"Europe/Sofia",dateStyle:"medium",timeStyle:"short"}).replace(/\.$/,"")}
 async function db(path:string,method="GET",body:unknown=null,returnRows=false):Promise<any>{
   if(!BASE || !SERVICE_KEY)throw Error("Server configuration unavailable");
   const response=await fetch(BASE+"/rest/v1/"+path,{
