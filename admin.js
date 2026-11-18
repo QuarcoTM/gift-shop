@@ -314,8 +314,11 @@ function productImages(product) {
   if (!product) return '<div class="note-box">Запази новия продукт като чернова, след което ще можеш да добавиш неговите снимки.</div>';
   const images = state.images.filter((image) => image.product_id === product.id).sort((a,b) => a.sort_order-b.sort_order);
   return '<section class="image-manager"><h3>Снимки на продукта</h3><p>JPEG, PNG или WebP · до 8 MB на снимка. Първата снимка е основна.</p>' +
-    '<div class="image-list">' + images.map((im) => '<div class="image-tile"><img src="' + safeImage(im.image_url) +
-      '" alt="' + esc(im.alt_text || product.name) + '" /><button type="button" title="Премахни снимката" aria-label="Премахни снимката" data-remove-image="' +
+    '<div class="image-list">' + images.map((im, index) => '<div class="image-tile"><img src="' + safeImage(im.image_url) +
+      '" alt="' + esc(im.alt_text || product.name) + '" />' +
+      (index === 0 ? '<span class="image-primary">ОСНОВНА</span>' :
+      '<button type="button" class="image-make-primary" data-main-image="' + esc(im.id) + '">Основна</button>') +
+      '<button type="button" class="image-remove" title="Премахни снимката" aria-label="Премахни снимката" data-remove-image="' +
       esc(im.id) + '">×</button></div>').join("") +
     '<button type="button" class="image-add" data-action="upload-image" data-product-id="' + esc(product.id) +
     '"><span>＋</span>Добави снимка</button></div><input id="image-file" type="file" accept="image/jpeg,image/png,image/webp" hidden /></section>';
@@ -462,9 +465,28 @@ async function deleteStoredImage(imageURL) {
   const prefix = base + "/storage/v1/object/public/gift-product-images/";
   if (!imageURL.startsWith(prefix)) return;
   if (Date.now() > state.session.expires_at - 45000) await refresh();
-  return fetch(base + "/storage/v1/object/gift-product-images/" + imageURL.slice(prefix.length), {
-    method: "DELETE", headers: { apikey: key, Authorization: "Bearer " + state.session.access_token }
+  const response = await fetch(base + "/storage/v1/object/gift-product-images", {
+    method: "DELETE",
+    headers: { apikey: key, Authorization: "Bearer " + state.session.access_token, "Content-Type": "application/json" },
+    body: JSON.stringify({ prefixes: [imageURL.slice(prefix.length)] })
   });
+  if (!response.ok) throw Error("Файлът не можа да бъде изтрит от хранилището.");
+  return response;
+}
+async function makeImagePrimary(id) {
+  const image = state.images.find((item) => item.id === id);
+  if (!image || state.busy) return;
+  const ordered = state.images.filter((item) => item.product_id === image.product_id).sort((a,b) => a.sort_order-b.sort_order);
+  const first = ordered[0];
+  if (!first || first.id === id) return;
+  wait(true);
+  try {
+    const previousOrder = first.sort_order;
+    await rest("gift_product_images?id=eq." + encodeURIComponent(first.id), "PATCH", { sort_order: image.sort_order });
+    await rest("gift_product_images?id=eq." + encodeURIComponent(image.id), "PATCH", { sort_order: previousOrder });
+    await loadAll(); render(); openProduct(image.product_id); toast("Основната снимка е променена.");
+  } catch (error) { toast(readableError(error)); }
+  finally { wait(false); }
 }
 async function removeImage(id) {
   const im = state.images.find((item) => item.id === id);
@@ -492,6 +514,7 @@ function handleClick(event) {
   if (button.dataset.editCategory) return openCategory(button.dataset.editCategory);
   if (button.dataset.order) return openOrder(button.dataset.order);
   if (button.dataset.removeImage) return removeImage(button.dataset.removeImage);
+  if (button.dataset.mainImage) return makeImagePrimary(button.dataset.mainImage);
   if (button.dataset.action === "new-product") return openProduct();
   if (button.dataset.action === "new-category") return openCategory();
   if (button.dataset.action === "close-dialog") return $("#editor-dialog").close();
