@@ -31,6 +31,8 @@ function applyCampaign(key, onCampaign) {
   if (seasonCard) {
     const title = seasonCard.querySelector(".collection-title");
     if (title) title.innerHTML = campaign.cardTitle; // predefined trusted preset
+    const photo = seasonCard.querySelector("img");
+    if (photo) photo.hidden = kind !== "christmas";
     const label = seasonCard.querySelector(".collection-number");
     if (label) label.textContent = campaign.eyebrow;
   }
@@ -54,7 +56,12 @@ function applyCampaign(key, onCampaign) {
     setText(".home-season-copy p", campaign.description);
     setText(".home-season-copy a", campaign.button);
     const art = $(".home-season-image");
-    if (art) { art.dataset.mark = campaign.mark; art.setAttribute("aria-label", campaign.label); }
+    if (art) {
+      art.dataset.mark = campaign.mark;
+      art.setAttribute("aria-label", campaign.label);
+      const photo = art.querySelector("img");
+      if (photo) photo.hidden = kind !== "christmas";
+    }
   }
   onCampaign?.(campaign);
 }
