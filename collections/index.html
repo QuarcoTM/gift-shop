@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="bg" data-campaign="christmas" data-static-campaign="christmas" data-campaign-ready="true">
+<html lang="bg" data-campaign="valentine" data-static-campaign="valentine" data-campaign-ready="true">
 <head>
   <base href="../" />
   <link rel="canonical" href="https://quarcotm.github.io/gift-shop/collections/" />
   <meta charset="UTF-8" />
-  <script>/* Cookie-free early presentation hint. */try{const c=new URL(location.href).searchParams.get("campaign")||(history.state&&history.state.sabranoCampaign);if(/^(christmas|easter|valentine|womens_day|martenitsa|everyday)$/.test(c))document.documentElement.dataset.campaign=c}catch{}</script>
+  <script>/* Choose before paint. */(function(){try{var q=new URLSearchParams(location.search).get("campaign"),h=history.state&&history.state.sabranoCampaign,r=/^(christmas|easter|valentine|womens_day|martenitsa|everyday)$/;var k=r.test(q)?q:r.test(h)?h:null;if(k)document.documentElement.dataset.campaign=k}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7f2e9" />
   <meta name="description" content="Коледни, бебешки и детски подаръчни комплекти за различни поводи." />
@@ -20,7 +20,7 @@
 </head>
 <body data-page="collections">
   <a class="skip-link" href="#content">Към съдържанието</a>
-  <div class="announcement"><div class="container announcement-inner"><span>Малки жестове, които остават в сърцето.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=koleda">Колекция Коледа 2026 </a></div></div>
+  <div class="announcement"><div class="container announcement-inner"><span>Малки жестове, които остават в сърцето.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледна колекция</span><span data-season-content="easter">Великденска колекция</span><span data-season-content="valentine">Колекция за любовта</span><span data-season-content="womens_day">Подаръци за 8 март</span><span data-season-content="martenitsa">Колекция Баба Марта</span><span data-season-content="everyday">Подаръци за всеки повод</span></a></div></div>
   <header class="site-header" id="top">
     <div class="container header-inner">
       <a class="brand" href="./" aria-label="СЪБРАНО. — начало">
@@ -28,7 +28,7 @@
         <span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span>
       </a>
       <nav class="desktop-nav" aria-label="Основна навигация">
-        <a data-season-link href="./collection/?category=koleda" class="nav-season">Коледа </a>
+        <a data-season-link href="./collection/?category=sveti-valentin" class="nav-season"><span data-season-content="christmas">Коледа</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a>
         <a href="./collections/">Колекции</a>
         <a href="./collection/?category=deca">За деца</a>
         <a href="./products/">Подаръци</a>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Мобилна навигация" hidden>
-      <a data-season-link href="./collection/?category=koleda">Коледа 2026 </a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
+      <a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
     </nav>
   </header>
     <main id="content">
@@ -53,9 +53,9 @@
       
       
       <div class="collections-grid">
-        <a data-season-link class="collection-card collection-card-large" href="./collection/?category=koleda">
-          <img src="./assets/images/christmas.webp" alt="Празнично опакован подарък" loading="lazy" />
-          <span class="collection-shade"></span><span class="collection-number">празнична колекция</span><span class="collection-title">Коледа,<br />събрана с обич.</span>
+        <a data-season-link class="collection-card collection-card-large" data-season-link href="./collection/?category=sveti-valentin">
+          <div class="seasonal-photo" role="img" aria-label="Празнична колекция"></div>
+          <span class="collection-shade"></span><span class="collection-number"><span data-season-content="christmas">Празнична колекция</span><span data-season-content="easter">Пролетна колекция</span><span data-season-content="valentine">За любимите хора</span><span data-season-content="womens_day">С благодарност към нея</span><span data-season-content="martenitsa">Подаръци за пролетта</span><span data-season-content="everyday">Всеки ден е повод</span></span><span class="collection-title"><span data-season-content="christmas">Коледа,<br />събрана с обич.</span><span data-season-content="easter">Великден,<br />споделен с обич.</span><span data-season-content="valentine">Любовта,<br />събрана в подарък.</span><span data-season-content="womens_day">За нея,<br />с много обич.</span><span data-season-content="martenitsa">За късмет,<br />с обич.</span><span data-season-content="everyday">Малки жестове.<br />Големи чувства.</span></span>
         </a>
         <a class="collection-card" href="./collection/?category=bebe">
           <img src="./assets/images/baby.webp" alt="Нежен момент с новородено бебе" loading="lazy" />
@@ -75,7 +75,7 @@
 <footer class="footer" id="contact">
     <div class="container footer-main">
       <div class="footer-brand"><a class="brand brand-footer" href="./"><span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 46 46" fill="none"><path d="M23 11v28M9 23h28" stroke="currentColor" stroke-width="2"/><path d="M23 23C9 22 8 11 14 9c5-2 9 7 9 14Zm0 0c14-1 15-12 9-14-5-2-9 7-9 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 23h28v16H9V23Z" stroke="currentColor" stroke-width="2"/></svg></span><span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span></a><p>Малки неща, подбрани с повече сърце. За всеки, когото искаш да зарадваш.</p></div>
-      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=koleda">Коледа</a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./about/">Защо събрано.</a></div></div>
+      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./about/">Защо събрано.</a></div></div>
       <div class="footer-contact"><span class="footer-heading">Да останем във връзка</span><p>Имаш въпрос за подарък или поръчка в количество?</p><a class="footer-email" id="public-email" hidden></a><p id="contact-coming" class="footer-hint">Контактите ще бъдат публикувани при отварянето на магазина.</p></div>
     </div>
     <div class="container footer-bottom"><span>© <span id="current-year">2026</span> събрано.</span><span>Направено с внимание към малките неща.</span><a href="./">Обратно нагоре </a></div>
@@ -83,44 +83,6 @@
 
   
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script id="instant-season-boot">
-(function(){
-  try {
-    const C={"christmas":{"slug":"koleda","label":"Коледа","nav":"Коледа","announcement":"Коледна колекция","heroTitle":"Коледа, която\u003cbr/>събира \u003cem>сърцата.\u003c/em>","heroSubtitle":"Красиво подбрани малки изненади за най-топлите празнични моменти.","heroButton":"За Коледа","cardTitle":"Коледа,\u003cbr />събрана с обич.","eyebrow":"Празнична колекция","title":"Коледа е в\u003cbr />\u003cem>малките неща.\u003c/em>","description":"Подбрани изненади, готови да зарадват.","button":"Виж коледните подаръци","image":"./assets/images/christmas.webp"},"easter":{"slug":"velikden","label":"Великден","nav":"Великден","announcement":"Великденска колекция","heroTitle":"Великден с\u003cbr/>\u003cem>повече светлина.\u003c/em>","heroSubtitle":"Пролетно настроение и подаръци, споделени с обич.","heroButton":"За Великден","cardTitle":"Великден,\u003cbr />споделен с обич.","eyebrow":"Пролетна колекция","title":"Великден е в\u003cbr />\u003cem>споделените жестове.\u003c/em>","description":"Пролетни подаръци за любимите хора.","button":"Виж великденските подаръци","image":"./assets/images/easter.webp"},"valentine":{"slug":"sveti-valentin","label":"Свети Валентин","nav":"Свети Валентин","announcement":"Колекция за любовта","heroTitle":"Любовта се\u003cbr/>познава по \u003cem>жестовете.\u003c/em>","heroSubtitle":"Изненади за човека, който прави всеки ден специален.","heroButton":"За любовта","cardTitle":"Любовта,\u003cbr />събрана в подарък.","eyebrow":"За любимите хора","title":"Любовта е в\u003cbr />\u003cem>малките неща.\u003c/em>","description":"Нежни жестове, които казват повече.","button":"Виж подаръците за любовта","image":"./assets/images/valentine.webp"},"womens_day":{"slug":"osmi-mart","label":"8 март","nav":"8 март","announcement":"Подаръци за 8 март","heroTitle":"За нея.\u003cbr/>С \u003cem>благодарност.\u003c/em>","heroSubtitle":"Красиви жестове за жените, които ни вдъхновяват.","heroButton":"За 8 март","cardTitle":"За нея,\u003cbr />с много обич.","eyebrow":"С благодарност към нея","title":"Благодаря е в\u003cbr />\u003cem>малките жестове.\u003c/em>","description":"Подаръци за жените, които обичаме.","button":"Виж подаръците за 8 март","image":"./assets/images/womens_day.webp"},"martenitsa":{"slug":"baba-marta","label":"Баба Марта","nav":"Баба Марта","announcement":"Колекция Баба Марта","heroTitle":"Добре дошла,\u003cbr/>\u003cem>Баба Марта.\u003c/em>","heroSubtitle":"Малки пожелания за здраве, късмет и пролетно настроение.","heroButton":"За Баба Марта","cardTitle":"За късмет,\u003cbr />с обич.","eyebrow":"Подаръци за пролетта","title":"Пролетта идва\u003cbr />\u003cem>с малки радости.\u003c/em>","description":"Малки жестове за здраве и късмет.","button":"Виж пролетните подаръци","image":"./assets/images/martenitsa.webp"},"everyday":{"slug":"povodi","label":"Без празнична кампания","nav":"За поводи","announcement":"Подаръци за всеки повод","heroTitle":"Малките неща\u003cbr/>имат \u003cem>значение.\u003c/em>","heroSubtitle":"Няколко внимателно подбрани неща. Един красив подарък. И много поводи за радост.","heroButton":"За всеки повод","cardTitle":"Малки жестове.\u003cbr />Големи чувства.","eyebrow":"Всеки ден е повод","title":"Радостта е в\u003cbr />\u003cem>малките неща.\u003c/em>","description":"Подаръци за всеки човек и всеки повод.","button":"Разгледай подаръците","image":"./assets/images/everyday.webp"}};
-    const request=new URL(location.href);
-    const rawKey=request.searchParams.get("campaign")||(history.state&&history.state.sabranoCampaign);
-    if(!Object.prototype.hasOwnProperty.call(C,rawKey))return;
-    const c=C[rawKey],one=s=>document.querySelector(s),all=s=>document.querySelectorAll(s);
-    document.documentElement.dataset.campaign=rawKey;
-    document.documentElement.dataset.campaignReady="true";
-    for(const a of all("a[data-season-link]"))a.setAttribute("href","./collection/?category="+encodeURIComponent(c.slug));
-    const txt=(s,v)=>{const e=one(s);if(e)e.textContent=v};
-    txt(".announcement a",c.announcement);
-    txt(".desktop-nav .nav-season",c.nav);
-    txt(".mobile-nav a:first-child",c.nav);
-    txt(".hero-actions .button-outline",c.heroButton);
-    txt(".footer-nav a[data-season-link]",c.nav);
-    const h=one(".hero-copy h1");if(h)h.innerHTML=c.heroTitle;
-    txt(".hero-subtitle",c.heroSubtitle);
-    const card=one(".collections-grid .collection-card-large");
-    if(card){
-      const title=card.querySelector(".collection-title"),number=card.querySelector(".collection-number");
-      if(title)title.innerHTML=c.cardTitle;if(number)number.textContent=c.eyebrow;
-      const img=card.querySelector("img");if(img){img.src=new URL(c.image,document.baseURI).href;img.alt=c.label}
-    }
-    const hero=one(".hero-image img");if(hero){hero.src=new URL(c.image,document.baseURI).href;hero.alt=c.label}
-    const section=one(".home-season");
-    if(section){
-      section.id="campaign";txt(".home-season-copy .eyebrow",c.eyebrow);
-      const h2=one(".home-season-copy h2");if(h2)h2.innerHTML=c.title;
-      txt(".home-season-copy p",c.description);txt(".home-season-copy a",c.button);
-      const img=one(".home-season-image img");if(img){img.src=new URL(c.image,document.baseURI).href;img.alt=c.label}
-    }
-    const state=(history.state&&typeof history.state==="object")?history.state:{};
-    request.searchParams.delete("campaign");
-    history.replaceState({...state,sabranoCampaign:rawKey},"",request.pathname+request.search+request.hash);
-  }catch(e){console.warn("Initial holiday rendering:",e)}
-})();
-</script>
+
 </body>
 </html>
