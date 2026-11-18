@@ -1,4 +1,6 @@
 import { config } from "./site-config.js";
+import { initSiteFeatures } from "./site-features.js";
+import { CAMPAIGNS } from "./campaigns.js";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -176,7 +178,7 @@ function renderCatalog() {
   $$("[data-filter]").forEach((btn) => btn.classList.toggle("is-active", btn.dataset.filter === data.filter));
 }
 function renderCustomCategories() {
-  const reserved = new Set(["koleda", "bebe", "deca", "povodi"]);
+  const reserved = new Set(["koleda", "bebe", "deca", "povodi", ...Object.values(CAMPAIGNS).map((item) => item.slug)]);
   const custom = data.categories.filter((cat) => !reserved.has(cat.slug) &&
     data.products.some((product) => product.category_id === cat.id));
   const filters = $(".catalog-filters");
@@ -393,4 +395,16 @@ async function loadCatalog() {
   renderProduct();
 }
 initUI();
+initSiteFeatures({
+  onCampaign(campaign) {
+    groups[campaign.slug] = {
+      label: campaign.label,
+      title: campaign.collectionTitle,
+      subtitle: campaign.collectionSubtitle
+    };
+    renderCollectionHeading();
+    renderCatalog();
+    renderProduct();
+  }
+});
 loadCatalog();
