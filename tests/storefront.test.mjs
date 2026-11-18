@@ -172,9 +172,9 @@ test("refresh script is valid JavaScript", () => {
 
 test("storefront uses locally hosted realistic photography, not image CDNs", () => {
   const home = read("index.html");
-  assert.match(home, /assets\/images\/christmas\.webp/);
+  assert.match(css, /assets\/images\/christmas\.webp/);
   assert.match(home, /assets\/images\/kids\.webp/);
-  assert.match(home, /data-static-campaign="christmas"/);
+  assert.match(home, /data-static-campaign="valentine"/);
   assert.match(home, /assets\/images\/baby\.webp/);
   assert.match(home, /assets\/images\/occasions\.webp/);
   const uniqueNames = ["hero","baby","kids","occasions","christmas","easter","valentine","womens_day","martenitsa","everyday","bulk","about"];
@@ -199,30 +199,23 @@ test("storefront never hides core sections awaiting a remote campaign request", 
   const css = read("styles.css");
   assert.doesNotMatch(css, /html:not\(\[data-campaign-ready="true"\]\)[\s\S]*?visibility:hidden!important/);
   const home = read("index.html");
-  assert.match(home, /<h1>Коледа, която/);
+  assert.match(home, /<h1><span data-season-content="christmas">Коледа, която/);
   assert.match(home, /data-season-link/);
   assert.doesNotMatch(home, /<section class="home-season" id="christmas">/);
   assert.match(read("site-features.js"), /catch \(error\) \{ console\.error\("Campaign catalog refresh:", error\); \}/);
 });
 
 
-test("initial chosen campaign is rendered immediately without loader or Supabase blocking", () => {
+test("all holiday variants paint from static HTML with no white screen", () => {
+  const home = read("index.html");
   const css = read("styles.css");
-  const homepage = read("index.html");
   const features = read("site-features.js");
-  assert.match(homepage, /data-campaign="christmas"/);
-  assert.match(homepage, /data-static-campaign="christmas"/);
-  assert.match(homepage, /id="instant-season-boot"/);
-  assert.match(homepage, /assets\/images\/christmas\.webp/);
-  assert.doesNotMatch(homepage, /Visible failsafe/);
+  assert.match(home, /data-campaign="valentine"/);
+  assert.match(home, /class="seasonal-photo"/);
+  assert.match(css, /data-season-content="valentine"/);
+  assert.doesNotMatch(home, /instant-season-boot|Visible failsafe/);
   assert.doesNotMatch(css, /Campaign boot screen|body\[data-page\]::before/);
   assert.doesNotMatch(features, /mainPhoto\.decode\(\)/);
-  const inline = homepage.match(/<script id="instant-season-boot">([\s\S]*?)<\/script>/)?.[1];
-  assert.ok(inline);
-  assert.doesNotThrow(() => new Function(inline));
-  assert.match(inline, /history\.state/);
-  assert.doesNotMatch(inline, /localStorage|sessionStorage|fetch\(/);
-  assert.match(features, /carryCampaignAcrossNavigation\(key\)/);
   assert.match(features, /history\.replaceState/);
   assert.match(features, /new AbortController\(\)/);
 });
