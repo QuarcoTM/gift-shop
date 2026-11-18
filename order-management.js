@@ -1,5 +1,5 @@
 import { config } from "./site-config.js";
-const api=config.supabaseUrl.replace(/\\/+$/,"")+"/functions/v1/order-management";
+const api=config.supabaseUrl.replace(/\/+$/,"")+"/functions/v1/order-management";
 const $=(selector)=>document.querySelector(selector);
 const money=(value)=>new Intl.NumberFormat("bg-BG",{style:"currency",currency:"EUR"}).format(Number(value)||0);
 const labels={pending:"Нова",confirmed:"Потвърдена",preparing:"Подготвя се",shipped:"Изпратена",delivered:"Доставена",cancelled:"Отказана"};
