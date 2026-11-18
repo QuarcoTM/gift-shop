@@ -205,6 +205,24 @@ export function initSiteFeatures(options = {}) {
       sync(); // Reconcile with the database, which is the source of truth.
     });
   }
+  // Product cards are created after the catalogue loads. Keep their links
+  // on the chosen holiday as well, including when they were not in the DOM
+  // during the original campaign update.
+  document.addEventListener("click", (event) => {
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest?.('a[href^="./"]');
+    if (!link || link.target === "_blank") return;
+    try {
+      const key = document.documentElement.dataset.campaign;
+      if (!Object.hasOwn(CAMPAIGNS, key)) return;
+      const url = new URL(link.getAttribute("href"), document.baseURI);
+      if (!url.pathname.startsWith("/gift-shop/") || url.pathname.startsWith("/gift-shop/admin/")) return;
+      if (key !== (document.documentElement.dataset.staticCampaign || "valentine")) url.searchParams.set("campaign", key);
+      else url.searchParams.delete("campaign");
+      const relative = link.getAttribute("href").split(/[?#]/)[0];
+      link.setAttribute("href", relative + url.search + url.hash);
+    } catch { /* Keep the original working link. */ }
+  }, true);
   window.addEventListener("focus", sync);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") sync();
