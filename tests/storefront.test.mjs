@@ -130,7 +130,7 @@ test("no fabricated contact data or delivery offers", () => {
 test("home hero uses two identifiable buttons without false photo controls", () => {
   const home = read("index.html");
   assert.match(home, /class="button button-dark" href="\.\/collections\/"/);
-  assert.match(home, /data-season-link class="button button-outline" href="\.\/collection\/\?category=koleda"/);
+  assert.match(home, /data-season-link class="button button-outline" href="\.\/collection\/\?category=sveti-valentin"/);
   assert.match(home, /class="hero-stamp"/);
   assert.doesNotMatch(home, /hero-photo-caption|class="button button-text"/);
 });
