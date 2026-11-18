@@ -10,7 +10,7 @@ const editorial = [
   { id: "editorial-christmas", title: "Малки коледни изненади", group: "koleda", kicker: "За Коледа", text: "Подаръци, които започват с усмивка.", image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=750&q=80" },
   { id: "editorial-moments", title: "За първите спомени", group: "bebe", kicker: "За бебе", text: "Нежни жестове за големите начала.", image: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=750&q=80" },
   { id: "editorial-family", title: "Радост в малките неща", group: "povodi", kicker: "За поводи", text: "За онези дни, които си струва да помним.", image: "https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=750&q=80" },
-  { id: "editorial-season", title: "Празник с отношение", group: "koleda", kicker: "Празнично", text: "Повече внимание във всеки детайл.", image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=750&q=80" }
+  { id: "editorial-kids", title: "За малките откриватели", group: "deca", kicker: "За деца", text: "Малки подаръци за големи усмивки.", image: "https://images.unsplash.com/photo-1607082350899-7e105aa886ae?auto=format&fit=crop&w=750&q=80" }
 ];
 
 function readSaved(key, fallback) {
@@ -47,10 +47,11 @@ function groupFor(product) {
   const text = slug + " " + name + " " + product.name.toLowerCase();
   if (/колед|christmas|xmas|koled/.test(text)) return "koleda";
   if (/беб|newborn|baby|bebe|погача/.test(text)) return "bebe";
+  if (/дет|дете|kids|child|deca/.test(text)) return "deca";
   return "povodi";
 }
 function categoryName(group) {
-  return ({ koleda: "Коледа", bebe: "За бебе", povodi: "За поводи" })[group] || "Подаръци";
+  return ({ koleda: "Коледа", bebe: "За бебе", deca: "За деца", povodi: "За поводи" })[group] || "Подаръци";
 }
 
 const state = {
@@ -152,7 +153,7 @@ function renderCatalog() {
   hydrateImages();
 }
 function setFilter(filter) {
-  state.filter = ["all", "koleda", "bebe", "povodi", "favorites"].includes(filter) ? filter : "all";
+  state.filter = ["all", "koleda", "bebe", "deca", "povodi", "favorites"].includes(filter) ? filter : "all";
   $$("[data-filter]").forEach((button) => button.classList.toggle("is-active", button.dataset.filter === state.filter));
   renderCatalog();
 }
