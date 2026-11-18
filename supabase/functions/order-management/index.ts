@@ -61,12 +61,12 @@ async function findOrder(token:string):Promise<Order|null>{
   const rows=await db("gift_orders?select="+ORDER_FIELDS+"&request_key=eq."+encodeURIComponent(token)+"&limit=1");
   return Array.isArray(rows)?rows[0]||null:null;
 }
-async function byNumberEmail(orderCode:string,email:string):Promise<Order|null>{
-  const number=Number(orderCode.replace(/^SBR-/i,""));
-  if(!Number.isSafeInteger(number)||number<1)return null;
-  const rows=await db("gift_orders?select="+ORDER_FIELDS+"&order_number=eq."+number+
-    "&customer_email=eq."+encodeURIComponent(email)+"&limit=1");
-  return Array.isArray(rows)?rows[0]||null:null;
+async function byCustomerEmail(email:string):Promise<Order[]>{
+  // Do not return order details to the visitor. Details leave only through the verified mailbox.
+  const rows=await db("gift_orders?select="+ORDER_FIELDS+
+    "&customer_email=eq."+encodeURIComponent(email)+
+    "&order=created_at.desc&limit=25");
+  return Array.isArray(rows)?rows:[];
 }
 async function itemsFor(order:Order){
   const items=await db("gift_order_items?select=product_name,quantity,unit_price_eur&order_id=eq."+
@@ -93,6 +93,23 @@ function emailLayout(order:Order,title:string,body:string){
     '<p>Поръчка <strong>'+escapeHtml(code(order))+'</strong></p>'+body+
     '<p style="margin:28px 0"><a href="'+escapeHtml(url)+'" style="background:#293e35;color:#fff;padding:14px 19px;text-decoration:none;border-radius:4px">Управление на поръчката</a></p>'+
     '<p style="font-size:12px;color:#667268">Този личен линк дава достъп до поръчката ти. Не го споделяй с други хора.</p>'+
+    '</body></html>';
+}
+function recoveryEmail(orders:Order[]):string{
+  const entries=orders.map((order)=>{
+    const url=escapeHtml(manageUrl(order.request_key));
+    return '<li style="margin-bottom:17px"><strong>'+escapeHtml(code(order))+
+      '</strong> · '+escapeHtml(new Date(order.created_at).toLocaleDateString("bg-BG",{timeZone:"Europe/Sofia"}))+
+      '<div><a href="'+url+'" style="color:#263a2d;text-decoration:underline">Управление на тази поръчка</a></div></li>';
+  }).join("");
+  return '<!doctype html><html lang="bg"><meta charset="UTF-8">'+
+    '<body style="font-family:Arial,sans-serif;line-height:1.6;color:#263a2d;max-width:600px;margin:auto;padding:24px">'+
+    '<h1 style="font-weight:500">събрано.</h1><h2>Твоите номера на поръчки</h2>'+
+    '<p>Получихме заявка за възстановяване на достъпа до поръчките, направени с този имейл адрес.</p>'+
+    '<p>По-долу са последните '+orders.length+' поръчки и личните линкове за всяка от тях:</p>'+
+    '<ul style="padding-left:22px">'+entries+'</ul>'+
+    '<p style="font-size:12px;color:#667268">Линковете дават достъп до съответната поръчка. Не ги споделяй.</p>'+
+    '<p style="font-size:12px;color:#667268">Ако не си поискал това писмо, можеш да го пренебрегнеш. Поръчките не са променени.</p>'+
     '</body></html>';
 }
 async function receipt(order:Order):Promise<boolean>{
@@ -151,18 +168,25 @@ Deno.serve(async(request:Request):Promise<Response>=>{
     const payload=await request.json();
     const action=String(payload?.action||"");
     if(action==="request_link"){
-      const orderCode=clean(payload?.order_code,30);
       const customerEmail=clean(payload?.email,254).toLowerCase();
-      if(!/^SBR-[0-9]{1,12}$/i.test(orderCode)||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(customerEmail))
-        return respond({error:"Попълни номер на поръчка и имейл."},400);
-      const order=await byNumberEmail(orderCode,customerEmail);
-      if(order&&emailConfigured()){
-        const cutoff=new Date(Date.now()-10*60*1000).toISOString();
-        const allowed=await db("gift_orders?id=eq."+order.id+
-          "&or=(link_email_last_sent_at.is.null,link_email_last_sent_at.lt."+cutoff+")"+
-          "&select=id","PATCH",{link_email_last_sent_at:new Date().toISOString()},true);
-        if(allowed?.length)await email(order.customer_email,"Управление на поръчка "+code(order),
-          emailLayout(order,"Твоят личен линк","<p>Отвори страницата, за да видиш поръчката и възможните действия.</p>"));
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(customerEmail))
+        return respond({error:"Попълни валиден имейл адрес."},400);
+      // Identical response for known and unknown customers: never enumerate accounts.
+      // The mail provider is not yet configured; fail closed without claiming delivery.
+      if(emailConfigured()){
+        const orders=await byCustomerEmail(customerEmail);
+        if(orders.length){
+          // A single email contains the order numbers and private management links.
+          // Cooldown is tied to the oldest record among the newest 25 orders.
+          const throttleOrder=orders[orders.length-1];
+          const cutoff=new Date(Date.now()-15*60*1000).toISOString();
+          const allowed=await db("gift_orders?id=eq."+throttleOrder.id+
+            "&or=(link_email_last_sent_at.is.null,link_email_last_sent_at.lt."+cutoff+")"+
+            "&select=id","PATCH",{link_email_last_sent_at:new Date().toISOString()},true);
+          if(allowed?.length){
+            await email(customerEmail,"Твоите номера на поръчки | събрано.",recoveryEmail(orders));
+          }
+        }
       }
       return respond({ok:true,mail_available:emailConfigured()});
     }
