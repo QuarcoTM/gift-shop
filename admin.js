@@ -333,8 +333,11 @@ function openProduct(id = null) {
     esc(p?.description || "") + '</textarea></div><div class="field-grid">' +
     formInput("Цена (€)", "price_eur", p?.price_eur ?? "", "number", true, "0.00") +
     formInput("Налични бройки", "stock_quantity", p?.stock_quantity ?? 0, "number", true, "0") + '</div>' +
-    '<label class="switch-row"><span><strong>Публикуван продукт</strong><small>Видим за посетителите само когато е включено</small></span><input type="checkbox" name="is_published"' +
-    (p?.is_published ? " checked" : "") + ' /></label>' + productImages(p) + dialogActions() + "</form>";
+    '<label class="switch-row"><span><strong>Публикуван продукт</strong><small>' +
+    (p && state.images.some((image) => image.product_id === p.id) ? "Видим за посетителите, когато е включено" : "Добави снимка, за да активираш публикуване") +
+    '</small></span><input type="checkbox" name="is_published"' +
+    (p?.is_published ? " checked" : "") + (p && state.images.some((image) => image.product_id === p.id) ? "" : " disabled") +
+    ' /></label>' + productImages(p) + dialogActions() + "</form>";
   dialog(p ? "Редактиране на продукта" : "Нов подаръчен комплект", p ? "КАТАЛОГ / РЕДАКТИРАНЕ" : "КАТАЛОГ / ДОБАВЯНЕ", html);
   const name = $("#field-name"), slug = $("#field-slug");
   if (!p) name.addEventListener("input", () => { if (!slug.dataset.edited) slug.value = slugify(name.value); });
@@ -387,9 +390,14 @@ async function saveForm(form) {
       const amount = Number(f.get("price_eur")), stock = Number(f.get("stock_quantity"));
       if (!name || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw Error("Попълни име и валиден идентификатор с латински букви.");
       if (!Number.isFinite(amount) || amount < 0 || !Number.isInteger(stock) || stock < 0) throw Error("Цената и наличността трябва да са валидни положителни стойности или нула.");
-      if (!state.categories.some((c) => c.id === f.get("category_id"))) throw Error("Избери валидна колекция.");
+      const selectedCategory = state.categories.find((c) => c.id === f.get("category_id"));
+      if (!selectedCategory) throw Error("Избери валидна колекция.");
+      const publish = form.elements.is_published.checked;
+      if (publish && (!selectedCategory.is_active || amount <= 0 || !state.images.some((im) => im.product_id === id))) {
+        throw Error("За публикуване са нужни активна колекция, цена над 0 € и поне една снимка.");
+      }
       const payload = { name, slug, category_id: f.get("category_id"), description: String(f.get("description") || "").trim(),
-        price_eur: amount, stock_quantity: stock, is_published: form.elements.is_published.checked };
+        price_eur: amount, stock_quantity: stock, is_published: publish };
       const result = await rest("gift_products" + (id ? "?id=eq." + encodeURIComponent(id) : ""), id ? "PATCH" : "POST", payload);
       const savedId = id || result?.[0]?.id;
       await loadAll();
@@ -466,7 +474,13 @@ async function removeImage(id) {
   try {
     await rest("gift_product_images?id=eq." + encodeURIComponent(id), "DELETE");
     await deleteStoredImage(im.image_url).catch(() => {});
-    await loadAll(); render(); openProduct(im.product_id); toast("Снимката е премахната.");
+    const remaining = state.images.filter((item) => item.product_id === im.product_id && item.id !== id);
+    const current = state.products.find((item) => item.id === im.product_id);
+    if (!remaining.length && current?.is_published) {
+      await rest("gift_products?id=eq." + encodeURIComponent(current.id), "PATCH", { is_published: false });
+    }
+    await loadAll(); render(); openProduct(im.product_id);
+    toast(remaining.length ? "Снимката е премахната." : "Снимката е премахната. Продуктът остава чернова, докато няма снимка.");
   } catch (error) { toast(readableError(error)); }
   finally { wait(false); }
 }
