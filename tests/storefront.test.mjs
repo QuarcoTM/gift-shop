@@ -63,6 +63,12 @@ test("canonical pages use clean routes and relative base so all scripts and link
   assert.doesNotMatch(app, /\.html(?:[?#]|["'])/);
 });
 
+test("skip navigation remains on the current page with a nested base URL", () => {
+  assert.match(app, /skip\.addEventListener\("click"/);
+  assert.match(app, /event\.preventDefault\(\)/);
+  assert.match(app, /destination\.scrollIntoView/);
+});
+
 test("home page is an overview with no numbered sections or promotion badges", () => {
   const home = read("index.html");
   assert.match(home, /class="hero"/);
