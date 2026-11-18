@@ -53,6 +53,7 @@ function price(value) { return priceFormatter.format(Number(value)); }
 function productById(id) { return data.products.find((product) => product.id === id); }
 function productPhoto(product) { return product.images.find((item) => imageURL(item.image_url))?.image_url || ""; }
 function productGroup(product) {
+  if (product.category?.slug && !groups[product.category.slug]) return product.category.slug;
   const content = ((product.category?.slug || "") + " " + (product.category?.name || "") + " " + product.name).toLowerCase();
   if (/колед|koled|christmas|xmas/.test(content)) return "koleda";
   if (/беб|baby|bebe|newborn|погача/.test(content)) return "bebe";
@@ -343,7 +344,7 @@ async function loadCatalog() {
   if (!config.supabaseUrl || !config.supabasePublishableKey) return;
   try {
     const [categories, products, images] = await Promise.all([
-      publicTable("gift_categories?select=id,name,slug&is_active=eq.true&order=sort_order.asc"),
+      publicTable("gift_categories?select=id,name,slug,description&is_active=eq.true&order=sort_order.asc"),
       publicTable("gift_products?select=id,name,slug,description,price_eur,stock_quantity,category_id,is_published&is_published=eq.true&order=created_at.desc&limit=100"),
       publicTable("gift_product_images?select=id,product_id,image_url,alt_text,sort_order&order=sort_order.asc&limit=500")
     ]);
