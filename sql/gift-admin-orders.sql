@@ -163,6 +163,9 @@ begin
       where id=v.id returning * into v;
 
     when 'restore_stock' then
+      if p_confirmed_with_customer is distinct from true then
+        raise exception 'Потвърди, че продуктите са действително проверени и годни за продажба.';
+      end if;
       if v.withdrawal_requested_at is null or v.return_received_at is null
          or v.return_stock_restored_at is not null then
         raise exception 'Наличността може да се възстанови само веднъж след получено връщане.';
@@ -183,6 +186,9 @@ begin
       where id=v.id returning * into v;
 
     when 'return_refunded' then
+      if p_confirmed_with_customer is distinct from true then
+        raise exception 'Потвърди, че дължимата сума действително е възстановена на клиента.';
+      end if;
       if v.withdrawal_requested_at is null or v.return_received_at is null
          or v.return_refunded_at is not null then
         raise exception 'Първо отбележи физически получената пратка; не отбелязвай повторно възстановяване на сума.';
