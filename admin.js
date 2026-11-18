@@ -1,5 +1,5 @@
 import { config } from "./site-config.js";
-import { CAMPAIGNS } from "./campaigns.js?v=20261118-n";
+import { CAMPAIGNS } from "./campaigns.js?v=20261118-categories";
 
 /* Store operations use only the public publishable key. Authorization is enforced
    by Supabase Auth + database/storage RLS; never by hiding interface elements. */
@@ -422,6 +422,7 @@ function analytics() {
 function campaignsView() {
   const descriptions = {
     christmas:"Топла коледна атмосфера и празнична колекция.",
+    new_year:"Подаръци за посрещането на Нова година и новогодишно настроение.",
     easter:"Пролетно настроение и великденски подаръци.",
     valentine:"Нежни акценти за подаръци с обич.",
     womens_day:"Подаръци за нея и благодарност.",
