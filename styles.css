@@ -1,5 +1,5 @@
 /* СЪБРАНО. — distinctive, responsive editorial storefront */
-:root{--paper:#f7f3eb;--cream:#fffcf6;--sand:#efe6d8;--sand-deep:#e1d1bb;--ink:#262521;--muted:#777269;--wine:#752f3f;--wine-dark:#55202e;--green:#243c33;--gold:#ae8659;--line:#d8cdc0;--shadow:0 26px 65px rgba(47,34,30,.09);--radius:8px;font-family:"DM Sans",sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none}
+:root{--paper:#f7f3eb;--cream:#fffcf6;--sand:#efe6d8;--sand-deep:#e1d1bb;--ink:#262521;--muted:#777269;--wine:#752f3f;--wine-dark:#55202e;--green:#243c33;--gold:#ae8659;--line:#d8cdc0;--shadow:0 26px 65px rgba(47,34,30,.09);--radius:8px;font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none}
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:auto;scroll-padding-top:110px}
 body{margin:0;min-width:320px;overflow-x:hidden}
@@ -25,9 +25,9 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #b990
 .brand{display:flex;align-items:center;gap:9px;white-space:nowrap;color:var(--wine-dark)}
 .brand-symbol{width:40px;height:40px;display:grid;place-items:center;transform:rotate(-5deg)}
 .brand-symbol svg{width:37px;height:37px}
-.brand-type{font-family:"Manrope",sans-serif;font-size:29px;font-weight:800;letter-spacing:-.085em;line-height:.87}
+.brand-type{font-family:"Avenir Next","Segoe UI",Arial,sans-serif;font-size:29px;font-weight:800;letter-spacing:-.085em;line-height:.87}
 .brand-dot{color:#ab7856}
-.brand-type small{display:block;font-family:"DM Sans",sans-serif;font-size:8px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-top:8px;color:var(--gold)}
+.brand-type small{display:block;font-family:"Avenir Next","Segoe UI",Arial,sans-serif;font-size:8px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-top:8px;color:var(--gold)}
 .desktop-nav{display:flex;align-items:center;gap:clamp(16px,2.25vw,38px);margin-left:auto}
 .desktop-nav a{font-size:12px;letter-spacing:.03em;font-weight:700;position:relative;padding:12px 0}
 .desktop-nav a:after{content:"";position:absolute;bottom:3px;left:0;width:0;height:1px;background:var(--wine);transition:width .25s}
@@ -49,7 +49,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #b990
 .eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;display:inline-flex;gap:11px;align-items:center;color:var(--wine)}
 .eyebrow-line{width:28px;height:1px;background:var(--wine)}
 h1,h2,h3,p{margin-top:0}
-h1,h2,.collection-title,.catalog-bottom p,.christmas-photo-mark{font-family:"Playfair Display",Georgia,serif;font-weight:500}
+h1,h2,.collection-title,.catalog-bottom p,.christmas-photo-mark{font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-weight:500}
 h1{font-size:clamp(64px,6.6vw,112px);letter-spacing:-.065em;line-height:1.03;margin:25px 0 32px}
 h1 em,h2 em,.catalog-bottom em{font-weight:500;color:var(--wine);font-style:italic}
 .hero-subtitle{font-size:15px;line-height:1.9;color:#625b52;max-width:425px;margin-bottom:30px}
@@ -69,8 +69,8 @@ h1 em,h2 em,.catalog-bottom em{font-weight:500;color:var(--wine);font-style:ital
 .hero-image:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(29,18,15,.38),transparent 25%),linear-gradient(90deg,rgba(69,35,34,.06),transparent 50%)}
 .hero-stamp{position:absolute;top:43px;right:49px;width:148px;height:148px;border-radius:50%;background:var(--paper);color:var(--wine-dark);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 14px 35px #0002;transform:rotate(9deg)}
 .hero-stamp>span{font-size:21px;color:var(--gold);margin-bottom:4px}
-.hero-stamp b{font-family:"Playfair Display",serif;font-weight:600;font-size:17px;line-height:1.2}
-.hero-stamp small{font-family:"Manrope",sans-serif;font-weight:800;font-size:10px;margin-top:5px}
+.hero-stamp b{font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-weight:600;font-size:17px;line-height:1.2}
+.hero-stamp small{font-family:"Avenir Next","Segoe UI",Arial,sans-serif;font-weight:800;font-size:10px;margin-top:5px}
 .hero-photo-caption{position:absolute;z-index:2;bottom:37px;right:42px;color:#fff;font-size:11px;letter-spacing:.045em;display:flex;gap:15px;align-items:center}
 .hero-photo-caption span{font-size:20px}
 .editorial-strip{background:var(--wine);color:#f9edda;overflow:hidden;white-space:nowrap;padding:14px 0;text-align:center}
@@ -90,7 +90,7 @@ h2{font-size:clamp(39px,4.1vw,66px);letter-spacing:-.045em;line-height:1.17;marg
 .collection-shade{position:absolute;z-index:1;inset:0;background:linear-gradient(0deg,rgba(31,23,21,.75),transparent 58%)}
 .collection-number{position:absolute;top:22px;left:27px;z-index:2;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
 .collection-title{position:absolute;bottom:30px;left:30px;right:25px;font-size:clamp(25px,2.5vw,40px);line-height:1.19;z-index:2;letter-spacing:-.035em}
-.collection-arrow{position:absolute;right:0;bottom:2px;font:400 24px "DM Sans",sans-serif}
+.collection-arrow{position:absolute;right:0;bottom:2px;font:400 24px "Avenir Next","Segoe UI",Arial,sans-serif}
 .products-section{background:var(--cream)}
 .catalog-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);margin-bottom:28px;padding-bottom:13px}
 .catalog-filters{display:flex;gap:21px;flex-wrap:wrap}
@@ -110,7 +110,7 @@ h2{font-size:clamp(39px,4.1vw,66px);letter-spacing:-.045em;line-height:1.17;marg
 .favorite-button.is-liked svg{fill:var(--wine)}
 .product-info{padding:16px 2px 0}
 .product-kicker{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:9px}
-.product-title{font-family:"Playfair Display",Georgia,serif;font-size:20px;line-height:1.33;letter-spacing:-.018em;margin:0 0 9px}
+.product-title{font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-size:20px;line-height:1.33;letter-spacing:-.018em;margin:0 0 9px}
 .product-title-button{padding:0;border:0;text-align:left;background:transparent;color:inherit}
 .product-title-button:hover{color:var(--wine)}
 .product-caption{color:var(--muted);font-size:11px;line-height:1.6;margin-bottom:12px}
@@ -131,7 +131,7 @@ h2{font-size:clamp(39px,4.1vw,66px);letter-spacing:-.045em;line-height:1.17;marg
 .story-section{display:grid;grid-template-columns:1fr 1fr;min-height:650px;background:#e6dcd0}
 .story-image{position:relative;min-height:590px;overflow:hidden;background:#ad9b8b}
 .story-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.78)}
-.story-image-note{position:absolute;bottom:38px;left:48px;color:#fff;font-family:"Playfair Display",serif;font-style:italic;font-size:25px;text-shadow:0 3px 25px #2229}
+.story-image-note{position:absolute;bottom:38px;left:48px;color:#fff;font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-style:italic;font-size:25px;text-shadow:0 3px 25px #2229}
 .story-copy{display:flex;align-items:center;justify-content:center;padding:100px 60px;background:radial-gradient(circle at 90% 20%,#f9f2e8,#ebe0d2)}
 .story-copy-inner{max-width:550px}
 .story-copy h2{margin:28px 0}
@@ -158,7 +158,7 @@ h2{font-size:clamp(39px,4.1vw,66px);letter-spacing:-.045em;line-height:1.17;marg
 .detail-item{position:relative;border-top:1px solid var(--line);padding-top:24px;padding-right:40px;min-height:240px}
 .detail-number{font-size:12px;letter-spacing:.15em;color:var(--gold)}
 .detail-glyph{display:block;margin:19px 0 8px;color:var(--wine);font-size:39px}
-.detail-item h3{font-family:"Playfair Display",serif;font-size:26px;font-weight:500;margin-bottom:11px}
+.detail-item h3{font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-size:26px;font-weight:500;margin-bottom:11px}
 .detail-item p{font-size:13px;line-height:1.8;color:var(--muted);max-width:290px}
 .bulk-section{background:var(--wine);color:#fff}
 .bulk-inner{min-height:330px;display:flex;align-items:center;gap:50px;padding-top:70px;padding-bottom:70px}
@@ -204,7 +204,7 @@ h2{font-size:clamp(39px,4.1vw,66px);letter-spacing:-.045em;line-height:1.17;marg
 .cart-line{display:flex;gap:15px;padding:16px 0;border-bottom:1px solid var(--line)}
 .cart-line img{width:83px;height:90px;object-fit:cover;background:var(--sand)}
 .cart-line-content{flex:1}
-.cart-line-name{font-family:"Playfair Display",serif;font-size:17px;display:block;margin-bottom:8px}
+.cart-line-name{font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-size:17px;display:block;margin-bottom:8px}
 .cart-line-price{font-weight:800;color:var(--wine);font-size:13px}
 .cart-line-controls{display:flex;align-items:center;gap:12px;margin-top:14px}
 .qty-button{border:1px solid var(--line);height:27px;width:27px;display:grid;place-items:center;background:none}
@@ -218,7 +218,7 @@ h2{font-size:clamp(39px,4.1vw,66px);letter-spacing:-.045em;line-height:1.17;marg
 .search-results{max-height:42dvh;overflow:auto;margin-top:15px}
 .search-result{display:flex;align-items:center;gap:15px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;border-left:0;border-right:0;border-top:0;background:transparent;text-align:left}
 .search-result img{width:60px;height:67px;object-fit:cover;background:var(--sand)}
-.search-result strong{display:block;font-family:"Playfair Display",serif;font-size:18px;font-weight:500}
+.search-result strong{display:block;font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-size:18px;font-weight:500}
 .search-result small{display:block;color:var(--wine);margin-top:5px}
 .search-results>p{color:var(--muted);font-size:13px;padding:25px 0}
 .product-dialog{border:0;background:var(--cream);padding:0;color:var(--ink);width:min(920px,calc(100% - 24px));max-height:90dvh;overflow-y:auto;border-radius:6px}
@@ -346,7 +346,7 @@ h1,h2{hyphens:auto}
 .catalog-search-box>span{font-size:27px;line-height:1;color:var(--wine)}
 .catalog-empty{width:100%;min-height:275px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;background:var(--paper);border:1px solid var(--line);padding:40px 22px;text-align:center}
 .catalog-empty-mark{color:var(--wine);font-size:33px}
-.catalog-empty h2,.catalog-empty h3{font-size:clamp(24px,3vw,36px);font-family:"Playfair Display",serif;font-weight:500;max-width:100%;margin:0}
+.catalog-empty h2,.catalog-empty h3{font-size:clamp(24px,3vw,36px);font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-weight:500;max-width:100%;margin:0}
 .catalog-empty p{font-size:13px;line-height:1.6;margin:0 0 10px}
 .catalog-empty .button{min-width:200px}
 .product-grid .catalog-empty{grid-column:1/-1}
@@ -386,7 +386,7 @@ h1,h2{hyphens:auto}
 .cart-page-line{border-top:1px solid var(--line);padding:18px 0;display:grid;grid-template-columns:115px minmax(0,1fr);gap:20px}
 .cart-line-image{width:115px;height:125px;background:var(--sand);display:block;overflow:hidden}
 .cart-line-image img,.cart-line-image .photo-unavailable{width:100%;height:100%;object-fit:cover}
-.cart-line-name{font-family:"Playfair Display",serif;font-size:20px;display:block;margin:7px 0 12px}
+.cart-line-name{font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-size:20px;display:block;margin:7px 0 12px}
 .cart-line-price{color:var(--wine);font-size:15px;font-weight:800}
 .cart-page-summary{align-self:start;border:1px solid var(--line);padding:28px;background:var(--cream)}
 .cart-page-summary h2{font-size:32px;padding-bottom:20px;border-bottom:1px solid var(--line)}
@@ -577,7 +577,7 @@ html[data-campaign]:not([data-campaign="christmas"]) .home-season-image:before{
   content:"";position:absolute;border:1px solid #ffffff8a;border-radius:50%;width:380px;height:380px;left:-95px;top:-135px;box-shadow:170px 180px 0 -45px #ffffff20;
 }
 html[data-campaign]:not([data-campaign="christmas"]) .home-season-image:after{
-  content:attr(data-mark);position:absolute;inset:0;display:grid;place-items:center;font-family:"Playfair Display",Georgia,serif;
+  content:attr(data-mark);position:absolute;inset:0;display:grid;place-items:center;font-family:"Iowan Old Style","Baskerville",Georgia,serif;
   font-size:clamp(135px,20vw,290px);font-style:italic;font-weight:500;color:#ffffffc7;text-shadow:0 12px 38px #0000000c;
 }
 html[data-campaign]:not([data-campaign="christmas"]) .collections-grid .collection-card-large{
@@ -603,10 +603,10 @@ html[data-campaign] .home-season-image img[hidden],html[data-campaign] .collecti
   box-shadow:0 25px 70px #1a241b46;color:#272922;padding:25px 28px;display:flex;align-items:center;gap:36px}
 .cookie-banner-text{min-width:0;flex:1}
 .cookie-kicker{font-size:9px;letter-spacing:.17em;font-weight:850;color:var(--wine);text-transform:uppercase}
-.cookie-banner-text h2{font:500 28px/1.2 "Playfair Display",serif;letter-spacing:-.02em;margin:8px 0 10px;color:#2a332a}
+.cookie-banner-text h2{font:500 28px/1.2 "Iowan Old Style","Baskerville",Georgia,serif;letter-spacing:-.02em;margin:8px 0 10px;color:#2a332a}
 .cookie-banner-text p{font-size:12px;line-height:1.75;color:#696961;margin:0;max-width:680px}
 .cookie-banner-actions{display:flex;align-items:stretch;flex-direction:column;flex:none;gap:8px}
-.cookie-button{border-radius:8px;padding:12px 19px;min-height:43px;font:750 11px/1.3 "DM Sans",sans-serif;
+.cookie-button{border-radius:8px;padding:12px 19px;min-height:43px;font:750 11px/1.3 "Avenir Next","Segoe UI",Arial,sans-serif;
   cursor:pointer;transition:border-color .15s,background .15s}
 .cookie-banner-actions .cookie-button{width:194px}
 .cookie-button-plain{background:transparent;color:#4b5149;border:1px solid #d5d3cb}
@@ -621,7 +621,7 @@ html[data-campaign] .home-season-image img[hidden],html[data-campaign] .collecti
   background:#fffdf9;color:#292e27;border-radius:15px;box-shadow:0 28px 100px #080f0b55;overflow:auto}
 .cookie-preferences-dialog::backdrop{background:#101e17a9;backdrop-filter:blur(3px)}
 .cookie-dialog-head{padding:30px 33px 22px;border-bottom:1px solid #e8e0d4;display:flex;gap:20px;align-items:start;justify-content:space-between}
-.cookie-dialog-head h2{font:500 35px/1.2 "Playfair Display",serif;letter-spacing:-.025em;margin:10px 0 11px}
+.cookie-dialog-head h2{font:500 35px/1.2 "Iowan Old Style","Baskerville",Georgia,serif;letter-spacing:-.025em;margin:10px 0 11px}
 .cookie-dialog-head p{font-size:12px;line-height:1.75;color:#686d65;max-width:430px;margin:0}
 .cookie-dialog-close{border:1px solid #ddd9ce;border-radius:50%;background:transparent;color:#627065;
   width:38px;height:38px;display:grid;place-items:center;font-size:25px;line-height:1;flex:none;cursor:pointer}
@@ -654,7 +654,7 @@ html[data-campaign] .home-season-image img[hidden],html[data-campaign] .collecti
 .footer-bottom{flex-wrap:wrap}
 /* Cookie information page. */
 .cookies-info{padding-block:70px 100px;max-width:970px}
-.cookies-info h1{font:500 clamp(43px,5vw,67px)/1.15 "Playfair Display",serif;letter-spacing:-.04em;margin:17px 0 20px}
+.cookies-info h1{font:500 clamp(43px,5vw,67px)/1.15 "Iowan Old Style","Baskerville",Georgia,serif;letter-spacing:-.04em;margin:17px 0 20px}
 .cookies-info>p{font-size:14px;line-height:1.85;color:#686d65;max-width:780px}
 .cookies-table{margin:32px 0;background:#fffdf9;border:1px solid #e3ded4;border-radius:12px;overflow:hidden}
 .cookies-table section{display:flex;gap:18px;justify-content:space-between;align-items:start;padding:22px 25px;border-bottom:1px solid #e8e3d9}
@@ -689,3 +689,32 @@ html[data-campaign] .home-season-image img[hidden],html[data-campaign] .collecti
   .cookies-info{padding-block:45px 80px}
   .cookies-table section{padding:19px 16px;flex-direction:column;gap:4px}
 }
+
+
+/* The activated holiday is now an actual image-driven campaign, not a hidden
+   Christmas photo or a letter rendered over a color field. */
+html[data-campaign] .hero-image img,
+html[data-campaign] .home-season-image img,
+html[data-campaign] .collections-grid .collection-card-large img{
+  display:block!important;opacity:1!important;visibility:visible;filter:saturate(.98);
+  object-fit:cover;object-position:center;
+}
+html[data-campaign] .collections-grid .collection-card-large img:hover{filter:saturate(1.08)}
+html[data-campaign] .home-season-image:after{content:none!important;display:none!important}
+html[data-campaign] .home-season-image:before{content:none!important;display:none!important}
+html[data-campaign] .home-season-image{background:transparent!important}
+html[data-campaign] .home-season-image img{position:absolute;inset:0;width:100%;height:100%}
+html[data-campaign]:not([data-campaign="christmas"]) .hero-image:after{
+  background:linear-gradient(0deg,rgba(23,25,19,.20),transparent 35%);
+}
+html[data-campaign="easter"] .home-season{background:#526e5a}
+html[data-campaign="valentine"] .home-season{background:#87485c}
+html[data-campaign="womens_day"] .home-season{background:#655077}
+html[data-campaign="martenitsa"] .home-season{background:#8d3645}
+html[data-campaign="everyday"] .home-season{background:#335346}
+html[data-campaign]:not([data-campaign="christmas"]) .collections-grid .collection-card-large:after{display:none}
+html[data-campaign] .collection-card-large .collection-shade{
+  background:linear-gradient(to top,rgba(24,29,22,.7),rgba(24,29,22,0) 62%);
+}
+html[data-campaign] .hero-image img{transition:opacity .25s ease}
+html[data-campaign] .home-season-image img{transition:opacity .25s ease}
