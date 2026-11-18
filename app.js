@@ -2,6 +2,7 @@ import { config } from "./site-config.js";
 import { initSiteFeatures } from "./site-features.js?v=20261118-i";
 import { CAMPAIGNS } from "./campaigns.js?v=20261118-i";
 import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
+import { initOfficePicker } from "./office-picker.js?v=20261118-m";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -348,13 +349,7 @@ function setupCheckout() {
     panel.hidden=true;
     $(".cart-page")?.scrollIntoView({block:"start",behavior:"smooth"});
   });
-  $("#checkout-delivery-type")?.addEventListener("change",()=>{
-    const office=form.elements.delivery_type.value==="office";
-    const label=$("#checkout-location-label");
-    if (label) label.firstChild.textContent=office?"Офис на куриера ":"Точен адрес ";
-    const input=$("#checkout-location");
-    if (input) input.placeholder=office?"Напиши точния офис на куриера":"Улица, номер, вход, апартамент";
-  });
+  initOfficePicker(form);
   form.addEventListener("submit",async(event)=>{
     event.preventDefault();
     if (checkoutBusy || !checkoutEnabled) return;
