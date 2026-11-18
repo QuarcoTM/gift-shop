@@ -88,10 +88,10 @@ $("#order-find-form").addEventListener("submit",async(event)=>{
   const form=new FormData(event.currentTarget);
   const result=$("#order-find-result");
   try{
-    const r=await call("request_link",{order_code:String(form.get("order_code")||"").trim(),email:String(form.get("email")||"").trim()});
+    const r=await call("request_link",{email:String(form.get("email")||"").trim()});
     result.textContent=r.mail_available
-      ?"Ако данните съвпадат с поръчка, ще получиш имейл с личен линк."
-      :"Автоматичното изпращане на имейли още не е активно. Използвай линка от първоначалното потвърждение, ако го имаш.";
+      ?"Ако има поръчки към този имейл, ще получиш писмо с номерата им и личните линкове за управление."
+      :"Изпращането на имейли още не е активирано. Формата ще работи, след като настроим пощата на магазина.";
     result.hidden=false;
   }catch(error){result.textContent=error.message;result.hidden=false}
   finally{setBusy(false)}
