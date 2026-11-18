@@ -94,7 +94,24 @@ function applyCampaign(key, onCampaign) {
   // Campaign state must remain usable even if an optional catalog rendering callback fails.
   try { onCampaign?.(campaign); }
   catch (error) { console.error("Campaign catalog refresh:", error); }
-  document.documentElement.dataset.campaignReady = "true";
+  // Keep the bootstrap cover until the main photo is decoded. Otherwise
+  // Safari can briefly paint the original HTML image after the heading changes.
+  if (document.documentElement.dataset.campaignReady !== "true") {
+    const mainPhoto = $(".hero-image img") || $(".collections-grid .collection-card-large img");
+    if (mainPhoto && typeof mainPhoto.decode === "function") {
+      let settled = false;
+      const reveal = () => {
+        if (settled) return;
+        settled = true;
+        document.documentElement.dataset.campaignReady = "true";
+      };
+      const limit = setTimeout(reveal, 550);
+      mainPhoto.decode().then(() => { clearTimeout(limit); reveal(); },
+        () => { clearTimeout(limit); reveal(); });
+    } else {
+      document.documentElement.dataset.campaignReady = "true";
+    }
+  }
   return key;
 }
 async function fetchCampaign(onCampaign, force = false) {
