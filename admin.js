@@ -305,6 +305,7 @@ function orders() {
     html += state.orders.map((o) => '<tr><td><strong>' + esc(o.order_number ? 'SBR-'+String(o.order_number).padStart(6,'0') : String(o.id).slice(0,8).toUpperCase()) +
       '</strong></td><td>' + esc(o.customer_name) + '</td><td>' + esc(date(o.created_at)) + '</td><td>' +
       esc(money(o.total_eur)) + '</td><td>' + badge(statuses[o.status] || o.status, o.status) +
+      (o.withdrawal_requested_at ? '<div style="margin-top:5px"><strong>Заявено връщане</strong></div>' : '') +
       '</td><td><button class="table-action" type="button" data-order="' + esc(o.id) + '">Отвори</button></td></tr>').join("");
     html += '</tbody></table></div><div class="table-bottom"><span>' + number(state.orders.length) + ' поръчки</span><span>Сортирани по дата</span></div>';
   }
@@ -507,6 +508,12 @@ function openOrder(id) {
     '<div class="field"><label>Имейл</label><p>' + esc(o.customer_email || "—") + '</p></div></div>' +
     '<div class="note-box"><strong>Доставка:</strong> ' + esc([o.delivery_courier === 'econt' ? 'Еконт' : o.delivery_courier === 'speedy' ? 'Спиди' : o.delivery_courier, o.delivery_method?.endsWith('_office') ? 'до офис' : 'до адрес', o.delivery_city, o.delivery_address].filter(Boolean).join(", ") || "Не е посочена") +
     (o.customer_note ? '<p style="margin:9px 0 0">Бележка: ' + esc(o.customer_note) + '</p>' : "") + '</div>' +
+    (o.withdrawal_requested_at ? '<div class="note-box"><strong>ЗАЯВКА ЗА ВРЪЩАНЕ</strong><p style="margin:9px 0 0">Получена: ' +
+       esc(new Date(o.withdrawal_requested_at).toLocaleString("bg-BG")) + '</p>' +
+       (o.withdrawal_note ? '<p style="margin:9px 0 0">Съобщение: ' + esc(o.withdrawal_note) + '</p>' : '') +
+       '<p style="margin:9px 0 0">Имейл за потвърждение: ' +
+       (o.withdrawal_ack_email_sent_at ? 'изпратен' : 'не е потвърдено изпращане') + '</p>' +
+       '<p style="margin:9px 0 0">Не възстановявай наличността, преди стоката да е върната и проверена.</p></div>' : '') +
     '<section class="panel"><div class="panel-header"><h3 class="panel-title">Артикули</h3></div>' +
     (items.length ? items.map((item) => '<div class="list-row"><div class="row-main"><strong>' +
       esc(item.product_name) + '</strong><small>' + esc(item.quantity + " × " + money(item.unit_price_eur)) +
