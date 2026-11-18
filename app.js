@@ -261,6 +261,7 @@ function renderCart() {
     return sum + (item ? item.price_eur * entry.qty : 0);
   }, 0);
   totalField.textContent = price(total);
+  checkoutAction();
   if (!data.cart.length) {
     grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h2>Количката е празна.</h2><p>Избери подарък от колекциите.</p><a class="button button-dark" href="./products/">Виж подаръците <span aria-hidden="true"></span></a></div>';
     return;
@@ -276,6 +277,140 @@ function renderCart() {
         '<button class="cart-remove" type="button" data-remove="' + escapeHTML(item.id) + '">Премахни</button></div></div></article>';
   }).join("");
 }
+// Guest checkout is a secure server-side order request, not a client-side write
+// to gift_orders. Prices, stock and order numbers are assigned by Supabase.
+let checkoutEnabled = false;
+let checkoutBusy = false;
+let checkoutRequestKey = null;
+function cartSubtotal() {
+  return Math.round(data.cart.reduce((sum,entry)=>{
+    const item=productById(entry.id);
+    return sum+(item ? item.price_eur*entry.qty : 0);
+  },0)*100)/100;
+}
+function checkoutAction() {
+  if (page !== "cart") return;
+  const button = $("#checkout-button"), status = $("#checkout-status");
+  if (!button || !status) return;
+  const validCart = data.cart.length>0 && data.cart.every((entry)=>
+    productById(entry.id)?.stock_quantity >= entry.qty && entry.qty>0);
+  button.disabled = !checkoutEnabled || !validCart || checkoutBusy;
+  if (!checkoutEnabled) status.textContent="Онлайн заявките още не са активирани. Подготвяме данните и условията за доставка.";
+  else if (!validCart) status.textContent="Избери наличен продукт, за да продължиш.";
+  else status.textContent="Заявката е без регистрация. Доставката се уточнява преди изпращане.";
+}
+function checkoutError(message) {
+  const element = $("#checkout-error");
+  if (!element) return;
+  element.textContent = message || "";
+  element.hidden = !message;
+}
+function checkoutReview() {
+  const target=$("#checkout-review-lines");
+  if (!target) return;
+  target.innerHTML=data.cart.map((entry)=>{
+    const product=productById(entry.id);
+    if (!product) return "";
+    return '<div class="checkout-review-line"><span>'+escapeHTML(entry.qty+" × "+product.name)+'</span><strong>'+
+      escapeHTML(price(product.price_eur*entry.qty))+'</strong></div>';
+  }).join("");
+  const total=$("#checkout-review-total");
+  if (total) total.textContent=price(cartSubtotal());
+}
+async function checkoutStatus() {
+  if (page!=="cart") return;
+  try {
+    const rows=await publicTable("gift_shop_settings?select=checkout_enabled&id=eq.main&limit=1");
+    checkoutEnabled=rows[0]?.checkout_enabled===true;
+  } catch(error) {
+    console.warn("Checkout setting unavailable:",error);
+    checkoutEnabled=false; // fail closed; never accept orders with unknown status
+  }
+  checkoutAction();
+}
+function setupCheckout() {
+  if (page!=="cart") return;
+  const start=$("#checkout-button"), form=$("#checkout-form"), panel=$("#checkout-panel");
+  if (!start||!form||!panel) return;
+  start.addEventListener("click",()=>{
+    if (!checkoutEnabled || !data.cart.length || checkoutBusy) return;
+    checkoutReview(); checkoutError("");
+    panel.hidden=false;
+    panel.scrollIntoView({block:"start",behavior:"smooth"});
+  });
+  $("#checkout-back")?.addEventListener("click",()=>{
+    panel.hidden=true;
+    $(".cart-page")?.scrollIntoView({block:"start",behavior:"smooth"});
+  });
+  $("#checkout-delivery-type")?.addEventListener("change",()=>{
+    const office=form.elements.delivery_type.value==="office";
+    const label=$("#checkout-location-label");
+    if (label) label.firstChild.textContent=office?"Офис на куриера ":"Точен адрес ";
+    const input=$("#checkout-location");
+    if (input) input.placeholder=office?"Напиши точния офис на куриера":"Улица, номер, вход, апартамент";
+  });
+  form.addEventListener("submit",async(event)=>{
+    event.preventDefault();
+    if (checkoutBusy || !checkoutEnabled) return;
+    checkoutError("");
+    if (!form.checkValidity()) {form.reportValidity();return;}
+    if (!data.cart.length || !data.cart.every(entry=>productById(entry.id)?.stock_quantity>=entry.qty)){
+      checkoutError("Количката се промени. Провери продуктите преди изпращане.");return;
+    }
+    checkoutBusy=true;
+    const button=$("#checkout-submit");
+    if (button) {button.disabled=true;button.textContent="Изпращане…";}
+    checkoutAction();
+    if (!checkoutRequestKey) checkoutRequestKey=crypto.randomUUID();
+    const formData=new FormData(form);
+    const payload={
+      p_request_key:checkoutRequestKey,
+      p_customer_name:String(formData.get("customer_name")||"").trim(),
+      p_customer_phone:String(formData.get("customer_phone")||"").trim(),
+      p_customer_email:String(formData.get("customer_email")||"").trim(),
+      p_courier:String(formData.get("courier")||""),
+      p_delivery_type:String(formData.get("delivery_type")||""),
+      p_delivery_city:String(formData.get("delivery_city")||"").trim(),
+      p_delivery_location:String(formData.get("delivery_location")||"").trim(),
+      p_customer_note:String(formData.get("customer_note")||"").trim(),
+      p_items:data.cart.map(entry=>({id:entry.id,qty:entry.qty})),
+      p_shipping_ack:formData.get("shipping_ack")==="on",
+      p_expected_subtotal:cartSubtotal()
+    };
+    try {
+      const response=await fetch(config.supabaseUrl.replace(/\/+$/,"")+"/rest/v1/rpc/gift_submit_order",{
+        method:"POST",
+        headers:{apikey:config.supabasePublishableKey,"Content-Type":"application/json",Accept:"application/json"},
+        body:JSON.stringify(payload),
+        cache:"no-store"
+      });
+      const value=await response.json().catch(()=>null);
+      if (!response.ok || !value?.order_code) {
+        const message=String(value?.message||"Поръчката не беше записана. Опитай отново.");
+        throw Error(message.slice(0,220));
+      }
+      $("#checkout-order-code").textContent=value.order_code;
+      data.cart=[];
+      save(CART_KEY,[]);
+      checkoutRequestKey=null;
+      panel.hidden=true;
+      $(".cart-page").hidden=true;
+      $("#checkout-success").hidden=false;
+      updateCounters();
+      $("#checkout-success").scrollIntoView({block:"start",behavior:"smooth"});
+    } catch(error) {
+      checkoutError(String(error?.message||"Възникна проблем. Опитай отново.").slice(0,220));
+      // Keep the same request key for safe network retries / idempotency.
+      if (/Цената|Наличност|продукти/i.test(String(error?.message))) loadCatalog().catch(()=>{});
+    } finally {
+      checkoutBusy=false;
+      if (button) {button.disabled=false;button.textContent="Изпрати заявката";}
+      checkoutAction();
+    }
+  });
+  checkoutStatus();
+}
+
 function configureContact() {
   const email = String(config.contactEmail || "").trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
@@ -345,6 +480,7 @@ function initUI() {
   });
   renderCollectionHeading();
   updateCounters();
+  setupCheckout();
 }
 
 async function publicTable(query) {
@@ -395,6 +531,8 @@ async function loadCatalog() {
   }
   renderCatalog();
   renderCart();
+  checkoutReview();
+  checkoutAction();
   renderProduct();
 }
 window.addEventListener("sabrano:consentchange", (event) => {
