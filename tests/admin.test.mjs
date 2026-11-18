@@ -110,5 +110,5 @@ test("campaigns are read from DB and admin sets them with a confirmed protected 
   assert.match(features, /assign\(\$\("\.hero-image img"\)/);
   assert.match(features, /new BroadcastChannel\(CAMPAIGN_CHANNEL\)/);
   assert.match(admin, /channel\.postMessage\(\{ type: "campaign-changed", key \}\)/);
-  assert.match(presets, /assets\/images\/easter\.svg/);
+  assert.match(presets, /assets\/images\/easter\.webp/);
 });
