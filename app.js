@@ -13,7 +13,7 @@ const groups = {
   deca: { label: "За деца", title: "Големи усмивки <em>за малките.</em>", subtitle: "Подаръчни комплекти за детски празници и радостни поводи." },
   povodi: { label: "За поводи", title: "Понякога <em>просто така.</em>", subtitle: "Красиви жестове за специалните хора." }
 };
-const validFilter = (value) => value in groups || value === "all" || value === "favorites" ? value : "all";
+const validFilter = (value) => typeof value === "string" && /^[a-z0-9-]{1,100}$/.test(value) ? value : "all";
 const data = {
   categories: [],
   products: [],
@@ -57,7 +57,13 @@ function productGroup(product) {
   if (/колед|koled|christmas|xmas/.test(content)) return "koleda";
   if (/беб|baby|bebe|newborn|погача/.test(content)) return "bebe";
   if (/дете|деца|детски|kids|child|deca/.test(content)) return "deca";
-  return "povodi";
+  return /^[a-z0-9-]+$/.test(product.category?.slug || "") ? product.category.slug : "povodi";
+}
+function groupInfo(slug) {
+  if (groups[slug]) return groups[slug];
+  const category = data.categories.find((item) => item.slug === slug);
+  if (!category) return groups.povodi;
+  return { label: category.name, title: escapeHTML(category.name), subtitle: category.description || "Подбрани подаръци за специални моменти." };
 }
 function notify(message) {
   const el = $("#toast");
@@ -139,10 +145,10 @@ function productCard(item) {
   return '<article class="product-card">' +
     '<a href="./product.html?id=' + encodeURIComponent(item.id) + '" class="product-image-link" aria-label="Виж ' + escapeHTML(item.name) + '">' +
       '<div class="product-image-wrap">' + photo(productPhoto(item), item.name) +
-        '<span class="product-tag">' + escapeHTML(groups[item.group].label) + '</span></div></a>' +
+        '<span class="product-tag">' + escapeHTML(groupInfo(item.group).label) + '</span></div></a>' +
       '<button class="favorite-button' + (liked ? ' is-liked' : '') + '" type="button" data-favorite="' + escapeHTML(item.id) + '" aria-label="' + (liked ? "Премахни от любими" : "Добави в любими") + '">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.5c0 4.4-8.5 10.2-8.5 10.2S3.5 12.9 3.5 8.5a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg></button>' +
-    '<div class="product-info"><div class="product-kicker">' + escapeHTML(groups[item.group].label) + '</div>' +
+    '<div class="product-info"><div class="product-kicker">' + escapeHTML(groupInfo(item.group).label) + '</div>' +
       '<h3 class="product-title"><a href="./product.html?id=' + encodeURIComponent(item.id) + '">' + escapeHTML(item.name) + '</a></h3>' +
       '<div class="product-row"><strong class="price">' + escapeHTML(price(item.price_eur)) + '</strong>' +
       '<button class="product-cta" type="button" data-add="' + escapeHTML(item.id) + '"' + (item.stock_quantity > 0 ? "" : " disabled") + '>' +
@@ -168,10 +174,45 @@ function renderCatalog() {
   grid.innerHTML = items.map(productCard).join("");
   $$("[data-filter]").forEach((btn) => btn.classList.toggle("is-active", btn.dataset.filter === data.filter));
 }
+function renderCustomCategories() {
+  const reserved = new Set(["koleda", "bebe", "deca", "povodi"]);
+  const custom = data.categories.filter((cat) => !reserved.has(cat.slug) &&
+    data.products.some((product) => product.category_id === cat.id));
+  const filters = $(".catalog-filters");
+  if (filters) {
+    filters.querySelectorAll(".dynamic-filter").forEach((node) => node.remove());
+    for (const category of custom) {
+      const button = document.createElement("button");
+      button.className = "filter-button dynamic-filter";
+      button.type = "button";
+      button.dataset.filter = category.slug;
+      button.textContent = category.name;
+      filters.append(button);
+    }
+  }
+  if (page === "collections") {
+    const grid = $(".collections-grid");
+    if (!grid) return;
+    grid.querySelectorAll(".collection-card-custom").forEach((node) => node.remove());
+    for (const category of custom) {
+      const link = document.createElement("a");
+      link.href = "./collection.html?category=" + encodeURIComponent(category.slug);
+      link.className = "collection-card collection-card-custom";
+      const label = document.createElement("span");
+      label.className = "collection-number";
+      label.textContent = "подаръчна колекция";
+      const title = document.createElement("span");
+      title.className = "collection-title";
+      title.textContent = category.name;
+      link.append(label, title);
+      grid.append(link);
+    }
+  }
+}
 function renderCollectionHeading() {
   if (page !== "collection") return;
   data.filter = validFilter(params.get("category") || "all");
-  const group = groups[data.filter];
+  const group = groups[data.filter] || (data.categories.some((item) => item.slug === data.filter) ? groupInfo(data.filter) : null);
   const title = $("#collection-title"), description = $("#collection-description"), eyebrow = $("#collection-overline");
   if (!group) {
     if (title) title.textContent = "Всички подаръци";
@@ -195,7 +236,7 @@ function renderProduct() {
   document.title = item.name + " | събрано.";
   const liked = data.favorites.has(item.id);
   wrapper.innerHTML = '<div class="product-page-photo">' + photo(productPhoto(item), item.name, "eager") + '</div>' +
-    '<div class="product-page-details"><span class="eyebrow">' + escapeHTML(groups[item.group].label) + '</span>' +
+    '<div class="product-page-details"><span class="eyebrow">' + escapeHTML(groupInfo(item.group).label) + '</span>' +
       '<h1>' + escapeHTML(item.name) + '</h1><p class="product-page-description">' + escapeHTML(item.description || "Красиво подбран подаръчен комплект.") + '</p>' +
       '<div class="product-page-price">' + escapeHTML(price(item.price_eur)) + '</div>' +
       '<div class="product-page-buttons"><button type="button" class="button button-dark" data-add="' + escapeHTML(item.id) + '"' + (item.stock_quantity > 0 ? "" : " disabled") + '>' +
@@ -326,6 +367,8 @@ async function loadCatalog() {
       return product;
     });
     syncCart();
+    renderCustomCategories();
+    renderCollectionHeading();
   } catch (error) {
     console.error("Store catalog:", error);
     // Do not erase saved cart entries when the catalog is temporarily offline.
