@@ -718,3 +718,34 @@ html[data-campaign] .collection-card-large .collection-shade{
 }
 html[data-campaign] .hero-image img{transition:opacity .25s ease}
 html[data-campaign] .home-season-image img{transition:opacity .25s ease}
+
+
+/* Instant, script-independent seasonal artwork and copy. No splash, no hidden page. */
+html[data-campaign="christmas"]{--instant-season-photo:url("./assets/images/christmas.webp")}
+html[data-campaign="easter"]{--instant-season-photo:url("./assets/images/easter.webp")}
+html[data-campaign="valentine"]{--instant-season-photo:url("./assets/images/valentine.webp")}
+html[data-campaign="womens_day"]{--instant-season-photo:url("./assets/images/womens_day.webp")}
+html[data-campaign="martenitsa"]{--instant-season-photo:url("./assets/images/martenitsa.webp")}
+html[data-campaign="everyday"]{--instant-season-photo:url("./assets/images/everyday.webp")}
+html:not([data-campaign]){--instant-season-photo:url("./assets/images/everyday.webp")}
+/* In each group, exactly one pre-rendered copy is visible before any asynchronous scripts run. */
+[data-season-content]{display:none!important}
+html[data-campaign="christmas"] [data-season-content="christmas"],
+html[data-campaign="easter"] [data-season-content="easter"],
+html[data-campaign="valentine"] [data-season-content="valentine"],
+html[data-campaign="womens_day"] [data-season-content="womens_day"],
+html[data-campaign="martenitsa"] [data-season-content="martenitsa"],
+html[data-campaign="everyday"] [data-season-content="everyday"]{display:contents!important}
+.seasonal-photo{position:absolute;inset:0;width:100%;height:100%;
+  background-image:var(--instant-season-photo);background-size:cover;background-position:center}
+.hero-image .seasonal-photo{transform:scale(1.015);filter:saturate(.94)}
+.home-season-image .seasonal-photo,.collection-card-large .seasonal-photo{filter:saturate(.96)}
+.collection-card-large .seasonal-photo{transition:transform .6s ease}
+.collection-card-large:hover .seasonal-photo{transform:scale(1.035)}
+html[data-campaign="christmas"] .hero-image,
+html[data-campaign="easter"] .hero-image,
+html[data-campaign="valentine"] .hero-image,
+html[data-campaign="womens_day"] .hero-image,
+html[data-campaign="martenitsa"] .hero-image,
+html[data-campaign="everyday"] .hero-image{background-color:#d2c0ad}
+@media(max-width:620px){.hero-image .seasonal-photo{background-position:center 46%}}
