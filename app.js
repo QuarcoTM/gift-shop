@@ -225,7 +225,7 @@ function renderCustomCategories() {
     const staticSlugs = new Set(["bebe", "deca", "povodi"]);
     const holidayCampaigns = Object.values(CAMPAIGNS).filter(item => item.slug !== "povodi");
     const anchor = grid.querySelector(".collection-card:not(.collection-card-large)");
-    const everydayCard = grid.querySelector('.collection-card[href="./collection/?category=povodi"]');
+    const everydayCard = grid.querySelector('.collection-card[href*="category=povodi"]:not(.collection-card-large)');
     if (everydayCard) everydayCard.hidden = campaign?.slug === "povodi";
     for (const category of data.categories) {
       if (category.slug === featuredSlug || staticSlugs.has(category.slug)) continue;
