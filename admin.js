@@ -364,12 +364,12 @@ function campaignsView() {
     everyday:"Универсален облик без конкретен празник."
   };
   let html = heading("ВИЗИЯ НА МАГАЗИНА", "Празнични кампании", "Избери кампания и я активирай с един бутон. Обновяват се празничните текстове, акценти и връзки в целия публичен магазин.");
+  html += '<div class="campaign-live-preview"><div><strong>Текуща кампания: ' + esc(CAMPAIGNS[state.campaign]?.label || "Коледа") + '</strong><small>Промените се отразяват в отворените прозорци на магазина. Изборът се запазва в Supabase.</small></div><a href="./" target="_blank" rel="noopener">Виж магазина ↗</a></div>';
   html += '<div class="campaign-grid">' +
     Object.entries(CAMPAIGNS).map(([key,c]) => {
       const active = key === state.campaign;
       return '<article class="campaign-card campaign-' + esc(key) + (active?' is-active':'') + '">' +
-        '<div class="campaign-preview"><span class="campaign-preview-logo">събрано.</span><span class="campaign-preview-mark">' + esc(c.mark) +
-        '</span><small>' + esc(c.eyebrow) + '</small></div><div class="campaign-card-body"><div class="campaign-title-row"><h2>' +
+        '<div class="campaign-preview"><img src="' + esc(c.image) + '" alt="" loading="lazy" /><span class="campaign-preview-logo">събрано.</span><small>' + esc(c.eyebrow) + '</small></div><div class="campaign-card-body"><div class="campaign-title-row"><h2>' +
         esc(c.label) + '</h2>' + (active?badge("Активна"):'')+'</div><p>' + esc(descriptions[key]) +
         '</p><button type="button" data-campaign-key="' + esc(key) + '" data-busy class="' + (active?'secondary-button':'primary-button') +
         '" '+(active?'disabled':'')+'>' + (active?'Текуща визия':'Активирай тази визия')+'</button></div></article>';
@@ -386,7 +386,14 @@ async function activateCampaign(key) {
     }
     await loadAll();
     render();
-    toast("Активирана е кампания „" + CAMPAIGNS[key].label + "“.");
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        const channel = new BroadcastChannel("sabrano-campaign-updates-v1");
+        channel.postMessage({ type: "campaign-changed", key });
+        channel.close();
+      }
+    } catch (error) { console.warn("Campaign live preview:", error); }
+    toast("Активирана е кампания „" + CAMPAIGNS[key].label + "“. Виж промяната в магазина.");
   } catch(error) {toast(readableError(error));}
   finally {wait(false);}
 }
