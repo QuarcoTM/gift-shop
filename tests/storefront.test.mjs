@@ -146,7 +146,8 @@ test("sale image has been removed from all storefront pages", () => {
   for (const { name, content } of pages) {
     assert.doesNotMatch(content, /photo-1607082350899-7e105aa886ae/, name);
   }
-  assert.match(read("about.html"), /photo-1764385827316-c903082e0d1b/);
+  assert.match(read("about.html"), /assets\/images\/about\.svg/);
+  assert.doesNotMatch(read("about.html"), /images\.unsplash\.com/);
 });
 
 test("refresh keeps native scroll restoration rather than resetting to the top", () => {
@@ -169,13 +170,22 @@ test("refresh script is valid JavaScript", () => {
   );
 });
 
-test("home photography is unique and the children's image uses a direct CDN address", () => {
+test("storefront uses locally hosted original illustrations, not image CDNs", () => {
   const home = read("index.html");
-  assert.match(home, /images\.unsplash\.com\/photo-1685358268305-c621b38e75d8/);
-  assert.doesNotMatch(home, /unsplash\.com\/photos\/VREYTFaCNPk\/download\?force=true\?/);
-  assert.match(home, /images\.unsplash\.com\/photo-1574092749903-25ea4c90993c/);
-  assert.equal((home.match(/photo-1512909006721-3d6018887383/g) || []).length, 1);
+  assert.match(home, /assets\/images\/hero\.svg/);
+  assert.match(home, /assets\/images\/kids\.svg/);
+  assert.match(home, /assets\/images\/christmas\.svg/);
+  assert.match(home, /assets\/images\/baby\.svg/);
+  assert.match(home, /assets\/images\/occasions\.svg/);
+  const uniqueNames = ["hero","baby","kids","occasions","christmas","easter","valentine","womens_day","martenitsa","everyday","bulk","about"];
+  for (const name of uniqueNames) {
+    assert.ok(existsSync(path("assets/images/" + name + ".svg")), "Missing original artwork: " + name);
+  }
+  for (const { name, content } of pages) {
+    assert.doesNotMatch(content, /images\.unsplash\.com|fonts\.googleapis\.com|fonts\.gstatic\.com/, name);
+  }
 });
+
 test("home keeps the event gifts and removes only the bottom idea tile", () => {
   const home = read("index.html");
   assert.match(home, /<section class="home-more container">/);
