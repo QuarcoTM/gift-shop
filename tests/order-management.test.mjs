@@ -114,6 +114,15 @@ test("server guards admin access, stock and sequential fulfillment",()=>{
   assert.match(sql,/to authenticated/);
 });
 
+test("waybill appears on the private customer order page after dispatch",()=>{
+  const html=read("order/index.html");
+  const js=read("order-management.js");
+  const backend=read("supabase/functions/order-management/index.ts");
+  assert.match(html,/id="order-waybill"/);
+  assert.match(js,/order\.waybill_number/);
+  assert.match(backend,/waybill_number:order\.waybill_number/);
+});
+
 test("the public footer exposes withdrawal link from every storefront page",()=>{
   for(const p of ["index.html","about/index.html","bulk/index.html","cart/index.html",
     "collection/index.html","collections/index.html","products/index.html",
