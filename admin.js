@@ -14,7 +14,7 @@ const escapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => escapes[c]);
 const statuses = { pending: "Нова", confirmed: "Потвърдена", preparing: "Подготовка", shipped: "Изпратена", delivered: "Доставена", cancelled: "Отказана" };
 const pages = { dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", settings: "Настройки" };
-const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", busy: false };
+const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", orderSearch: "", orderFilter: "all", busy: false };
 let toastTimer = null;
 
 function safeImage(url) {
@@ -156,7 +156,7 @@ async function loadAll() {
   state.campaign = shopSettings?.[0]?.active_campaign || "christmas";
   state.checkoutEnabled = shopSettings?.[0]?.checkout_enabled===true;
   $("#nav-product-count").textContent = number(products.length);
-  $("#nav-order-count").textContent = number(orders.filter((item) => item.status === "pending").length);
+  $("#nav-order-count").textContent = number(orders.filter((item) => item.status === "pending" || returnNeedsAction(item)).length);
 }
 async function reload() {
   wait(true);
@@ -296,20 +296,83 @@ function categories() {
   }
   return html + "</section>";
 }
+function orderCode(o) {
+  return o.order_number ? "SBR-" + String(o.order_number).padStart(6, "0") : "#" + String(o.id).slice(0,8).toUpperCase();
+}
+function returnLabel(o) {
+  if (!o.withdrawal_requested_at) return "";
+  if (o.return_refunded_at) return "Сумата е върната";
+  if (o.return_received_at) return "Получено връщане";
+  if (o.return_in_transit_at) return "Пратка за връщане";
+  return "Заявено връщане";
+}
+function returnNeedsAction(o) {
+  return o.withdrawal_requested_at && !o.return_refunded_at;
+}
+function normalizedOrderSearch(value) {
+  return String(value || "").toLocaleLowerCase("bg-BG").normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "").replace(/[\s\-+()]/g, "");
+}
+function filteredOrders() {
+  const query=normalizedOrderSearch(state.orderSearch);
+  return state.orders.filter(o=>{
+    const filter=state.orderFilter;
+    const fits=filter==="all" || (filter==="returns" && returnNeedsAction(o)) ||
+      (filter==="attention" && (o.status==="pending" || returnNeedsAction(o))) ||
+      (o.status===filter);
+    if (!fits) return false;
+    const haystack=normalizedOrderSearch([orderCode(o),o.customer_name,o.customer_phone,
+      o.customer_email,o.delivery_city,o.waybill_number,o.delivery_address].join(" "));
+    return !query || haystack.includes(query);
+  });
+}
+function orderList() {
+  const filtered=filteredOrders();
+  return (filtered.length ?
+    '<div class="table-scroll"><table class="data-table order-table"><thead><tr>' +
+    '<th>ПОРЪЧКА</th><th>КЛИЕНТ</th><th>ДОСТАВКА</th><th>СУМА ЗА ПРОДУКТИ</th><th>СТАТУС</th><th></th>' +
+    '</tr></thead><tbody>' + filtered.map(o=>
+      '<tr><td><strong>' + esc(orderCode(o)) + '</strong><small>' + esc(date(o.created_at)) + '</small></td>' +
+      '<td><strong>' + esc(o.customer_name) + '</strong><small>' + esc(o.customer_phone) + '</small><small>' + esc(o.customer_email || "—") + '</small></td>' +
+      '<td>' + esc(o.delivery_courier==="econt" ? "Еконт" : o.delivery_courier==="speedy" ? "Спиди" : "Куриер") +
+      '<small>' + esc(o.delivery_city || "—") + (o.waybill_number ? ' · ' + esc(o.waybill_number) : '') + '</small></td>' +
+      '<td><strong>' + esc(money(o.subtotal_eur)) + '</strong><small>' + (o.shipping_quote_pending ? 'Доставка: неуточнена' :
+      'Доставка: ' + esc(money(o.shipping_eur))) + '</small></td>' +
+      '<td>' + badge(statuses[o.status] || o.status, o.status) +
+      (o.withdrawal_requested_at ? '<small class="order-return-flag">' + esc(returnLabel(o)) + '</small>' : '') +
+      '</td><td><button class="table-action" type="button" data-order="' + esc(o.id) +
+      '">Отвори</button></td></tr>').join("") +
+    '</tbody></table></div>' :
+    blank("▧", state.orders.length ? "Няма съвпадащи поръчки" : "Все още няма поръчки",
+      state.orders.length ? "Промени търсенето или филтъра." :
+      "Когато активираме приемането на заявки, поръчките ще се появяват тук.")) +
+    '<div class="table-bottom"><span>' + esc(number(filtered.length)) +
+    ' от ' + esc(number(state.orders.length)) +
+    ' поръчки</span><span>Сортирани от най-новите</span></div>';
+}
 function orders() {
-  let html = heading("ПРОДАЖБИ", "Поръчки", "Клиентски заявки, начин на доставка, продукти, наличности и обработка на наложен платеж.");
-  html += '<section class="data-panel">';
-  if (!state.orders.length) html += blank("▧", "Все още няма поръчки", "Новите заявки ще се появяват тук след активиране на приемането и публикуване на продукти.");
-  else {
-    html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>ПОРЪЧКА</th><th>КЛИЕНТ</th><th>ДАТА</th><th>ПРОДУКТИ</th><th>СТАТУС</th><th></th></tr></thead><tbody>';
-    html += state.orders.map((o) => '<tr><td><strong>' + esc(o.order_number ? 'SBR-'+String(o.order_number).padStart(6,'0') : String(o.id).slice(0,8).toUpperCase()) +
-      '</strong></td><td>' + esc(o.customer_name) + '</td><td>' + esc(date(o.created_at)) + '</td><td>' +
-      esc(money(o.total_eur)) + '</td><td>' + badge(statuses[o.status] || o.status, o.status) +
-      (o.withdrawal_requested_at ? '<div style="margin-top:5px"><strong>Заявено връщане</strong></div>' : '') +
-      '</td><td><button class="table-action" type="button" data-order="' + esc(o.id) + '">Отвори</button></td></tr>').join("");
-    html += '</tbody></table></div><div class="table-bottom"><span>' + number(state.orders.length) + ' поръчки</span><span>Сортирани по дата</span></div>';
-  }
-  return html + "</section>";
+  const newOrders=state.orders.filter(o=>o.status==="pending").length;
+  const inProgress=state.orders.filter(o=>o.status==="confirmed" || o.status==="preparing").length;
+  const onTheWay=state.orders.filter(o=>o.status==="shipped").length;
+  const returns=state.orders.filter(returnNeedsAction).length;
+  return heading("ПРОДАЖБИ", "Поръчки", "Проверявай заявките, потвърждавай цената с клиента и обработвай доставка и връщане.") +
+    '<section class="metric-grid order-metrics" aria-label="Обобщение на поръчките">' +
+    metric("Нови заявки",number(newOrders),"Очакват обработка","▤",newOrders>0) +
+    metric("За подготовка",number(inProgress),"Потвърдени / подготвят се","▦") +
+    metric("Изпратени",number(onTheWay),"Пътуват към получателя","◉") +
+    metric("Заявки за връщане",number(returns),"Очакват действие","◈",returns>0) +
+    '</section>' +
+    '<div class="table-tools"><label class="search-box"><span>⌕</span>' +
+    '<input type="search" id="order-search" placeholder="Номер, име, телефон, имейл или товарителница..." value="' +
+    esc(state.orderSearch) + '" aria-label="Търси поръчки" /></label>' +
+    '<select class="filter-select" id="order-filter" aria-label="Филтър на поръчките">' +
+    [['all',"Всички"],['attention',"За действие"],['pending',"Нови"],['confirmed',"Потвърдени"],
+    ['preparing',"Подготовка"],['shipped',"Изпратени"],['delivered',"Доставени"],
+    ['returns',"За връщане"],['cancelled',"Отказани"]].map(([value,label])=>
+    '<option value="' + value + '"' + (state.orderFilter===value ? ' selected' : '') +
+    '>' + label + '</option>').join("") + '</select>' +
+    '<button type="button" class="secondary-button order-refresh" data-action="refresh-orders">Обнови</button></div>' +
+    '<section class="data-panel" id="orders-data-panel">' + orderList() + '</section>';
 }
 function analytics() {
   const days = dailyDates(14);
@@ -496,34 +559,203 @@ function openCategory(id = null) {
   if (!c) $("#field-name").addEventListener("input", () => { if (!$("#field-slug").dataset.edited) $("#field-slug").value = slugify($("#field-name").value); });
   $("#field-slug").addEventListener("input", () => { $("#field-slug").dataset.edited = "true"; });
 }
+function orderActionForm(o,action,label,content="",explanation="",danger=false) {
+  return '<form class="order-action-form" data-order-action="' + esc(action) +
+    '" data-order-id="' + esc(o.id) + '">' +
+    (explanation ? '<p class="order-action-hint">' + esc(explanation) + '</p>' : '') +
+    content + '<button type="submit" data-busy class="' +
+    (danger ? 'secondary-button order-danger' : 'primary-button') + '">' +
+    esc(label) + '</button></form>';
+}
+function orderStep(o) {
+  let content='';
+  if(o.status==="pending"){
+    content+='<h3 class="order-section-title">Цена за доставка</h3>' +
+      orderActionForm(o,"quote","Запази цена за доставка",
+        '<label class="order-input">Доставка (€), изчислена с куриера' +
+        '<input type="number" name="shipping_eur" min="0" max="500" step="0.01" inputmode="decimal" required value="' +
+        (o.shipping_quote_pending ? '' : esc(o.shipping_eur)) + '" placeholder="Например 4.90" /></label>',
+        "Това е ръчно въведена цена. Не е автоматична тарифа от Еконт или Спиди.");
+    if(!o.shipping_quote_pending){
+      content+='<h3 class="order-section-title">Потвърждение от клиента</h3>' +
+        orderActionForm(o,"confirm","Потвърди поръчката",
+          '<label class="order-check"><input type="checkbox" name="confirmed_with_customer" required />' +
+          '<span>Уточних с клиента цената на доставката и той прие крайната сума.</span></label>',
+          "След потвърждението можеш да подготвиш пратката.");
+    }
+  }else if(o.status==="confirmed"){
+    content+='<h3 class="order-section-title">Подготовка</h3>' +
+      orderActionForm(o,"prepare","Започни подготовка","",
+        "Поръчката е потвърдена. Подготви подаръчния комплект за изпращане.");
+  }else if(o.status==="preparing"){
+    content+='<h3 class="order-section-title">Изпращане</h3>' +
+      orderActionForm(o,"ship","Отбележи като изпратена",
+        '<label class="order-input">Номер на товарителница' +
+        '<input type="text" name="waybill_number" minlength="5" maxlength="80" required autocomplete="off" placeholder="Номер от Еконт или Спиди" /></label>',
+        "Създай товарителницата при куриера и въведи номера ѝ тук. Сайтът още не я създава автоматично.");
+  }else if(o.status==="shipped"||o.status==="delivered"){
+    content+='<h3 class="order-section-title">Товарителница</h3>' +
+      orderActionForm(o,"correct_waybill","Запази номера",
+        '<label class="order-input">Номер на товарителница' +
+        '<input type="text" name="waybill_number" minlength="5" maxlength="80" required value="' +
+        esc(o.waybill_number || "") + '" /></label>',
+        "Можеш да поправиш сгрешен номер, без да променяш статуса.");
+    if(o.status==="shipped"){
+      content+=orderActionForm(o,"deliver","Отбележи като доставена","",
+        "Направи това, след като провериш действителното доставяне при куриера.");
+    }
+  }
+  if(["pending","confirmed","preparing"].includes(o.status)){
+    content+='<div class="order-cancel-action"><h3 class="order-section-title">Анулиране</h3>' +
+      orderActionForm(o,"cancel","Анулирай поръчката","",
+        "Само преди изпращане. Резервираните бройки се връщат в наличност.",true)+'</div>';
+  }
+  if(o.status==="cancelled")content+='<p class="order-readonly">Поръчката е анулирана. Наличността вече е възстановена.</p>';
+  return content;
+}
+function orderReturnActions(o) {
+  if(!o.withdrawal_requested_at)return "";
+  let html='<section class="order-return-panel"><h3>Заявено връщане</h3>' +
+    '<p><strong>Получено на:</strong> ' + esc(new Date(o.withdrawal_requested_at).toLocaleString("bg-BG")) +
+    '</p>' +
+    (o.withdrawal_note ? '<p><strong>Съобщение от клиента:</strong> ' + esc(o.withdrawal_note) + '</p>' : '') +
+    '<p>Потвърждение по имейл: <strong>' +
+    (o.withdrawal_ack_email_sent_at ? 'изпратено' : 'не е потвърдено изпращане') + '</strong></p>';
+  if(o.return_in_transit_at)
+    html+='<p>Обратно изпращане: ' + esc(date(o.return_in_transit_at)) + '</p>';
+  if(o.return_received_at)
+    html+='<p>Физически получена: ' + esc(date(o.return_received_at)) + '</p>';
+  if(o.return_refunded_at)
+    html+='<p>Възстановена сума: ' + esc(date(o.return_refunded_at)) + '</p>';
+  if(!o.return_received_at){
+    if(!o.return_in_transit_at)
+      html+=orderActionForm(o,"return_transit","Отбележи, че пратката се връща");
+    html+=orderActionForm(o,"return_received","Отбележи получено връщане",
+      '<label class="order-check"><input type="checkbox" name="restore_stock" />' +
+      '<span>Проверих артикулите и са годни за повторна продажба — върни бройките в наличност.</span></label>',
+      "Отбележи получена пратка само след физическото ѝ пристигане. Наличността се възстановява само при отметка.");
+  }else{
+    if(!o.return_stock_restored_at)
+      html+=orderActionForm(o,"restore_stock","Върни артикулите в наличност",
+        '<label class="order-check"><input type="checkbox" name="confirmed_with_customer" required />' +
+        '<span>Проверих върнатите артикули и всички са годни за нова продажба.</span></label>',
+        "Еднократно действие след физическа проверка.");
+    else html+='<p class="order-readonly">Наличността е възстановена на ' +
+      esc(date(o.return_stock_restored_at)) + '.</p>';
+    if(!o.return_refunded_at)
+      html+=orderActionForm(o,"return_refunded","Отбележи възстановена сума",
+        '<label class="order-check"><input type="checkbox" name="confirmed_with_customer" required />' +
+        '<span>Реално възстанових дължимата сума на клиента.</span></label>',
+        "Това е ръчно счетоводно отбелязване — не извършва превод.");
+    else html+='<p class="order-readonly">Връщането е приключено — сумата е отбелязана като възстановена.</p>';
+  }
+  return html+'</section>';
+}
 function openOrder(id) {
-  const o = state.orders.find((item) => item.id === id);
-  if (!o) return;
-  const items = state.orderItems.filter((item) => item.order_id === id);
-  const statusOpts = Object.entries(statuses).map(([value,label]) => '<option value="' + value + '"' +
-    (value === o.status ? " selected" : "") + '>' + label + '</option>').join("");
-  const html = '<div class="field-grid"><div class="field"><label>Клиент</label><p>' + esc(o.customer_name) +
-    '</p></div><div class="field"><label>Дата</label><p>' + esc(date(o.created_at)) + '</p></div>' +
-    '<div class="field"><label>Телефон</label><p>' + esc(o.customer_phone) + '</p></div>' +
-    '<div class="field"><label>Имейл</label><p>' + esc(o.customer_email || "—") + '</p></div></div>' +
-    '<div class="note-box"><strong>Доставка:</strong> ' + esc([o.delivery_courier === 'econt' ? 'Еконт' : o.delivery_courier === 'speedy' ? 'Спиди' : o.delivery_courier, o.delivery_method?.endsWith('_office') ? 'до офис' : 'до адрес', o.delivery_city, o.delivery_address].filter(Boolean).join(", ") || "Не е посочена") +
-    (o.customer_note ? '<p style="margin:9px 0 0">Бележка: ' + esc(o.customer_note) + '</p>' : "") + '</div>' +
-    (o.withdrawal_requested_at ? '<div class="note-box"><strong>ЗАЯВКА ЗА ВРЪЩАНЕ</strong><p style="margin:9px 0 0">Получена: ' +
-       esc(new Date(o.withdrawal_requested_at).toLocaleString("bg-BG")) + '</p>' +
-       (o.withdrawal_note ? '<p style="margin:9px 0 0">Съобщение: ' + esc(o.withdrawal_note) + '</p>' : '') +
-       '<p style="margin:9px 0 0">Имейл за потвърждение: ' +
-       (o.withdrawal_ack_email_sent_at ? 'изпратен' : 'не е потвърдено изпращане') + '</p>' +
-       '<p style="margin:9px 0 0">Не възстановявай наличността, преди стоката да е върната и проверена.</p></div>' : '') +
-    '<section class="panel"><div class="panel-header"><h3 class="panel-title">Артикули</h3></div>' +
-    (items.length ? items.map((item) => '<div class="list-row"><div class="row-main"><strong>' +
-      esc(item.product_name) + '</strong><small>' + esc(item.quantity + " × " + money(item.unit_price_eur)) +
-      '</small></div><strong>' + esc(money(item.quantity * item.unit_price_eur)) + '</strong></div>').join("") :
-      '<div class="list-row">Няма данни за артикули.</div>') +
-    '</section><div class="table-bottom"><span>Сума за продукти</span><strong>' + esc(money(o.subtotal_eur)) + '</strong></div>' +
-    '<div class="note-box"><strong>Наложен платеж</strong> · ' + (o.shipping_quote_pending ? 'Куриерската такса се уточнява отделно преди изпращане.' : 'Доставка: ' + esc(money(o.shipping_eur))) + '</div>' +
-    '<form id="edit-form" data-kind="order" data-id="' + esc(o.id) + '"><div class="field"><label for="field-status">Статус</label><select id="field-status" name="status">' +
-    statusOpts + '</select></div>' + dialogActions() + "</form>";
-  dialog("Поръчка " + (o.order_number ? "SBR-"+String(o.order_number).padStart(6,"0") : "#"+String(o.id).slice(0,8).toUpperCase()), "ПОРЪЧКИ / ДЕТАЙЛИ", html);
+  const o=state.orders.find(item=>item.id===id);
+  if(!o)return;
+  const items=state.orderItems.filter(item=>item.order_id===id);
+  const delivery=[o.delivery_courier==="econt"?"Еконт":o.delivery_courier==="speedy"?"Спиди":o.delivery_courier,
+    o.delivery_method?.endsWith("_office")?"До офис":"До адрес",o.delivery_city,o.delivery_address]
+    .filter(Boolean).join(", ");
+  const html='<div class="order-detail">' +
+    '<div class="order-detail-summary"><span>' + badge(statuses[o.status]||o.status,o.status) +
+    (o.withdrawal_requested_at ? '<span class="order-return-flag">' + esc(returnLabel(o)) + '</span>' : '') +
+    '</span><span>Създадена ' + esc(date(o.created_at)) + '</span></div>' +
+    '<div class="field-grid order-customer"><div><strong>Получател</strong><p>' +
+    esc(o.customer_name) + '</p></div><div><strong>Телефон</strong><p>' + esc(o.customer_phone) +
+    '</p></div><div><strong>Имейл</strong><p>' + esc(o.customer_email||"—") +
+    '</p></div><div><strong>Куриер</strong><p>' +
+    esc(o.delivery_courier==="econt"?"Еконт":o.delivery_courier==="speedy"?"Спиди":o.delivery_courier||"—") +
+    '</p></div></div>' +
+    '<div class="note-box order-delivery"><strong>Доставка</strong><p>' + esc(delivery||"Не е посочена") + '</p>' +
+    '<button type="button" class="table-action" data-order-copy="' + esc(o.id) +
+    '">Копирай данните за доставка</button>' +
+    (o.customer_note ? '<p><strong>Бележка:</strong> ' + esc(o.customer_note) + '</p>' : '') +
+    '</div>' +
+    '<section class="order-products"><h3 class="order-section-title">Продукти</h3>' +
+    (items.length?items.map(i=>'<div class="list-row"><div class="row-main"><strong>' +
+    esc(i.product_name) + '</strong><small>' + esc(i.quantity + " × " + money(i.unit_price_eur)) +
+    '</small></div><strong>' + esc(money(i.quantity*i.unit_price_eur)) + '</strong></div>').join("") :
+    '<p>Липсват данни за артикулите.</p>') +
+    '</section>' +
+    '<div class="order-totals"><div><span>Продукти (наложен платеж)</span><strong>' +
+    esc(money(o.subtotal_eur)) + '</strong></div>' +
+    '<div><span>Доставка' + (o.shipping_quote_pending?" (неуточнена)":" (отделно при куриера)") +
+    '</span><strong>' + (o.shipping_quote_pending?"Предстои":esc(money(o.shipping_eur))) + '</strong></div>' +
+    (o.shipping_quote_pending?"":'<div class="order-total-final"><span>Общо за клиента</span><strong>' +
+    esc(money(o.total_eur)) + '</strong></div>') +
+    '</div>' +
+    (o.customer_shipping_confirmed_at ? '<p class="order-readonly">Уточнено с клиента: ' +
+       esc(date(o.customer_shipping_confirmed_at)) + '</p>' : '') +
+    '<div class="order-steps">' + orderStep(o) + '</div>' +
+    orderReturnActions(o) +
+    '<p class="order-admin-notice">Статусите се обновяват в базата. Автоматични имейли и товарителници още не се изпращат от този панел.</p></div>';
+  dialog("Поръчка "+orderCode(o),"ПОРЪЧКИ / ДЕТАЙЛИ",html);
+}
+async function submitOrderAction(form) {
+  if(state.busy)return;
+  const id=form.dataset.orderId,action=form.dataset.orderAction;
+  const o=state.orders.find(item=>item.id===id);
+  if(!o)return;
+  const f=new FormData(form);
+  const payload={
+    p_order_id:id,p_action:action,p_expected_updated_at:o.updated_at,
+    p_confirmed_with_customer:f.get("confirmed_with_customer")==="on",
+    p_restore_stock:f.get("restore_stock")==="on"
+  };
+  if(action==="quote"){
+    const input=String(f.get("shipping_eur")||"").trim();
+    if(!input) {toast("Въведи цена за доставка.");return}
+    payload.p_shipping_eur=Number(input.replace(",","."));
+  }
+  if(action==="ship"||action==="correct_waybill"){
+    payload.p_waybill_number=String(f.get("waybill_number")||"").trim();
+  }
+  const confirmMessages={
+    cancel:"Да анулирам ли поръчката? Резервираните бройки ще се върнат в наличност.",
+    ship:"Пратката действително ли е предадена на куриера? Записаният статус ще стане „Изпратена“.",
+    deliver:"Проверена ли е реалната доставка на пратката?",
+    return_received:payload.p_restore_stock
+      ?"Получена и проверена ли е пратката? Бройките ще бъдат върнати в наличност."
+      :"Получена ли е физически пратката? Наличността НЯМА да бъде възстановена.",
+    restore_stock:"Потвърждаваш ли, че продуктите са годни за продажба? Бройките ще се добавят точно веднъж.",
+    return_refunded:"Парите действително ли са възстановени? Това не извършва автоматично плащане."
+  };
+  if(confirmMessages[action]&&!window.confirm(confirmMessages[action]))return;
+  wait(true);
+  try{
+    await rest("rpc/gift_admin_order_action","POST",payload);
+    await loadAll();
+    render();
+    openOrder(id);
+    const success={
+      quote:"Цената за доставка е запазена.",confirm:"Поръчката е потвърдена.",
+      prepare:"Поръчката е в подготовка.",ship:"Пратката е отбелязана като изпратена.",
+      correct_waybill:"Товарителницата е обновена.",deliver:"Пратката е отбелязана като доставена.",
+      cancel:"Поръчката е анулирана и наличността е възстановена.",
+      return_transit:"Връщането е отбелязано като изпратено обратно.",
+      return_received:"Върнатата пратка е отбелязана като получена.",
+      restore_stock:"Наличността е възстановена.",return_refunded:"Възстановяването на сумата е отбелязано."
+    };
+    toast(success[action]||"Поръчката е обновена.");
+  }catch(error){
+    toast(readableError(error));
+  }finally{wait(false)}
+}
+async function copyOrderDelivery(id){
+  const o=state.orders.find(item=>item.id===id);
+  if(!o)return;
+  const text=[orderCode(o),"Получател: "+o.customer_name,
+    "Телефон: "+o.customer_phone,
+    "Имейл: "+(o.customer_email||"—"),
+    "Куриер: "+(o.delivery_courier==="econt"?"Еконт":"Спиди"),
+    "Населено място: "+(o.delivery_city||"—"),
+    "Офис/адрес: "+(o.delivery_address||"—"),
+    "Продукти (наложен платеж): "+money(o.subtotal_eur),
+    "Доставка: "+(o.shipping_quote_pending?"неуточнена":money(o.shipping_eur))].join("\n");
+  try{await navigator.clipboard.writeText(text);toast("Данните за доставка са копирани.")}
+  catch{toast("Браузърът не позволи копиране.")}
 }
 async function saveForm(form) {
   if (state.busy) return;
@@ -559,11 +791,6 @@ async function saveForm(form) {
       const payload = { name, slug, description: String(f.get("description") || "").trim(), sort_order: order, is_active: form.elements.is_active.checked };
       await rest("gift_categories" + (id ? "?id=eq." + encodeURIComponent(id) : ""), id ? "PATCH" : "POST", payload);
       $("#editor-dialog").close(); await loadAll(); render(); toast("Колекцията е запазена.");
-    } else if (kind === "order") {
-      const status = String(f.get("status") || "");
-      if (!statuses[status]) throw Error("Невалиден статус.");
-      await rest("gift_orders?id=eq." + encodeURIComponent(id), "PATCH", { status });
-      $("#editor-dialog").close(); await loadAll(); render(); toast("Статусът е обновен.");
     }
   } catch (error) { toast(readableError(error)); }
   finally { wait(false); }
@@ -656,6 +883,8 @@ function handleClick(event) {
   if (button.dataset.editProduct) return openProduct(button.dataset.editProduct);
   if (button.dataset.editCategory) return openCategory(button.dataset.editCategory);
   if (button.dataset.order) return openOrder(button.dataset.order);
+  if (button.dataset.orderCopy) return copyOrderDelivery(button.dataset.orderCopy);
+  if (button.dataset.action === "refresh-orders") return reload();
   if (button.dataset.removeImage) return removeImage(button.dataset.removeImage);
   if (button.dataset.mainImage) return makeImagePrimary(button.dataset.mainImage);
   if (button.dataset.campaignKey) return activateCampaign(button.dataset.campaignKey);
@@ -706,10 +935,14 @@ $("#sidebar-shade").addEventListener("click", closeMenu);
 $("#dialog-close").addEventListener("click", () => $("#editor-dialog").close());
 document.addEventListener("click", handleClick);
 $("#editor-dialog").addEventListener("submit", (event) => {
-  if (event.target.matches("form[data-kind]")) { event.preventDefault(); saveForm(event.target); }
+  if (event.target.matches("form[data-order-action]")) { event.preventDefault(); submitOrderAction(event.target); }
+  else if (event.target.matches("form[data-kind]")) { event.preventDefault(); saveForm(event.target); }
 });
 document.addEventListener("change", (event) => {
-  if (event.target.id === "product-filter") {
+  if (event.target.id === "order-filter") {
+    state.orderFilter = event.target.value;
+    $("#orders-data-panel").innerHTML = orderList();
+  } else if (event.target.id === "product-filter") {
     state.productFilter = event.target.value;
     $("#products-data-panel").innerHTML = productList();
   } else if (event.target.id === "image-file") {
@@ -718,7 +951,10 @@ document.addEventListener("change", (event) => {
   }
 });
 document.addEventListener("input", (event) => {
-  if (event.target.id === "product-search") {
+  if (event.target.id === "order-search") {
+    state.orderSearch = event.target.value;
+    $("#orders-data-panel").innerHTML = orderList();
+  } else if (event.target.id === "product-search") {
     state.search = event.target.value;
     $("#products-data-panel").innerHTML = productList();
   }
