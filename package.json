@@ -1,0 +1,14 @@
+{
+  "name": "sabrano-gift-shop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent Bulgarian boutique gift shop storefront",
+  "scripts": {
+    "check": "node --check app.js && node --check site-config.js && node --test",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
