@@ -36,6 +36,8 @@ function revealOrder(data){
   $("#order-total").textContent=money(Number(order.subtotal_eur)+Number(order.shipping_eur));
   const courier=order.courier==="speedy"?"Спиди":order.courier==="econt"?"Еконт":"Куриер";
   $("#order-delivery").textContent="Доставка: "+courier+", "+(order.city||"")+" — "+(order.delivery_address||"");
+  const waybill=$("#order-waybill");
+  if(waybill){waybill.hidden=!order.waybill_number;waybill.textContent=order.waybill_number ? "Товарителница: "+order.waybill_number : "";}
   $("#order-cancel-box").hidden=!order.can_cancel;
   $("#order-withdraw-form").hidden=!order.can_withdraw;
   const done=$("#order-final-message");
