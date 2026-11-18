@@ -14,6 +14,7 @@ const body=[
   '<output id="smoke-result"></output>',
   '<script>',
   'document.addEventListener("DOMContentLoaded",function(){',
+  'if(new URLSearchParams(location.search).has("test-reload")&&location.hash!=="#reloaded"){history.replaceState(history.state,"",location.pathname+location.search+"#reloaded");location.reload();return;}',
   'var theme=new URL(location.href).searchParams.get("campaign")||"valentine";',
   'var visible=Array.from(document.querySelectorAll(".hero-copy h1 [data-season-content]")).filter(function(e){return getComputedStyle(e).display!=="none"});',
   'var photo=document.querySelector(".hero-image .seasonal-photo");',
@@ -28,6 +29,7 @@ writeFileSync("smoke-holiday.html",source.replace("</head>",head+"</head>").repl
 const server=spawn("python3",["-m","http.server","8765","--bind","127.0.0.1"],{stdio:"ignore"});
 try{
   let failures=0;
+  for(const mode of ["initial","refresh"]){
   for(const theme of ["christmas","easter","valentine","womens_day","martenitsa","everyday"]){
     let output="";
     for(let n=0;n<4;n++){
@@ -36,7 +38,7 @@ try{
           "--headless","--no-sandbox","--disable-gpu","--disable-dev-shm-usage",
           "--disable-extensions","--disable-background-networking","--window-size=390,844",
           "--virtual-time-budget=1400","--dump-dom",
-          "http://127.0.0.1:8765/smoke-holiday.html?campaign="+theme
+          "http://127.0.0.1:8765/smoke-holiday.html?campaign="+theme+(mode==="refresh"?"&test-reload=1":"")
         ],{encoding:"utf8",timeout:22000,stdio:["ignore","pipe","ignore"]});
         break;
       }catch(error){
@@ -45,10 +47,11 @@ try{
       }
     }
     const result=output.match(/SMOKE_RESULT:[^<]+/)?.[0]||"NO BROWSER RESULT";
-    console.log(theme+": "+result);
+    console.log(mode+" "+theme+": "+result);
     if(!result.startsWith("SMOKE_RESULT:"+theme+":PASS"))failures++;
   }
-  if(failures)throw Error(failures+" holiday themes failed real-browser rendering");
+  }
+  if(failures)throw Error(failures+" initial/refresh holiday renders failed in the real browser");
 }finally{
   server.kill("SIGTERM");
   try{unlinkSync("smoke-holiday.html")}catch{}
