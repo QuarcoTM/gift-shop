@@ -718,23 +718,3 @@ html[data-campaign] .collection-card-large .collection-shade{
 }
 html[data-campaign] .hero-image img{transition:opacity .25s ease}
 html[data-campaign] .home-season-image img{transition:opacity .25s ease}
-
-
-/* Prevent Christmas from flashing while the active campaign is fetched.
-   Hide ONLY campaign-dependent elements; keep normal navigation usable. */
-html:not([data-campaign-ready="true"]) .announcement a,
-html:not([data-campaign-ready="true"]) .desktop-nav .nav-season,
-html:not([data-campaign-ready="true"]) .mobile-nav a:first-child,
-html:not([data-campaign-ready="true"]) .hero-copy h1,
-html:not([data-campaign-ready="true"]) .hero-subtitle,
-html:not([data-campaign-ready="true"]) .hero-actions .button-outline,
-html:not([data-campaign-ready="true"]) .hero-image img,
-html:not([data-campaign-ready="true"]) .collections-grid .collection-card-large,
-html:not([data-campaign-ready="true"]) .home-season,
-html:not([data-campaign-ready="true"]) .footer-nav a[href*="category=koleda"] {
-  visibility:hidden!important;
-}
-html[data-campaign-ready="true"] .hero-image img,
-html[data-campaign-ready="true"] .home-season-image img{
-  visibility:visible;
-}
