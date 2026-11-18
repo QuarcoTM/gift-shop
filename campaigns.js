@@ -9,6 +9,16 @@ export const CAMPAIGNS = Object.freeze({
     collectionTitle:"Коледа с <em>повече сърце.</em>",
     collectionSubtitle:"Празнични подаръци за незабравими моменти.", mark:"✦"
   },
+  new_year: {
+    // Existing neutral celebration photo; no Christmas artwork is reused.
+    image:"./assets/images/occasions.webp", heroTitle:"Нова година,<br/><em>нови желания.</em>", heroSubtitle:"Подаръци за посрещането на Нова година и началото на нещо хубаво.",
+    label:"Нова година", slug:"nova-godina", nav:"Нова година", announcement:"Новогодишна колекция",
+    heroButton:"За Нова година", cardTitle:"Нова година,<br />ново начало.",
+    eyebrow:"Новогодишна колекция", title:"Нова година.<br /><em>Нови поводи за радост.</em>",
+    description:"Подаръци за новогодишните празници.", button:"Виж новогодишните подаръци",
+    collectionTitle:"Нова година с <em>ново настроение.</em>",
+    collectionSubtitle:"Подаръци за посрещането на Нова година.", mark:"✦"
+  },
   easter: {
     image:"./assets/images/easter.webp", heroTitle:"Великден с<br/><em>повече светлина.</em>", heroSubtitle:"Пролетно настроение и подаръци, споделени с обич.",
     label:"Великден", slug:"velikden", nav:"Великден", announcement:"Великденска колекция",
@@ -47,7 +57,7 @@ export const CAMPAIGNS = Object.freeze({
   },
   everyday: {
     image:"./assets/images/everyday.webp", heroTitle:"Всеки повод<br/><em>е специален.</em>", heroSubtitle:"Подаръци, които оставят впечатление. За личните поводи и спонтанните изненади.",
-    label:"Без празнична кампания", slug:"povodi", nav:"За поводи", announcement:"Подаръци за всеки повод",
+    label:"Обща визия", slug:"povodi", nav:"За поводи", announcement:"Подаръци за всеки повод",
     heroButton:"За всеки повод", cardTitle:"Подаръци.<br />Истински емоции.",
     eyebrow:"Всеки ден е повод", title:"Всеки ден е<br /><em>повод за радост.</em>",
     description:"Подаръци за всеки човек и всеки повод.", button:"Разгледай подаръците",
