@@ -97,7 +97,8 @@ test("home hero uses two identifiable buttons without false photo controls", () 
   const home = read("index.html");
   assert.match(home, /class="button button-dark" href="\.\/collections\.html"/);
   assert.match(home, /class="button button-outline" href="\.\/collection\.html\?category=koleda"/);
-  assert.doesNotMatch(home, /hero-stamp|hero-photo-caption|class="button button-text"/);
+  assert.match(home, /class="hero-stamp"/);
+  assert.doesNotMatch(home, /hero-photo-caption|class="button button-text"/);
 });
 
 test("no decorative asterisks or arrow glyphs in site content", () => {
@@ -114,12 +115,11 @@ test("sale image has been removed from all storefront pages", () => {
   assert.match(read("about.html"), /photo-1764385827316-c903082e0d1b/);
 });
 
-test("refresh logic is loaded everywhere and avoids scroll restoration jumps", () => {
+test("refresh keeps native scroll restoration rather than resetting to the top", () => {
   const refresh = read("refresh.js");
-  assert.match(refresh, /isReload/);
-  assert.match(refresh, /history\.scrollRestoration = "manual"/);
-  assert.match(refresh, /window\.scrollTo\(0, 0\)/);
-  assert.match(refresh, /pageshow/);
+  assert.match(refresh, /history\.scrollRestoration = "auto"/);
+  assert.doesNotMatch(refresh, /scrollRestoration = "manual"/);
+  assert.doesNotMatch(refresh, /window\.scrollTo\(0, 0\)/);
   for (const { name, content } of pages) {
     assert.match(content, /src="\.\/refresh\.js"/, name);
   }
@@ -133,4 +133,19 @@ test("refresh script is valid JavaScript", () => {
   assert.doesNotThrow(
     () => execFileSync(process.execPath, ["--check", fileURLToPath(path("refresh.js"))], { stdio: "pipe" })
   );
+});
+
+test("home photography is unique and the children's image uses a direct CDN address", () => {
+  const home = read("index.html");
+  assert.match(home, /images\\.unsplash\\.com\\/photo-1685358268305-c621b38e75d8/);
+  assert.doesNotMatch(home, /unsplash\\.com\\/photos\\/VREYTFaCNPk\\/download\\?force=true\\?/);
+  assert.match(home, /images\\.unsplash\\.com\\/photo-1574092749903-25ea4c90993c/);
+  assert.equal((home.match(/photo-1512909006721-3d6018887383/g) || []).length, 1);
+});
+test("home keeps the event gifts and removes only the bottom idea tile", () => {
+  const home = read("index.html");
+  assert.match(home, /<section class="home-more container">/);
+  assert.match(home, /Подаръци за повече хора/);
+  assert.doesNotMatch(home, /<div><span class="eyebrow">Нашата идея<\\/span><h2>Подаръкът е/);
+  assert.match(css, /scrollbar-color:var\\(--wine\\) var\\(--sand\\)/);
 });
