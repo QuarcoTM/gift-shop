@@ -137,15 +137,15 @@ test("refresh script is valid JavaScript", () => {
 
 test("home photography is unique and the children's image uses a direct CDN address", () => {
   const home = read("index.html");
-  assert.match(home, /images\\.unsplash\\.com\\/photo-1685358268305-c621b38e75d8/);
-  assert.doesNotMatch(home, /unsplash\\.com\\/photos\\/VREYTFaCNPk\\/download\\?force=true\\?/);
-  assert.match(home, /images\\.unsplash\\.com\\/photo-1574092749903-25ea4c90993c/);
+  assert.match(home, /images\.unsplash\.com\/photo-1685358268305-c621b38e75d8/);
+  assert.doesNotMatch(home, /unsplash\.com\/photos\/VREYTFaCNPk\/download\?force=true\?/);
+  assert.match(home, /images\.unsplash\.com\/photo-1574092749903-25ea4c90993c/);
   assert.equal((home.match(/photo-1512909006721-3d6018887383/g) || []).length, 1);
 });
 test("home keeps the event gifts and removes only the bottom idea tile", () => {
   const home = read("index.html");
   assert.match(home, /<section class="home-more container">/);
   assert.match(home, /Подаръци за повече хора/);
-  assert.doesNotMatch(home, /<div><span class="eyebrow">Нашата идея<\\/span><h2>Подаръкът е/);
-  assert.match(css, /scrollbar-color:var\\(--wine\\) var\\(--sand\\)/);
+  assert.doesNotMatch(home, /<div><span class="eyebrow">Нашата идея<\/span><h2>Подаръкът е/);
+  assert.match(css, /scrollbar-color:var\(--wine\) var\(--sand\)/);
 });
