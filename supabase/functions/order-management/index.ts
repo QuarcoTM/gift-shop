@@ -1,12 +1,19 @@
+import nodemailer from "npm:nodemailer@10.6.0";
 // "събрано." — secure guest order management; bearer = unpredictable checkout UUID.
 // Never expose server keys in the browser. Public endpoint does not return contact details.
-// Transactional emails require RESEND_API_KEY + ORDER_MAIL_FROM for a verified domain.
+// Transactional emails use Jump.bg SMTP over TLS/465 when configured; Resend is optional fallback.
 // Checkout must remain disabled until email configuration and legal merchant data are complete.
 const BASE = String(Deno.env.get("SUPABASE_URL") || "").replace(/\/+$/,"");
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
   (()=>{try{return JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")||"{}").default||""}catch{return ""}})();
 const EMAIL_KEY = Deno.env.get("RESEND_API_KEY") || "";
 const EMAIL_FROM = Deno.env.get("ORDER_MAIL_FROM") || "";
+const SMTP_HOST = Deno.env.get("SMTP_HOSTNAME") || "";
+const SMTP_PORT = Number(Deno.env.get("SMTP_PORT") || "465");
+const SMTP_USERNAME = Deno.env.get("SMTP_USERNAME") || "";
+const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD") || "";
+const SMTP_FROM = Deno.env.get("SMTP_FROM") || "";
+const smtpConfigured=()=>Boolean(SMTP_HOST&&SMTP_PORT===465&&SMTP_USERNAME&&SMTP_PASSWORD&&SMTP_FROM.includes("@"));
 const SHOP_URL = "https://quarcotm.github.io/gift-shop/";
 const ALLOWED_ORIGIN = "https://quarcotm.github.io";
 const CORS = {
@@ -73,9 +80,24 @@ async function itemsFor(order:Order){
     encodeURIComponent(order.id)+"&order=created_at.asc&limit=50");
   return Array.isArray(items)?items:[];
 }
-const emailConfigured=()=>Boolean(EMAIL_KEY&&EMAIL_FROM&&EMAIL_FROM.includes("@"));
+const emailConfigured=()=>smtpConfigured()||Boolean(EMAIL_KEY&&EMAIL_FROM.includes("@"));
 async function email(to:string,subject:string,html:string):Promise<boolean>{
   if(!emailConfigured()||!to)return false;
+  if(smtpConfigured()){
+    try{
+      const transport=nodemailer.createTransport({
+        host:SMTP_HOST,port:SMTP_PORT,secure:true,
+        auth:{user:SMTP_USERNAME,pass:SMTP_PASSWORD},
+        connectionTimeout:10000,greetingTimeout:10000,socketTimeout:14000,
+        disableFileAccess:true,disableUrlAccess:true,
+        tls:{minVersion:"TLSv1.2"}
+      });
+      const result=await transport.sendMail({
+        from:SMTP_FROM,to,subject,html
+      });
+      return Array.isArray(result.accepted)&&result.accepted.length>0;
+    }catch(error){console.error("SMTP mail delivery failed",String(error));return false}
+  }
   const response=await fetch("https://api.resend.com/emails",{
     method:"POST",
     headers:{"Authorization":"Bearer "+EMAIL_KEY,"Content-Type":"application/json"},
