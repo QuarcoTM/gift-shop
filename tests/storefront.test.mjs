@@ -32,24 +32,42 @@ test("all pages have correct semantic structure and unique route", () => {
   }
 });
 
-test("all internal links target real pages, not in-page scroll positions", () => {
+test("public links use extension-free routes and resolve to existing directory index pages", () => {
+  const routes = new Set(["./","./collections/","./products/","./collection/","./product/","./about/","./bulk/","./contact/","./cart/"]);
   for (const { name, content } of pages) {
-    for (const match of content.matchAll(/href="([^"]+)"/g)) {
+    for (const match of content.matchAll(/<a\\b[^>]*href="([^"]+)"/g)) {
       const href = match[1];
       if (href === "#content") continue; // accessible skip link
-      assert.ok(!href.startsWith("#"), name + " contains scrolling navigation: " + href);
-      if (!href.startsWith("./") || !href.includes(".html")) continue;
-      const target = href.slice(2).split("?")[0].split("#")[0];
-      assert.ok(names.includes(target), name + " links to nonexistent page: " + href);
+      assert.ok(!href.startsWith("#"), name + " has in-page scrolling navigation: " + href);
+      if (!href.startsWith("./")) continue;
+      assert.doesNotMatch(href, /\\.html(?:[?#]|$)/, name + " has a legacy URL");
+      const route = href.split("?")[0].split("#")[0];
+      assert.ok(routes.has(route), name + " links to unknown route: " + href);
+      if (route !== "./") assert.ok(existsSync(path(route.slice(2) + "index.html")), name + " missing route " + route);
     }
   }
+});
+test("canonical pages use clean routes and relative base so all scripts and links resolve", () => {
+  for (const name of names.filter((n) => n !== "index.html")) {
+    const route = name.replace(/\\.html$/, "");
+    const canonical = read(route + "/index.html");
+    assert.match(canonical, /<base href="\\.\\.\\/" \\/>/, name);
+    assert.match(canonical, /<html lang="bg">/, name);
+    assert.doesNotMatch(canonical, /(?:href|src)="[^"]*\\.html(?:[?#]|")/, name);
+    assert.match(read(name), new RegExp('location\\.replace\\("\\./' + route + '/"'), name + " should redirect legacy entry");
+  }
+  const admin = read("admin/index.html");
+  assert.match(admin, /noindex,nofollow/);
+  assert.match(admin, /<base href="\\.\\.\\/" \\/>/);
+  assert.doesNotMatch(admin, /href="[^"]*\\.html/);
+  assert.doesNotMatch(app, /\\.html(?:[?#]|["'])/);
 });
 
 test("home page is an overview with no numbered sections or promotion badges", () => {
   const home = read("index.html");
   assert.match(home, /class="hero"/);
   assert.match(home, /class="collections-grid"/);
-  assert.match(home, /href="\.\/products.html"/);
+  assert.match(home, /href="\.\/products\/"/);
   assert.doesNotMatch(home, /(?:\bSALE\b|\bSale\b|разпродажба|№\s*0[1-9]|[0-9]{2}\s*\/\s*(?:Открий|Подбрани|празнична))/i);
   assert.doesNotMatch(home, /<section class="section details-section"/);
 });
@@ -95,8 +113,8 @@ test("no fabricated contact data or delivery offers", () => {
 
 test("home hero uses two identifiable buttons without false photo controls", () => {
   const home = read("index.html");
-  assert.match(home, /class="button button-dark" href="\.\/collections\.html"/);
-  assert.match(home, /class="button button-outline" href="\.\/collection\.html\?category=koleda"/);
+  assert.match(home, /class="button button-dark" href="\.\/collections\/"/);
+  assert.match(home, /class="button button-outline" href="\.\/collection\/\?category=koleda"/);
   assert.match(home, /class="hero-stamp"/);
   assert.doesNotMatch(home, /hero-photo-caption|class="button button-text"/);
 });
