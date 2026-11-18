@@ -190,3 +190,75 @@ a{color:inherit;text-decoration:none}
 .image-tile .image-make-primary{position:absolute;left:5px;bottom:5px;right:auto;top:auto;border-radius:4px;width:auto;height:auto;font-size:9px;font-weight:700;color:var(--forest);padding:5px 7px;line-height:1;background:#fffdf9ed}
 .image-tile .image-make-primary:hover{background:var(--forest);color:#fff}
 .image-tile .image-remove{right:5px;top:5px}
+
+
+/* Refined vector navigation & business analytics. */
+.sidebar .nav-icon{display:inline-grid;place-items:center;width:22px;height:22px;flex:none;color:#c5d7c9}
+.sidebar .nav-icon svg{display:block;width:20px;height:20px}
+.sidebar .nav-item.active .nav-icon,.sidebar .nav-item:hover .nav-icon{color:#f4dfbf}
+.sidebar .nav-item{gap:13px}
+.sidebar .nav-count{font-variant-numeric:tabular-nums}
+.exit-icon{display:inline-flex;align-items:center}
+.exit-icon svg{width:17px;height:17px}
+.mobile-menu-button svg{width:23px;height:23px;display:block}
+.traffic-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;background:var(--forest);color:white;align-items:center;border-radius:12px;
+  margin:-1px 0 28px;box-shadow:var(--shadow);overflow:hidden}
+.traffic-summary>div{padding:24px 23px;border-right:1px solid #ffffff27;min-width:0}
+.traffic-summary small{display:block;color:#c9d2c9;font-size:9px;font-weight:750;letter-spacing:.1em}
+.traffic-summary strong{display:block;font-family:"Manrope",sans-serif;font-size:30px;font-weight:800;margin:8px 0 6px;line-height:1.1}
+.traffic-summary span{font-size:10px;color:#cddad0;line-height:1.5}
+.traffic-summary .traffic-link{height:100%;align-self:stretch;min-width:147px;padding:18px;border:0;background:#ffffff12;
+  color:#fff;font-size:11px;font-weight:750;display:flex;align-items:center;justify-content:center;gap:11px}
+.traffic-summary .traffic-link:hover{background:#ffffff22}
+.traffic-summary .traffic-link span{font-size:17px;color:#e7d1aa}
+.traffic-detail{margin-top:22px}
+.analytics-panel{margin-top:0}
+.analytics-period{color:var(--gold);font-weight:850;font-size:10px;letter-spacing:.13em}
+.daily-chart{display:grid;grid-template-columns:repeat(14,minmax(27px,1fr));height:300px;align-items:end;gap:8px;padding:26px 23px 20px}
+.chart-column{min-width:0;height:100%;display:flex;align-items:center;flex-direction:column;gap:8px}
+.chart-value{height:17px;line-height:17px;font-size:10px;font-weight:750;color:var(--muted);font-variant-numeric:tabular-nums}
+.chart-track{flex:1;width:100%;display:flex;align-items:end;min-height:0;border-bottom:1px solid var(--line);background:linear-gradient(to top,#faf7f0,transparent)}
+.chart-bar{width:100%;min-height:2px;border-radius:4px 4px 0 0;background:#bccbbf;transition:height .2s}
+.chart-bar.current{background:var(--forest-soft)}
+.chart-day{font-size:9px;color:var(--muted);white-space:nowrap}
+.popular-row{display:flex;align-items:center;gap:14px;padding:18px 23px;border-bottom:1px solid var(--line)}
+.popular-row:last-child{border:0}
+.popular-rank{color:var(--gold);font-size:11px;font-weight:800;min-width:24px}
+.popular-row div{flex:1;min-width:0}
+.popular-row strong,.popular-row small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.popular-row strong{font-size:12px}
+.popular-row small{font-size:10px;margin-top:5px;color:var(--muted)}
+.popular-row>span:last-child{font-weight:850;font-size:14px;color:var(--forest)}
+.analytics-disclaimer,.campaign-note{margin:21px 0 0;font-size:11px;color:var(--muted);line-height:1.8}
+.campaign-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.campaign-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.campaign-card.is-active{border-color:#73917d;box-shadow:0 0 0 2px #d9e6d8}
+.campaign-preview{min-height:180px;overflow:hidden;position:relative;padding:19px 23px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;
+  background:linear-gradient(130deg,#203b30,#536e5a);color:#f7f1e3}
+.campaign-preview:after{content:"";position:absolute;width:250px;height:250px;border:1px solid #ffffff33;border-radius:50%;right:-65px;top:-90px;pointer-events:none}
+.campaign-preview-logo{font-weight:850;letter-spacing:-.05em;font-family:"Manrope",sans-serif;font-size:20px;z-index:1}
+.campaign-preview-mark{font:italic 96px/1 "Playfair Display",Georgia,serif;color:#fffc;position:absolute;right:29px;top:33px}
+.campaign-preview small{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;z-index:1}
+.campaign-easter .campaign-preview{background:linear-gradient(130deg,#526c55,#b8bfa0)}
+.campaign-valentine .campaign-preview{background:linear-gradient(130deg,#803e52,#d7a2a8)}
+.campaign-womens_day .campaign-preview{background:linear-gradient(130deg,#755476,#c9a6bf)}
+.campaign-martenitsa .campaign-preview{background:linear-gradient(130deg,#8a3648,#d79b9d)}
+.campaign-everyday .campaign-preview{background:linear-gradient(130deg,#334a42,#a0ae99)}
+.campaign-card-body{padding:22px}
+.campaign-card-body p{font-size:11px;color:var(--muted);line-height:1.7;min-height:38px;margin:10px 0 18px}
+.campaign-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.campaign-title-row h2{font-family:"Playfair Display",serif;font-size:22px;line-height:1.25;font-weight:500;letter-spacing:-.02em;margin:0}
+.campaign-card .primary-button,.campaign-card .secondary-button{width:100%;font-weight:800}
+@media(max-width:1200px){.traffic-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.traffic-summary .traffic-link{grid-column:1/-1;min-height:46px;padding:10px}}
+@media(max-width:930px){.campaign-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){
+ .traffic-summary{grid-template-columns:1fr 1fr}
+ .traffic-summary>div{padding:18px 16px;border-bottom:1px solid #ffffff20}
+ .traffic-summary>div:nth-child(3){grid-column:1/-1}
+ .traffic-summary .traffic-link{grid-column:1/-1}
+ .traffic-summary strong{font-size:25px}
+ .daily-chart{gap:5px;overflow-x:auto;grid-template-columns:repeat(14,minmax(25px,1fr));padding-inline:12px}
+ .chart-day{font-size:8px}
+ .campaign-grid{grid-template-columns:1fr}
+ .campaign-preview{min-height:150px}
+}
