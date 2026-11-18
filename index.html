@@ -29,6 +29,7 @@
       <nav class="desktop-nav" aria-label="Основна навигация">
         <a href="#christmas" class="nav-season">Коледа <span class="nav-sparkle">✦</span></a>
         <a href="#collections">Колекции</a>
+        <a href="#products" data-category-link="deca">За деца</a>
         <a href="#products">Подаръци</a>
         <a href="#story">Нашата идея</a>
         <a href="#bulk">За събития</a>
@@ -41,7 +42,7 @@
       </div>
     </div>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Мобилна навигация" hidden>
-      <a href="#christmas">Коледа 2026 <span>↗</span></a><a href="#collections">Колекции <span>↗</span></a><a href="#products">Подаръци <span>↗</span></a><a href="#story">Нашата идея <span>↗</span></a><a href="#bulk">За събития <span>↗</span></a>
+      <a href="#christmas">Коледа 2026 <span>↗</span></a><a href="#collections">Колекции <span>↗</span></a><a href="#products" data-category-link="deca">За деца <span>↗</span></a><a href="#products">Подаръци <span>↗</span></a><a href="#story">Нашата идея <span>↗</span></a><a href="#bulk">За събития <span>↗</span></a>
     </nav>
   </header>
   <main id="content">
@@ -77,9 +78,10 @@
           <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=1000&q=82" alt="Нежен момент с новородено бебе" loading="lazy" />
           <span class="collection-shade"></span><span class="collection-number">02 / най-малките</span><span class="collection-title">Добре дошло,<br />мъниче.<span class="collection-arrow">↗</span></span>
         </a>
+        <a class="collection-card" href="#products" data-category-link="deca"><img src="https://images.unsplash.com/photo-1607082350899-7e105aa886ae?auto=format&fit=crop&w=1000&q=82" alt="Малки подаръчни изненади за деца" loading="lazy" /><span class="collection-shade"></span><span class="collection-number">03 / за деца</span><span class="collection-title">Малки радости.<br />Големи усмивки.<span class="collection-arrow">↗</span></span></a>
         <a class="collection-card" href="#products" data-category-link="povodi">
           <img src="https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1000&q=82" alt="Подаръчна кутия с панделка" loading="lazy" />
-          <span class="collection-shade"></span><span class="collection-number">03 / всеки ден</span><span class="collection-title">Просто така.<br />От сърце.<span class="collection-arrow">↗</span></span>
+          <span class="collection-shade"></span><span class="collection-number">04 / всеки ден</span><span class="collection-title">Просто така.<br />От сърце.<span class="collection-arrow">↗</span></span>
         </a>
       </div>
     </section>
@@ -88,7 +90,7 @@
       <div class="container">
         <div class="section-topline"><span class="eyebrow">02 / Подбрани за теб</span><span class="topline-accent">✳</span></div>
         <div class="section-heading-row"><h2>Подаръци, които<br /><em>казват повече.</em></h2><p>Готови да зарадват. Красиви в малките си детайли.</p></div>
-        <div class="catalog-toolbar"><div class="catalog-filters" role="group" aria-label="Филтрирай подаръците"><button class="filter-button is-active" type="button" data-filter="all">Всички</button><button class="filter-button" type="button" data-filter="koleda">Коледа</button><button class="filter-button" type="button" data-filter="bebe">За бебе</button><button class="filter-button" type="button" data-filter="povodi">За поводи</button></div><span id="catalog-count" class="catalog-count"></span></div>
+        <div class="catalog-toolbar"><div class="catalog-filters" role="group" aria-label="Филтрирай подаръците"><button class="filter-button is-active" type="button" data-filter="all">Всички</button><button class="filter-button" type="button" data-filter="koleda">Коледа</button><button class="filter-button" type="button" data-filter="bebe">За бебе</button><button class="filter-button" type="button" data-filter="deca">За деца</button><button class="filter-button" type="button" data-filter="povodi">За поводи</button></div><span id="catalog-count" class="catalog-count"></span></div>
         <div id="product-grid" class="product-grid" aria-live="polite"></div>
         <div class="catalog-bottom"><span class="star-doodle" aria-hidden="true">✳</span><p>Не търси огромния подарък.<br />Потърси <em>точния.</em></p><a class="text-link" href="#bulk">Подаръци за повече хора <span aria-hidden="true">↗</span></a></div>
       </div>
