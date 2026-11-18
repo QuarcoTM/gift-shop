@@ -17,7 +17,7 @@
 
   <link rel="stylesheet" href="./styles.css?v=20261118-o" />
   <script src="./refresh.js"></script>
-  <script type="module" src="./app.js?v=20261118-o"></script>
+  <script type="module" src="./app.js?v=20261118-p"></script>
 </head>
 <body data-page="cart">
   <a class="skip-link" href="#content">Към съдържанието</a>
@@ -127,7 +127,12 @@
   <h2>Благодарим ти!</h2>
   <p>Записахме заявката с номер <strong id="checkout-order-code"></strong>.</p>
   <p>Ще трябва да потвърдим куриерската доставка и крайната сума, преди изпращане. Онлайн плащане не е извършено.</p>
-  <a class="button button-dark" href="./">Към магазина</a>
+  <div id="checkout-manage" class="checkout-manage" hidden>
+    <a id="checkout-manage-link" class="button button-dark" href="./order/">Управление на поръчката</a>
+    <p>Запази този личен линк. От него можеш да анулираш поръчката преди изпращане или да заявиш връщане след това.</p>
+    <p id="checkout-email-result" role="status"></p>
+  </div>
+  <a class="checkout-back" href="./">Към магазина</a>
 </section>
   </main>
 <footer class="footer" id="contact">
