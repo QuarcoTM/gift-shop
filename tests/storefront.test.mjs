@@ -33,7 +33,7 @@ test("all pages have correct semantic structure and unique route", () => {
 });
 
 test("public links use extension-free routes and resolve to existing directory index pages", () => {
-  const routes = new Set(["./", "./collections/", "./products/", "./collection/", "./product/", "./about/", "./bulk/", "./contact/", "./cart/"]);
+  const routes = new Set(["./", "./collections/", "./products/", "./collection/", "./product/", "./about/", "./bulk/", "./contact/", "./cart/", "./cookies/"]);
   for (const { name, content } of pages) {
     for (const match of content.matchAll(/<a\b[^>]*href="([^"]+)"/g)) {
       const href = match[1];
@@ -61,6 +61,16 @@ test("canonical pages use clean routes and relative base so all scripts and link
   assert.ok(admin.includes('<base href="../" />'));
   assert.doesNotMatch(admin, /href="[^"]*\.html/);
   assert.doesNotMatch(app, /\.html(?:[?#]|["'])/);
+});
+
+test("cookie policy has a clean URL and category controls", () => {
+  const policy = read("cookies/index.html");
+  assert.match(policy, /<html lang="bg">/);
+  assert.match(policy, /<base href="\.\.\/" \/>/);
+  assert.match(policy, /href="https:\/\/quarcotm\.github\.io\/gift-shop\/cookies\/"/);
+  assert.match(policy, /data-open-cookie-settings/);
+  assert.match(policy, /<main id="content">/);
+  assert.doesNotMatch(policy, /href="[^"]*\.html/);
 });
 
 test("skip navigation remains on the current page with a nested base URL", () => {
