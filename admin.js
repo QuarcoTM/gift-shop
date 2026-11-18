@@ -1,4 +1,5 @@
 import { config } from "./site-config.js";
+import { CAMPAIGNS } from "./campaigns.js";
 
 /* Store operations use only the public publishable key. Authorization is enforced
    by Supabase Auth + database/storage RLS; never by hiding interface elements. */
@@ -12,8 +13,8 @@ const date = (value) => value ? new Intl.DateTimeFormat("bg-BG", { day: "2-digit
 const escapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => escapes[c]);
 const statuses = { pending: "Нова", confirmed: "Потвърдена", preparing: "Подготовка", shipped: "Изпратена", delivered: "Доставена", cancelled: "Отказана" };
-const pages = { dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", settings: "Настройки" };
-const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], view: "dashboard", search: "", productFilter: "all", busy: false };
+const pages = { dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", settings: "Настройки" };
+const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", view: "dashboard", search: "", productFilter: "all", busy: false };
 let toastTimer = null;
 
 function safeImage(url) {
@@ -139,14 +140,20 @@ async function loadAll() {
     "gift_products?select=*&order=created_at.desc&limit=1000",
     "gift_product_images?select=*&order=sort_order.asc&limit=2000",
     "gift_orders?select=*&order=created_at.desc&limit=500",
-    "gift_order_items?select=*&order=created_at.desc&limit=2000"
+    "gift_order_items?select=*&order=created_at.desc&limit=2000",
+    "gift_daily_analytics?select=day,pageviews,unique_sessions&order=day.desc&limit=90",
+    "gift_page_analytics?select=day,page_path,pageviews,unique_sessions&order=day.desc&limit=700",
+    "gift_shop_settings?select=id,active_campaign&id=eq.main&limit=1"
   ];
-  const [categories, products, images, orders, orderItems] = await Promise.all(requests.map((path) => rest(path)));
+  const [categories, products, images, orders, orderItems, dailyStats, pageStats, shopSettings] = await Promise.all(requests.map((path) => rest(path)));
   state.categories = categories || [];
   state.products = products || [];
   state.images = images || [];
   state.orders = orders || [];
   state.orderItems = orderItems || [];
+  state.dailyStats = dailyStats || [];
+  state.pageStats = pageStats || [];
+  state.campaign = shopSettings?.[0]?.active_campaign || "christmas";
   $("#nav-product-count").textContent = number(products.length);
   $("#nav-order-count").textContent = number(orders.filter((item) => item.status === "pending").length);
 }
@@ -175,6 +182,22 @@ function metric(title, value, note, icon, alert = false) {
   return '<div class="metric-card' + (alert ? " alert" : "") + '"><div class="metric-head"><span class="metric-title">' + esc(title) +
     '</span><span class="metric-symbol">' + icon + '</span></div><strong>' + esc(value) + '</strong><small>' + esc(note) + "</small></div>";
 }
+function localDay() {
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Sofia", year:"numeric", month:"2-digit", day:"2-digit" }).formatToParts(new Date());
+  const value = Object.fromEntries(parts.filter((item) => item.type !== "literal").map((item) => [item.type, item.value]));
+  return value.year + "-" + value.month + "-" + value.day;
+}
+function trafficFor(day) {
+  return state.dailyStats.find((row) => row.day === day) || { day, unique_sessions:0, pageviews:0 };
+}
+function dailyDates(days = 14) {
+  const end = new Date(localDay() + "T12:00:00Z");
+  return Array.from({ length:days }, (_,i) => {
+    const date = new Date(end);
+    date.setUTCDate(date.getUTCDate() - (days-i-1));
+    return date.toISOString().slice(0,10);
+  });
+}
 function dashboard() {
   const active = state.products.filter((p) => p.is_published);
   const low = state.products.filter((p) => p.stock_quantity <= 3 && p.is_published);
@@ -186,6 +209,13 @@ function dashboard() {
     metric("Публикувани", number(active.length), "Видими в магазина", "◉") +
     metric("Ниски наличности", number(low.length), "3 или по-малко броя", "◈", low.length > 0) +
     metric("Нови поръчки", number(pending.length), "Очакват обработка", "▤", pending.length > 0) + "</section>";
+  const today = trafficFor(localDay());
+  const recent7 = dailyDates(7).map(trafficFor);
+  html += '<div class="traffic-summary"><div><small>ПОСЕЩЕНИЯ ДНЕС</small><strong>' +
+    number(today.unique_sessions) + '</strong><span>Уникални сесии с разрешена статистика</span></div><div><small>ОТВАРЯНИЯ ДНЕС</small><strong>' +
+    number(today.pageviews) + '</strong><span>Прегледани страници</span></div><div><small>ПОСЛЕДНИ 7 ДНИ</small><strong>' +
+    number(recent7.reduce((sum,row)=>sum+Number(row.unique_sessions || 0),0)) +
+    '</strong><span>Сесии по дни (не отделни хора)</span></div><button class="traffic-link" type="button" data-view="analytics">Подробна статистика <span>→</span></button></div>';
   html += '<div class="content-grid"><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Последни поръчки</h2><p class="panel-subtitle">Актуално състояние на заявките</p></div><button type="button" class="link-button" data-view="orders">Всички поръчки</button></div>';
   html += recent.length ? recent.map((o) => '<button type="button" class="list-row" data-order="' + esc(o.id) +
     '"><span class="thumb">▧</span><span class="row-main"><strong>' + esc(o.customer_name) + '</strong><small>' + esc(date(o.created_at)) +
@@ -275,7 +305,7 @@ function settings() {
 function render() {
   $("#breadcrumb-current").textContent = pages[state.view];
   document.querySelectorAll("[data-view].nav-item").forEach((item) => item.classList.toggle("active", item.dataset.view === state.view));
-  const content = { dashboard, products, categories, orders, settings }[state.view]();
+  const content = { dashboard, products, categories, orders, analytics, campaignsView, settings }[state.view]();
   $("#workspace-content").innerHTML = content;
 }
 function closeMenu() {
@@ -515,6 +545,7 @@ function handleClick(event) {
   if (button.dataset.order) return openOrder(button.dataset.order);
   if (button.dataset.removeImage) return removeImage(button.dataset.removeImage);
   if (button.dataset.mainImage) return makeImagePrimary(button.dataset.mainImage);
+  if (button.dataset.campaignKey) return activateCampaign(button.dataset.campaignKey);
   if (button.dataset.action === "new-product") return openProduct();
   if (button.dataset.action === "new-category") return openCategory();
   if (button.dataset.action === "close-dialog") return $("#editor-dialog").close();
