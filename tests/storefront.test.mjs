@@ -33,14 +33,14 @@ test("all pages have correct semantic structure and unique route", () => {
 });
 
 test("public links use extension-free routes and resolve to existing directory index pages", () => {
-  const routes = new Set(["./","./collections/","./products/","./collection/","./product/","./about/","./bulk/","./contact/","./cart/"]);
+  const routes = new Set(["./", "./collections/", "./products/", "./collection/", "./product/", "./about/", "./bulk/", "./contact/", "./cart/"]);
   for (const { name, content } of pages) {
-    for (const match of content.matchAll(/<a\\b[^>]*href="([^"]+)"/g)) {
+    for (const match of content.matchAll(/<a\b[^>]*href="([^"]+)"/g)) {
       const href = match[1];
-      if (href === "#content") continue; // accessible skip link
+      if (href === "#content") continue;
       assert.ok(!href.startsWith("#"), name + " has in-page scrolling navigation: " + href);
       if (!href.startsWith("./")) continue;
-      assert.doesNotMatch(href, /\\.html(?:[?#]|$)/, name + " has a legacy URL");
+      assert.doesNotMatch(href, /\.html(?:[?#]|$)/, name + " has a legacy URL");
       const route = href.split("?")[0].split("#")[0];
       assert.ok(routes.has(route), name + " links to unknown route: " + href);
       if (route !== "./") assert.ok(existsSync(path(route.slice(2) + "index.html")), name + " missing route " + route);
@@ -49,18 +49,18 @@ test("public links use extension-free routes and resolve to existing directory i
 });
 test("canonical pages use clean routes and relative base so all scripts and links resolve", () => {
   for (const name of names.filter((n) => n !== "index.html")) {
-    const route = name.replace(/\\.html$/, "");
+    const route = name.replace(/\.html$/, "");
     const canonical = read(route + "/index.html");
-    assert.match(canonical, /<base href="\\.\\.\\/" \\/>/, name);
+    assert.ok(canonical.includes('<base href="../" />'), name + " needs a root-relative base");
     assert.match(canonical, /<html lang="bg">/, name);
-    assert.doesNotMatch(canonical, /(?:href|src)="[^"]*\\.html(?:[?#]|")/, name);
-    assert.match(read(name), new RegExp('location\\.replace\\("\\./' + route + '/"'), name + " should redirect legacy entry");
+    assert.doesNotMatch(canonical, /(?:href|src)="[^"]*\.html(?:[?#]|")/, name);
+    assert.ok(read(name).includes('location.replace("./' + route + '/"'), name + " should redirect the legacy entry");
   }
   const admin = read("admin/index.html");
   assert.match(admin, /noindex,nofollow/);
-  assert.match(admin, /<base href="\\.\\.\\/" \\/>/);
-  assert.doesNotMatch(admin, /href="[^"]*\\.html/);
-  assert.doesNotMatch(app, /\\.html(?:[?#]|["'])/);
+  assert.ok(admin.includes('<base href="../" />'));
+  assert.doesNotMatch(admin, /href="[^"]*\.html/);
+  assert.doesNotMatch(app, /\.html(?:[?#]|["'])/);
 });
 
 test("home page is an overview with no numbered sections or promotion badges", () => {
