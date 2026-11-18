@@ -294,8 +294,14 @@ function checkoutAction() {
   if (!button || !status) return;
   const validCart = data.cart.length>0 && data.cart.every((entry)=>
     productById(entry.id)?.stock_quantity >= entry.qty && entry.qty>0);
-  button.disabled = !checkoutEnabled || !validCart || checkoutBusy;
-  if (!checkoutEnabled) status.textContent="Онлайн заявките още не са активирани. Подготвяме данните и условията за доставка.";
+  button.disabled = checkoutBusy || (checkoutEnabled && !validCart);
+  button.textContent = checkoutEnabled ? "Продължи към поръчка" : "Преглед на формата";
+  const submit=$("#checkout-submit");
+  if (submit) {
+    submit.disabled = !checkoutEnabled || !validCart || checkoutBusy;
+    if (!checkoutBusy) submit.textContent = checkoutEnabled ? "Изпрати заявката" : "Приемането на заявки не е активно";
+  }
+  if (!checkoutEnabled) status.textContent="Можеш да разгледаш формата. Реални заявки ще се приемат след финализиране на данните за търговеца и доставките.";
   else if (!validCart) status.textContent="Избери наличен продукт, за да продължиш.";
   else status.textContent="Заявката е без регистрация. Доставката се уточнява преди изпращане.";
 }
@@ -333,7 +339,7 @@ function setupCheckout() {
   const start=$("#checkout-button"), form=$("#checkout-form"), panel=$("#checkout-panel");
   if (!start||!form||!panel) return;
   start.addEventListener("click",()=>{
-    if (!checkoutEnabled || !data.cart.length || checkoutBusy) return;
+    if (checkoutBusy || (checkoutEnabled && !data.cart.length)) return;
     checkoutReview(); checkoutError("");
     panel.hidden=false;
     panel.scrollIntoView({block:"start",behavior:"smooth"});
