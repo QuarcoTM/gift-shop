@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <base href="../" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#f7f2e9" />
+  <title>Управление на поръчка | събрано.</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./styles.css?v=20261118-o" />
+  <link rel="stylesheet" href="./order-management.css?v=20261118-a" />
+  <script type="module" src="./order-management.js?v=20261118-a"></script>
+</head>
+<body data-page="order">
+  <a class="skip-link" href="#content">Към съдържанието</a>
+  <div class="announcement"><div class="container announcement-inner"><span>Малки жестове, които остават в сърцето.</span></div></div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./" aria-label="събрано. — начало">
+        <span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 46 46" fill="none"><path d="M23 11v28M9 23h28" stroke="currentColor" stroke-width="2"/><path d="M23 23C9 22 8 11 14 9c5-2 9 7 9 14Zm0 0c14-1 15-12 9-14-5-2-9 7-9 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 23h28v16H9V23Z" stroke="currentColor" stroke-width="2"/></svg></span>
+        <span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Навигация">
+        <a href="./collections/">Колекции</a><a href="./products/">Подаръци</a><a href="./cart/">Количка</a>
+      </nav>
+    </div>
+  </header>
+  <main id="content" class="container order-manager">
+    <span class="eyebrow">СЪБРАНО. / МОЯТА ПОРЪЧКА</span>
+    <h1>Управление на <em>поръчката.</em></h1>
+    <p class="order-manager-intro">Провери състоянието на поръчката, откажи я преди изпращане или заяви връщане след изпращане.</p>
+    <p id="order-loading" role="status">Зареждане на поръчката…</p>
+    <p id="order-error" class="order-manager-message" role="alert" hidden></p>
+    <section id="order-card" class="order-manager-card" hidden aria-labelledby="order-number">
+      <div class="order-manager-card-header">
+        <div><span class="eyebrow">МОЯТА ПОРЪЧКА</span><h2 id="order-number"></h2></div>
+        <span class="order-manager-status" id="order-status"></span>
+      </div>
+      <p id="order-created" class="order-manager-muted"></p>
+      <div id="order-products" class="order-manager-products"></div>
+      <div class="order-manager-summary">
+        <div><span>Продукти</span><strong id="order-products-total"></strong></div>
+        <div><span>Доставка</span><strong id="order-shipping"></strong></div>
+        <div id="order-total-row" hidden><span>Общо</span><strong id="order-total"></strong></div>
+      </div>
+      <p id="order-delivery" class="order-manager-muted"></p>
+      <div id="order-actions" class="order-manager-actions">
+        <div id="order-cancel-box" hidden>
+          <h3>Отказ преди изпращане</h3>
+          <p>Поръчката още не е изпратена. Можеш да я анулираш без да посочваш причина.</p>
+          <button id="order-cancel" class="order-manager-button" type="button">Откажи поръчката</button>
+        </div>
+        <form id="order-withdraw-form" hidden>
+          <h3>Заявка за връщане</h3>
+          <p>Изпратената поръчка не може да бъде анулирана като неизпратена. Можеш да упражниш правото си на отказ от договора. По правило срокът е 14 дни от получаването на стоката, когато правото е приложимо.</p>
+          <label for="order-withdraw-note">Допълнително съобщение (по желание)</label>
+          <textarea id="order-withdraw-note" maxlength="600" rows="3" placeholder="Уточнение за връщането"></textarea>
+          <button id="order-withdraw" class="order-manager-button" type="submit">Потвърди отказа от договора</button>
+        </form>
+        <p id="order-final-message" class="order-manager-message" hidden></p>
+      </div>
+      <p class="order-manager-small">Тази страница е лична. Не споделяй линка с други хора.</p>
+    </section>
+    <section id="order-find" class="order-manager-card" hidden aria-labelledby="order-find-title">
+      <h2 id="order-find-title">Намери своята поръчка</h2>
+      <p>Имаш линк „Управление на поръчката“ в имейла за поръчката? Отвори него. Ако си изгубил линка, можеш да поискаш нов на същия имейл адрес.</p>
+      <form id="order-find-form" class="order-manager-recovery">
+        <label>Номер на поръчката<input name="order_code" autocomplete="off" placeholder="SBR-000125" maxlength="30" required /></label>
+        <label>Имейл от поръчката<input name="email" type="email" autocomplete="email" maxlength="254" required /></label>
+        <button class="order-manager-button" type="submit">Изпрати ми линк</button>
+      </form>
+      <p id="order-find-result" role="status" hidden></p>
+      <p class="order-manager-small">За сигурност не показваме дали поръчка с посочените данни съществува.</p>
+    </section>
+    <p class="order-manager-legal">Отказът от договор е отделен от рекламация за дефектен или несъответстващ продукт. За рекламация използвай публикувания контакт на търговеца.</p>
+  </main>
+  <dialog class="order-manager-confirm" id="order-cancel-dialog" aria-labelledby="order-cancel-title">
+    <h2 id="order-cancel-title">Да анулираме ли поръчката?</h2>
+    <p>Това действие не може да се отмени. Резервираните артикули ще бъдат освободени.</p>
+    <div><button type="button" id="order-cancel-back">Не, запази поръчката</button><button type="button" id="order-cancel-confirm">Да, анулирай</button></div>
+  </dialog>
+  <footer class="footer">
+    <div class="container footer-bottom">
+      <span>© 2026 събрано.</span>
+      <a href="./order/">Отказ и връщане</a>
+      <a href="./privacy/">Лични данни</a>
+      <a href="./">Към магазина</a>
+    </div>
+  </footer>
+</body>
+</html>
