@@ -42,7 +42,7 @@ function revealOrder(data){
   done.hidden=true;
   if(order.status==="cancelled"){done.textContent="Поръчката е анулирана.";done.hidden=false}
   else if(order.withdrawal_requested_at){
-    done.textContent="Получихме заявката ти за връщане на "+new Date(order.withdrawal_requested_at).toLocaleString("bg-BG")+". Ще получиш указания за връщането.";
+    done.textContent="Получихме заявката ти за връщане на "+new Date(order.withdrawal_requested_at).toLocaleString("bg-BG").replace(/\.$/,"")+". Ще получиш указания за връщането.";
     done.hidden=false;
   }else if(!order.can_cancel&&!order.can_withdraw){
     done.textContent="За тази поръчка няма налично действие в момента.";done.hidden=false;
