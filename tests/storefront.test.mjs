@@ -21,7 +21,7 @@ test("each page and core asset exists", () => {
 test("all pages have correct semantic structure and unique route", () => {
   const routes = new Set();
   for (const { name, content } of pages) {
-    assert.match(content, /<html lang="bg">/, name);
+    assert.match(content, /<html lang="bg"(?:\s[^>]*)?>/, name);
     assert.match(content, /<main id="content">/, name);
     assert.match(content, /<\/main>/, name);
     assert.match(content, /<footer/, name);
@@ -52,7 +52,7 @@ test("canonical pages use clean routes and relative base so all scripts and link
     const route = name.replace(/\.html$/, "");
     const canonical = read(route + "/index.html");
     assert.ok(canonical.includes('<base href="../" />'), name + " needs a root-relative base");
-    assert.match(canonical, /<html lang="bg">/, name);
+    assert.match(canonical, /<html lang="bg"(?:\s[^>]*)?>/, name);
     assert.doesNotMatch(canonical, /(?:href|src)="[^"]*\.html(?:[?#]|")/, name);
     assert.ok(read(name).includes('location.replace("./' + route + '/"'), name + " should redirect the legacy entry");
   }
@@ -65,7 +65,7 @@ test("canonical pages use clean routes and relative base so all scripts and link
 
 test("cookie policy has a clean URL and category controls", () => {
   const policy = read("cookies/index.html");
-  assert.match(policy, /<html lang="bg">/);
+  assert.match(policy, /<html lang="bg"(?:\s[^>]*)?>/);
   assert.match(policy, /<base href="\.\.\/" \/>/);
   assert.match(policy, /href="https:\/\/quarcotm\.github\.io\/gift-shop\/cookies\/"/);
   assert.match(policy, /data-open-cookie-settings/);
@@ -130,7 +130,7 @@ test("no fabricated contact data or delivery offers", () => {
 test("home hero uses two identifiable buttons without false photo controls", () => {
   const home = read("index.html");
   assert.match(home, /class="button button-dark" href="\.\/collections\/"/);
-  assert.match(home, /data-season-link class="button button-outline" href="\.\/collection\/\?category=povodi"/);
+  assert.match(home, /data-season-link class="button button-outline" href="\.\/collection\/\?category=koleda"/);
   assert.match(home, /class="hero-stamp"/);
   assert.doesNotMatch(home, /hero-photo-caption|class="button button-text"/);
 });
@@ -172,9 +172,9 @@ test("refresh script is valid JavaScript", () => {
 
 test("storefront uses locally hosted realistic photography, not image CDNs", () => {
   const home = read("index.html");
-  assert.match(home, /assets\/images\/hero\.webp/);
+  assert.match(home, /assets\/images\/christmas\.webp/);
   assert.match(home, /assets\/images\/kids\.webp/);
-  assert.match(home, /assets\/images\/everyday\.webp/);
+  assert.match(home, /data-static-campaign="christmas"/);
   assert.match(home, /assets\/images\/baby\.webp/);
   assert.match(home, /assets\/images\/occasions\.webp/);
   const uniqueNames = ["hero","baby","kids","occasions","christmas","easter","valentine","womens_day","martenitsa","everyday","bulk","about"];
@@ -199,23 +199,30 @@ test("storefront never hides core sections awaiting a remote campaign request", 
   const css = read("styles.css");
   assert.doesNotMatch(css, /html:not\(\[data-campaign-ready="true"\]\)[\s\S]*?visibility:hidden!important/);
   const home = read("index.html");
-  assert.match(home, /<h1>Малките/);
+  assert.match(home, /<h1>Коледа, която/);
   assert.match(home, /data-season-link/);
   assert.doesNotMatch(home, /<section class="home-season" id="christmas">/);
   assert.match(read("site-features.js"), /catch \(error\) \{ console\.error\("Campaign catalog refresh:", error\); \}/);
 });
 
 
-test("seasonal bootstrap never flashes stale HTML and cannot cover the page permanently", () => {
+test("initial chosen campaign is rendered immediately without loader or Supabase blocking", () => {
   const css = read("styles.css");
   const homepage = read("index.html");
   const features = read("site-features.js");
-  assert.match(css, /html:not\(\[data-campaign-ready="true"\]\) body\[data-page\]::before/);
-  assert.match(css, /position:fixed/);
-  assert.match(homepage, /Visible failsafe, independent from modules and remote APIs/);
-  assert.match(homepage, /setTimeout\(function\(\)\{if\(document\.documentElement\.dataset\.campaignReady/);
-  assert.match(features, /const controller = new AbortController\(\)/);
-  assert.match(features, /signal: controller\.signal/);
-  assert.match(features, /mainPhoto\.decode\(\)/);
-  assert.doesNotMatch(css, /html:not\(\[data-campaign-ready="true"\]\)[\s\S]*?visibility:hidden!important/);
+  assert.match(homepage, /data-campaign="christmas"/);
+  assert.match(homepage, /data-static-campaign="christmas"/);
+  assert.match(homepage, /id="instant-season-boot"/);
+  assert.match(homepage, /assets\/images\/christmas\.webp/);
+  assert.doesNotMatch(homepage, /Visible failsafe/);
+  assert.doesNotMatch(css, /Campaign boot screen|body\[data-page\]::before/);
+  assert.doesNotMatch(features, /mainPhoto\.decode\(\)/);
+  const inline = homepage.match(/<script id="instant-season-boot">([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(inline);
+  assert.doesNotThrow(() => new Function(inline));
+  assert.match(inline, /history\.state/);
+  assert.doesNotMatch(inline, /localStorage|sessionStorage|fetch\(/);
+  assert.match(features, /carryCampaignAcrossNavigation\(key\)/);
+  assert.match(features, /history\.replaceState/);
+  assert.match(features, /new AbortController\(\)/);
 });
