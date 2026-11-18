@@ -1,6 +1,6 @@
 import { config } from "./site-config.js";
-import { initSiteFeatures } from "./site-features.js?v=20261118-i";
-import { CAMPAIGNS } from "./campaigns.js?v=20261118-i";
+import { initSiteFeatures } from "./site-features.js?v=20261118-n";
+import { CAMPAIGNS } from "./campaigns.js?v=20261118-n";
 import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
 import { initOfficePicker } from "./office-picker.js?v=20261118-o";
 
@@ -12,7 +12,7 @@ const priceFormatter = new Intl.NumberFormat("bg-BG", { style: "currency", curre
 const CART_KEY = "sabrano_cart_v1";
 const FAVORITES_KEY = "sabrano_favorites_v1";
 const groups = {
-  koleda: { label: "Коледа", title: "Коледа с <em>повече сърце.</em>", subtitle: "Малки празнични изненади, подбрани с внимание." },
+  koleda: { label: "Коледа", title: "Коледа с <em>повече сърце.</em>", subtitle: "Празнични подаръци за незабравими моменти." },
   bebe: { label: "За бебе", title: "За най-малките <em>с обич.</em>", subtitle: "Нежни подаръци за първите специални моменти." },
   deca: { label: "За деца", title: "Големи усмивки <em>за малките.</em>", subtitle: "Подаръчни комплекти за детски празници и радостни поводи." },
   povodi: { label: "За поводи", title: "Понякога <em>просто така.</em>", subtitle: "Красиви жестове за специалните хора." }
@@ -70,7 +70,7 @@ function groupInfo(slug) {
   if (groups[slug]) return groups[slug];
   const category = data.categories.find((item) => item.slug === slug);
   if (!category) return groups.povodi;
-  return { label: category.name, title: escapeHTML(category.name), subtitle: category.description || "Подбрани подаръци за специални моменти." };
+  return { label: category.name, title: escapeHTML(category.name), subtitle: category.description || "Подаръци за специални моменти." };
 }
 function notify(message) {
   const el = $("#toast");
@@ -174,7 +174,7 @@ function renderCatalog() {
     if (!items.length) return;
   }
   if (!items.length) {
-    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h3>Тук скоро ще има подаръци.</h3>' +
+    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h3>Тук скоро ще откриеш подаръци.</h3>' +
       '<p>Разгледай останалите колекции.</p><a class="button button-dark" href="./collections/">Виж колекциите <span aria-hidden="true"></span></a></div>';
     return;
   }
@@ -244,7 +244,7 @@ function renderProduct() {
   const liked = data.favorites.has(item.id);
   wrapper.innerHTML = '<div class="product-page-photo">' + photo(productPhoto(item), item.name, "eager") + '</div>' +
     '<div class="product-page-details"><span class="eyebrow">' + escapeHTML(groupInfo(item.group).label) + '</span>' +
-      '<h1>' + escapeHTML(item.name) + '</h1><p class="product-page-description">' + escapeHTML(item.description || "Красиво подбран подаръчен комплект.") + '</p>' +
+      '<h1>' + escapeHTML(item.name) + '</h1><p class="product-page-description">' + escapeHTML(item.description || "Подаръчен комплект за специален повод.") + '</p>' +
       '<div class="product-page-price">' + escapeHTML(price(item.price_eur)) + '</div>' +
       '<div class="product-page-buttons"><button type="button" class="button button-dark" data-add="' + escapeHTML(item.id) + '"' + (item.stock_quantity > 0 ? "" : " disabled") + '>' +
         (item.stock_quantity > 0 ? "Добави в количката" : "Временно изчерпан") + ' <span aria-hidden="true"></span></button>' +
