@@ -1,9 +1,8 @@
 <!doctype html>
-<html lang="bg">
+<html lang="bg" data-campaign="christmas" data-campaign-ready="true">
 <head>
   <script>if (location.pathname.endsWith("/index.html")) location.replace("./" + location.search + location.hash);</script>
   <meta charset="UTF-8" />
-  <script>/* Visible failsafe, independent from modules and remote APIs. */setTimeout(function(){if(document.documentElement.dataset.campaignReady!=="true")document.documentElement.dataset.campaignReady="true"},3200);</script>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7f2e9" />
   <meta name="description" content="Красиво подбрани подаръчни комплекти за деца, бебета, Коледа и специални поводи." />
@@ -13,6 +12,7 @@
   <meta property="og:description" content="Подбрани подаръчни комплекти за малки и големи поводи." />
   <title>Малки подаръци. Голяма радост. | събрано.</title>
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preload" as="image" href="./assets/images/christmas.webp" fetchpriority="high" />
 
   <link rel="stylesheet" href="./styles.css?v=20261118-e" />
   <script src="./refresh.js"></script>
@@ -20,7 +20,7 @@
 </head>
 <body data-page="home">
   <a class="skip-link" href="#content">Към съдържанието</a>
-  <div class="announcement"><div class="container announcement-inner"><span>Малки жестове, които остават в сърцето.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=povodi">Подаръци за всеки повод </a></div></div>
+  <div class="announcement"><div class="container announcement-inner"><span>Малки жестове, които остават в сърцето.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=koleda">Коледна колекция </a></div></div>
   <header class="site-header" id="top">
     <div class="container header-inner">
       <a class="brand" href="./" aria-label="СЪБРАНО. — начало">
@@ -28,7 +28,7 @@
         <span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span>
       </a>
       <nav class="desktop-nav" aria-label="Основна навигация">
-        <a data-season-link href="./collection/?category=povodi" class="nav-season">За поводи </a>
+        <a data-season-link href="./collection/?category=koleda" class="nav-season">Коледа </a>
         <a href="./collections/">Колекции</a>
         <a href="./collection/?category=deca">За деца</a>
         <a href="./products/">Подаръци</a>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Мобилна навигация" hidden>
-      <a data-season-link href="./collection/?category=povodi">За поводи </a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
+      <a data-season-link href="./collection/?category=koleda">Коледа </a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
     </nav>
   </header>
     <main id="content">
@@ -51,15 +51,15 @@
       <div class="hero-copy">
         <div class="hero-copy-inner">
           <p class="eyebrow"><span class="eyebrow-line"></span> подаръци с отношение</p>
-          <h1>Малките<br />неща имат<br /><em>значение.</em></h1>
-          <p class="hero-subtitle">Няколко внимателно подбрани неща. Един красив подарък. И много поводи да зарадваш някого.</p>
-          <div class="hero-actions"><a class="button button-dark" href="./collections/">Открий колекциите </a><a data-season-link class="button button-outline" href="./collection/?category=povodi">За всеки повод </a></div>
+          <h1>Коледа, която<br/>събира <em>сърцата.</em></h1>
+          <p class="hero-subtitle">Красиво подбрани малки изненади за най-топлите празнични моменти.</p>
+          <div class="hero-actions"><a class="button button-dark" href="./collections/">Открий колекциите </a><a data-season-link class="button button-outline" href="./collection/?category=koleda">За Коледа </a></div>
           <div class="hero-footnote"><span>За малки хора. За големи чувства. За всеки повод.</span></div>
         </div>
         
       </div>
       <div class="hero-image" role="img" aria-label="Красиво опаковани подаръци с панделки">
-        <img src="./assets/images/hero.webp" alt="" fetchpriority="high" />
+        <img src="./assets/images/christmas.webp" alt="Коледни подаръчни комплекти" fetchpriority="high" />
         <div class="hero-stamp" aria-label="Подарък от сърце"><b>Подарък<br />от сърце</b><small>събрано.</small></div>
         
         
@@ -70,9 +70,9 @@
       <div class="section-topline"><span class="eyebrow">Избери повод</span></div>
       <div class="section-heading-row"><h2>Поводите са различни.<br /><em>Жестът остава.</em></h2><p>Не е нужен голям повод, за да направиш някого щастлив.</p></div>
       <div class="collections-grid">
-        <a class="collection-card collection-card-large" data-season-link href="./collection/?category=povodi">
-          <img src="./assets/images/everyday.webp" alt="Красиво опаковани подаръци" loading="lazy" />
-          <span class="collection-shade"></span><span class="collection-number">подаръци за всеки повод</span><span class="collection-title">Красиво подбрано,<br />с обич.</span>
+        <a class="collection-card collection-card-large" data-season-link href="./collection/?category=koleda">
+          <img src="./assets/images/christmas.webp" alt="Коледна подаръчна колекция" loading="lazy" />
+          <span class="collection-shade"></span><span class="collection-number">Празнична колекция</span><span class="collection-title">Коледа,<br />събрана с обич.</span>
         </a>
         <a class="collection-card" href="./collection/?category=bebe">
           <img src="./assets/images/baby.webp" alt="Нежен момент с новородено бебе" loading="lazy" />
@@ -96,8 +96,8 @@
 
     <section class="home-season" id="campaign">
   <div class="container home-season-inner">
-    <div class="home-season-copy"><span class="eyebrow">Подаръци за всеки повод</span><h2>Жестовете са в<br /><em>малките неща.</em></h2><p>Подбрани изненади за любимите хора.</p><a class="button button-cream" data-season-link href="./collection/?category=povodi">Разгледай подаръците </a></div>
-    <div class="home-season-image"><img src="./assets/images/everyday.webp" alt="Красиво подбран подаръчен комплект" loading="lazy" /></div>
+    <div class="home-season-copy"><span class="eyebrow">Празнична колекция</span><h2>Коледа е в<br /><em>малките неща.</em></h2><p>Подбрани изненади, готови да зарадват.</p><a class="button button-cream" data-season-link href="./collection/?category=koleda">Виж коледните подаръци </a></div>
+    <div class="home-season-image"><img src="./assets/images/christmas.webp" alt="Празнична подаръчна композиция" loading="lazy" /></div>
   </div>
 </section><section class="home-more container">
   <div><span class="eyebrow">Подаръци за повече хора</span><h2>Радост за<br /><em>цялата компания.</em></h2><p>Комплекти за групи, събития и специални поводи.</p><a href="./bulk/" class="text-link">Подаръци в количество </a></div>
@@ -106,7 +106,7 @@
 <footer class="footer" id="contact">
     <div class="container footer-main">
       <div class="footer-brand"><a class="brand brand-footer" href="./"><span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 46 46" fill="none"><path d="M23 11v28M9 23h28" stroke="currentColor" stroke-width="2"/><path d="M23 23C9 22 8 11 14 9c5-2 9 7 9 14Zm0 0c14-1 15-12 9-14-5-2-9 7-9 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 23h28v16H9V23Z" stroke="currentColor" stroke-width="2"/></svg></span><span class="brand-type">събрано<span class="brand-dot">.</span><small>подбрано с обич</small></span></a><p>Малки неща, подбрани с повече сърце. За всеки, когото искаш да зарадваш.</p></div>
-      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=povodi">За поводи</a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./about/">Защо събрано.</a></div></div>
+      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=koleda">Коледа</a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./about/">Защо събрано.</a></div></div>
       <div class="footer-contact"><span class="footer-heading">Да останем във връзка</span><p>Имаш въпрос за подарък или поръчка в количество?</p><a class="footer-email" id="public-email" hidden></a><p id="contact-coming" class="footer-hint">Контактите ще бъдат публикувани при отварянето на магазина.</p></div>
     </div>
     <div class="container footer-bottom"><span>© <span id="current-year">2026</span> събрано.</span><span>Направено с внимание към малките неща.</span><a href="./">Обратно нагоре </a></div>
