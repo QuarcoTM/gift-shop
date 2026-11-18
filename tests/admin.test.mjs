@@ -55,18 +55,43 @@ test("navigation uses real SVG icons rather than placeholder stripe glyphs", () 
     assert.doesNotMatch(html, /class="nav-icon">[◫▦▤▧⚙↗]/);
   }
 });
-test("analytics collects only after consent and does not store personal contact data", () => {
+test("analytics and client storage are gated by granular consent", () => {
   const features = read("site-features.js");
-  assert.match(features, /getConsent\(\) !== "yes"/);
+  const consent = read("cookie-consent.js");
+  const store = read("app.js");
+  assert.match(features, /!allowsStorage\("analytics"\)/);
   assert.match(features, /sessionStorage\.setItem\(SESSION_KEY/);
   assert.match(features, /crypto\.randomUUID\(\)/);
   assert.match(features, /gift_visit_events/);
   assert.match(features, /page_path: path/);
-  assert.doesNotMatch(features, /document\.cookie/);
-  assert.doesNotMatch(features, /navigator\.userAgent/);
+  assert.match(consent, /sabrano_cookie_preferences_v2/);
+  assert.match(consent, /functional.*analytics.*marketing|analytics.*marketing/);
+  assert.match(consent, /if \(!prefs\.analytics\)/);
+  assert.match(consent, /sessionStorage\.removeItem\(ANALYTICS_SESSION_KEY\)/);
+  assert.match(store, /if \(!allowsStorage\(category\)\) return/);
+  assert.match(store, /allowsStorage\("necessary"\) \? loadSaved\(CART_KEY\)/);
+  assert.match(store, /allowsStorage\("functional"\) \? loadSaved\(FAVORITES_KEY\)/);
+  assert.doesNotMatch(features + consent, /document\.cookie/);
+  assert.doesNotMatch(features + consent, /navigator\.userAgent/);
   assert.match(read("admin.js"), /gift_daily_analytics/);
   assert.match(read("admin.js"), /gift_page_analytics/);
   assert.match(read("admin.js"), /timeZone: "Europe\/Sofia"/);
+});
+test("preferences center has category choices, refusal and live reconfiguration", () => {
+  const consent = read("cookie-consent.js");
+  const html = read("cookies/index.html");
+  assert.match(consent, /data-cookie-action="necessary"/);
+  assert.match(consent, /data-cookie-action="settings"/);
+  assert.match(consent, /data-cookie-action="all"/);
+  assert.match(consent, /data-cookie-action="save"/);
+  assert.match(consent, /data-cookie-option/);
+  assert.match(consent, /data-open-cookie-settings/);
+  assert.match(consent, /sabrano:consentchange/);
+  assert.match(consent, /if \(!prefs\.functional\) localStorage\.removeItem\(FAVORITES_KEY\)/);
+  assert.match(html, /<base href="\.\.\/" \/>/);
+  assert.match(html, /Политика за|Политика/);
+  assert.match(html, /data-open-cookie-settings/);
+  assert.match(read("styles.css"), /\.cookie-preferences-dialog/);
 });
 test("campaigns are read from DB and admin sets them with a confirmed protected PATCH", () => {
   const features = read("site-features.js");
