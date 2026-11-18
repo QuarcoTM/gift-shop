@@ -2,7 +2,7 @@ import { config } from "./site-config.js";
 import { initSiteFeatures } from "./site-features.js?v=20261118-i";
 import { CAMPAIGNS } from "./campaigns.js?v=20261118-i";
 import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
-import { initOfficePicker } from "./office-picker.js?v=20261118-n";
+import { initOfficePicker } from "./office-picker.js?v=20261118-o";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -355,6 +355,12 @@ function setupCheckout() {
     if (checkoutBusy || !checkoutEnabled) return;
     checkoutError("");
     if (!form.checkValidity()) {form.reportValidity();return;}
+    if (form.elements.delivery_type.value==="office" &&
+        !String(form.elements.delivery_location.value||"").trim()) {
+      checkoutError("Избери офис на куриера от списъка.");
+      document.getElementById("checkout-office-picker")?.focus();
+      return;
+    }
     if (!data.cart.length || !data.cart.every(entry=>productById(entry.id)?.stock_quantity>=entry.qty)){
       checkoutError("Количката се промени. Провери продуктите преди изпращане.");return;
     }
