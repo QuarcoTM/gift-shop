@@ -1,0 +1,33 @@
+.order-manager{max-width:950px;padding-top:65px;padding-bottom:115px;min-height:64vh}
+.order-manager h1{font:400 clamp(36px,5vw,60px)/1.14 Georgia,serif;letter-spacing:-.04em;margin:15px 0 18px}
+.order-manager h1 em{font-weight:400;color:var(--wine)}
+.order-manager-intro{color:var(--muted);font-size:15px;line-height:1.8;max-width:640px;margin:0 0 35px}
+.order-manager-card{border:1px solid var(--line);border-radius:6px;background:#fffdf8;padding:28px 32px;box-shadow:0 15px 35px rgba(30,48,39,.035)}
+.order-manager-card[hidden],.order-manager-card [hidden]{display:none!important}
+.order-manager-card h2{font:400 30px/1.3 Georgia,serif;margin:6px 0 0}
+.order-manager-card h3{font:500 24px Georgia,serif;margin:0 0 13px}
+.order-manager-card p{font-size:13px;color:var(--muted);line-height:1.75}
+.order-manager-card-header{display:flex;justify-content:space-between;gap:15px;align-items:start}
+.order-manager-status{border:1px solid #acc1ae;color:var(--forest);background:#eef4ee;border-radius:30px;font-size:12px;padding:8px 13px}
+.order-manager-muted,.order-manager-small{color:var(--muted);font-size:12px!important}
+.order-manager-products{margin:25px 0 15px}
+.order-manager-line,.order-manager-summary>div{display:flex;align-items:start;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);padding:13px 0;font-size:13px}
+.order-manager-summary{background:var(--cream);padding:12px 18px;border-radius:4px}
+.order-manager-summary>div:last-child{border-bottom:0}
+.order-manager-actions{margin-top:25px;border-top:1px solid var(--line);padding-top:25px}
+.order-manager-button{display:inline-flex;justify-content:center;align-items:center;background:var(--forest);color:#fff;padding:14px 21px;border:0;border-radius:4px;min-height:46px;font-size:13px;font-weight:700;cursor:pointer}
+.order-manager-button:disabled{opacity:.5;cursor:wait}
+.order-manager-message{padding:14px 17px;margin:16px 0;background:#f0ede5;border-left:3px solid var(--wine);font-size:13px;line-height:1.65;color:var(--forest)}
+.order-manager-legal{color:var(--muted);font-size:12px;line-height:1.7;margin-top:28px}
+.order-manager label{display:grid;gap:8px;color:var(--forest);font-size:12px;font-weight:700}
+.order-manager textarea,.order-manager input{width:100%;max-width:560px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--forest);padding:12px 13px;font:inherit}
+.order-manager textarea{display:block;margin:8px 0 16px}
+.order-manager-recovery{display:grid;gap:17px;max-width:500px;margin:20px 0}
+.order-manager-confirm{max-width:min(470px,calc(100vw - 24px));border:1px solid var(--line);padding:25px;background:var(--cream);color:var(--forest);border-radius:7px}
+.order-manager-confirm::backdrop{background:#152a20a8}
+.order-manager-confirm h2{font:400 27px Georgia,serif}
+.order-manager-confirm p{font-size:13px;line-height:1.7}
+.order-manager-confirm>div{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.order-manager-confirm button{padding:12px 15px;border:1px solid var(--forest);background:transparent;color:var(--forest);cursor:pointer;border-radius:3px}
+#order-cancel-confirm{background:var(--forest);color:#fff}
+@media(max-width:620px){.order-manager{padding-top:38px;padding-bottom:65px}.order-manager-card{padding:20px 17px}.order-manager-card-header{align-items:start}.order-manager-card h2{font-size:26px}.order-manager-status{font-size:11px}.order-manager-button{width:100%}}
