@@ -1,7 +1,7 @@
 import { config } from "./site-config.js";
-import { initSiteFeatures } from "./site-features.js?v=20261118-h";
-import { CAMPAIGNS } from "./campaigns.js?v=20261118-h";
-import { allowsStorage } from "./cookie-consent.js?v=20261118-h";
+import { initSiteFeatures } from "./site-features.js?v=20261118-i";
+import { CAMPAIGNS } from "./campaigns.js?v=20261118-i";
+import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
