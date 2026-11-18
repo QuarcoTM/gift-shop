@@ -19,7 +19,7 @@ test("official map is optional and accessible with a manual fallback",()=>{
   assert.match(html,/name="delivery_location"/);
   assert.match(html,/id="checkout-office-map"/);
   assert.doesNotMatch(html,/<iframe[^>]*\ssrc=/i,"Do not fetch third-party resources before visitor click");
-  assert.match(js,/iframe\.src = url/);
+  assert.match(js,/iframe\.src=url/);
   assert.match(js,/event\.origin !== ECONT_MAP_ORIGIN/);
   assert.match(js,/event\.source !== expectedSource/);
   assert.match(js,/courier\.addEventListener\("change"/);
