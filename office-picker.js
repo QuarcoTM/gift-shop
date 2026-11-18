@@ -8,6 +8,7 @@
 export const ECONT_MAP_ORIGIN = "https://officelocator.econt.com";
 export const SPEEDY_OFFICES_URL = "https://services.speedy.bg/office_locator_widget_v2/offices_list.php?lang=bg";
 export const SPEEDY_OFFICES_ENDPOINT = "https://ycsjfsoijafepgslzzlz.supabase.co/functions/v1/speedy-offices";
+export const ECONT_OFFICES_ENDPOINT = "https://ycsjfsoijafepgslzzlz.supabase.co/functions/v1/econt-offices";
 
 export function getOfficeMapURL(courier, city = "", shopURL = "") {
   if (courier !== "econt") return ""; // No map for Speedy.
@@ -64,185 +65,219 @@ export function cityForSpeedyOffice(office) {
     .slice(0,100);
 }
 
+
+/** Shared, city-driven office dropdown for both couriers. */
 export function initOfficePicker(form) {
   if (!form) return;
-  const $ = (selector) => document.querySelector(selector);
-  const dialog = $("#checkout-office-dialog");
-  const iframe = $("#checkout-office-map");
-  const launcher = $("#checkout-office-picker");
-  const launcherLabel = $("#checkout-office-picker-label");
-  const closer = $("#checkout-office-close");
-  const done = $("#checkout-office-done");
-  const external = $("#checkout-office-external");
-  const instructions = $("#checkout-office-instructions");
-  const tools = $("#checkout-office-tools");
-  const hint = $("#checkout-office-hint");
-  const locationLabel = $("#checkout-location-label");
-  const speedyPanel = $("#checkout-speedy-panel");
-  const speedySearch = $("#checkout-speedy-search");
-  const speedyOptions = $("#checkout-speedy-options");
-  const speedyFeedback = $("#checkout-speedy-feedback");
-  const city = form.elements.delivery_city;
-  const address = form.elements.delivery_location;
-  const courier = form.elements.courier;
-  const deliveryType = form.elements.delivery_type;
-  if (!dialog || !iframe || !launcher || !external || !tools || !speedyPanel ||
-      !speedySearch || !speedyOptions || !speedyFeedback ||
-      !city || !address || !courier || !deliveryType) return;
-  let offices = null;
-  let fetchInFlight = null;
+  const $=(selector)=>document.querySelector(selector);
+  const courier=form.elements.courier;
+  const deliveryType=form.elements.delivery_type;
+  const city=form.elements.delivery_city;
+  const address=form.elements.delivery_location;
+  const locationLabel=$("#checkout-location-label");
+  const tools=$("#checkout-office-tools");
+  const launcher=$("#checkout-office-picker");
+  const selected=$("#checkout-office-selected");
+  const panel=$("#checkout-office-panel");
+  const feedback=$("#checkout-office-feedback");
+  const options=$("#checkout-office-options");
+  const fallback=$("#checkout-office-fallback");
+  const manual=$("#checkout-office-manual");
+  const fallbackLink=$("#checkout-office-fallback-link");
+  const mapFallback=$("#checkout-office-map-fallback");
+  const dialog=$("#checkout-office-dialog");
+  const iframe=$("#checkout-office-map");
+  const external=$("#checkout-office-external");
+  const instructions=$("#checkout-office-instructions");
+  if(!courier || !deliveryType || !city || !address || !locationLabel ||
+     !tools || !launcher || !selected || !panel || !feedback || !options ||
+     !fallback || !manual || !fallbackLink || !mapFallback || !dialog || !iframe)return;
 
-  function closeMap() {
-    if (dialog.open && typeof dialog.close === "function") dialog.close();
+  const directory={speedy:null,econt:null};
+  const loading={speedy:null,econt:null};
+  const endpoints={speedy:SPEEDY_OFFICES_ENDPOINT,econt:ECONT_OFFICES_ENDPOINT};
+  const normalizeCity=(value)=>normalize(value).replace(/^(?:гр\.|с\.)\s*/,"").replace(/\s+/g," ");
+  let settingOffice=false;
+
+  function closePanel(){
+    panel.hidden=true;
+    launcher.setAttribute("aria-expanded","false");
+  }
+  function closeMap(){
+    if(dialog.open && typeof dialog.close==="function")dialog.close();
     iframe.removeAttribute("src");
-    launcher.setAttribute("aria-expanded","false");
   }
-  function closeSpeedy() {
-    speedyPanel.hidden = true;
-    launcher.setAttribute("aria-expanded","false");
+  function clearOffice(){
+    address.value="";
+    delete address.dataset.selectedOfficeId;
+    delete address.dataset.selectedCourier;
+    selected.hidden=true;
+    selected.textContent="";
   }
-  function renderSpeedy() {
-    speedyOptions.replaceChildren();
-    if (!Array.isArray(offices)) return;
-    const term = speedySearch.value.trim() || city.value.trim();
-    if (!term) {
-      speedyFeedback.textContent = "Напиши населено място или адрес на офиса в търсачката, за да видиш предложения.";
+  function showManual(){
+    clearOffice();
+    address.type="text";
+    address.required=true;
+    locationLabel.hidden=false;
+    locationLabel.firstChild.textContent="Офис на куриера ";
+    address.placeholder="Напиши името или адреса на офиса";
+    closePanel();
+    address.focus();
+  }
+  function showFallback(show){
+    fallback.hidden=!show;
+    if(show){
+      fallbackLink.href=courier.value==="speedy" ? SPEEDY_OFFICES_URL : ECONT_MAP_ORIGIN+"/";
+      fallbackLink.textContent=courier.value==="speedy" ? "Официален списък на Спиди" : "Официални офиси на Еконт";
+      mapFallback.hidden=courier.value!=="econt";
+    }
+  }
+  function refreshFields(){
+    const toOffice=deliveryType.value==="office";
+    clearOffice();
+    closePanel();
+    closeMap();
+    tools.hidden=!toOffice;
+    locationLabel.hidden=toOffice;
+    address.type=toOffice?"hidden":"text";
+    address.required=!toOffice;
+    address.placeholder=toOffice?"":"Улица, номер, вход, апартамент";
+    locationLabel.firstChild.textContent=toOffice?"Офис на куриера ":"Точен адрес ";
+    showFallback(false);
+  }
+  function pick(office){
+    settingOffice=true;
+    const isSpeedy=courier.value==="speedy";
+    city.value=isSpeedy?cityForSpeedyOffice(office):office.city;
+    address.value=(isSpeedy
+      ? "Спиди офис "+office.id+" — "+office.name+", "+office.address
+      : "Еконт офис "+office.id+" — "+office.name+", "+office.address).slice(0,220);
+    address.dataset.selectedOfficeId=office.id;
+    address.dataset.selectedCourier=courier.value;
+    selected.textContent="Избран офис: "+office.name+" · № "+office.id;
+    selected.hidden=false;
+    settingOffice=false;
+    address.dispatchEvent(new Event("input",{bubbles:true}));
+    closePanel();
+    launcher.focus({preventScroll:true});
+  }
+  function render(){
+    options.replaceChildren();
+    showFallback(false);
+    const courierKey=courier.value;
+    const entered=normalizeCity(city.value);
+    if(!entered){
+      feedback.textContent="Първо въведи населено място в полето по-горе.";
       return;
     }
-    const matches = filterSpeedyOffices(offices,term,50);
-    speedyFeedback.textContent = matches.length
-      ? "Намерени " + matches.length + (matches.length === 50 ? " или повече" : "") + " офиса. Избери един от списъка:"
-      : "Няма намерени офиси. Опитай с друго населено място или улица.";
+    const items=directory[courierKey];
+    if(!Array.isArray(items)){
+      feedback.textContent="Зареждане на офисите…";
+      return;
+    }
+    const cityOf=(office)=>normalizeCity(courierKey==="speedy"?cityForSpeedyOffice(office):office.city);
+    let matches=items.filter(item=>cityOf(item)===entered);
+    if(!matches.length && entered.length>=3)matches=items.filter(item=>cityOf(item).startsWith(entered));
+    matches=matches.slice(0,300);
+    if(!matches.length){
+      feedback.textContent="Няма намерени офиси за това населено място. Провери изписването.";
+      showFallback(true);
+      return;
+    }
+    feedback.textContent="Намерени "+matches.length+" офиса. Избери от списъка:";
     for(const entry of matches){
-      const option = document.createElement("button");
+      const option=document.createElement("button");
       option.type="button";
-      option.className="checkout-speedy-option";
+      option.className="checkout-office-option";
       option.setAttribute("role","option");
-      option.setAttribute("aria-selected","false");
-      const title=document.createElement("strong");
-      title.textContent=entry.name + " · № " + entry.id;
-      const detail=document.createElement("small");
-      detail.textContent=entry.address;
-      option.append(title,detail);
-      option.addEventListener("click",()=>{
-        city.value=cityForSpeedyOffice(entry);
-        address.value=("Спиди офис " + entry.id + " — " + entry.name + ", " + entry.address).slice(0,220);
-        address.dataset.speedyOfficeId=entry.id;
-        city.dispatchEvent(new Event("input",{bubbles:true}));
-        address.dispatchEvent(new Event("input",{bubbles:true}));
-        if (launcherLabel) launcherLabel.textContent="Промени избрания офис";
-        closeSpeedy();
-        address.focus();
-      });
-      speedyOptions.append(option);
+      const name=document.createElement("strong");
+      name.textContent=entry.name+" · № "+entry.id;
+      const details=document.createElement("small");
+      details.textContent=entry.address;
+      option.append(name,details);
+      option.addEventListener("click",()=>pick(entry));
+      options.append(option);
     }
   }
-  async function loadSpeedy() {
-    if (offices) { renderSpeedy(); return; }
-    if (fetchInFlight) return fetchInFlight;
-    speedyFeedback.textContent="Зареждане на официалните офиси на Спиди…";
-    speedyOptions.replaceChildren();
-    fetchInFlight=(async()=>{
-      try {
-        const response=await fetch(SPEEDY_OFFICES_ENDPOINT,{
-          method:"GET",mode:"cors",cache:"default",signal:AbortSignal.timeout(13000)
+  async function load(courierKey){
+    if(directory[courierKey]){render();return;}
+    if(loading[courierKey])return loading[courierKey];
+    feedback.textContent="Зареждане на офисите…";
+    loading[courierKey]=(async()=>{
+      try{
+        const response=await fetch(endpoints[courierKey],{
+          method:"GET",mode:"cors",cache:"default",signal:AbortSignal.timeout(15000)
         });
         if(!response.ok)throw Error("Office directory: "+response.status);
         const result=await response.json();
-        if(!Array.isArray(result?.offices)||result.offices.length<1)
-          throw Error("Invalid Speedy directory response");
-        offices=result.offices;
-        if (!speedyPanel.hidden && courier.value==="speedy")renderSpeedy();
+        if(!Array.isArray(result?.offices) || result.offices.length<1)
+          throw Error("Invalid office directory response");
+        directory[courierKey]=result.offices;
+        if(!panel.hidden && courier.value===courierKey)render();
       }catch(error){
-        console.warn("Speedy office directory unavailable:",error);
-        if (!speedyPanel.hidden) speedyFeedback.textContent=
-          "Списъкът временно не е достъпен. Можеш да напишеш офис ръчно или да го провериш в официалния списък по-долу.";
-      }finally{fetchInFlight=null}
+        console.warn("Courier office directory unavailable:",error);
+        if(!panel.hidden && courier.value===courierKey){
+          options.replaceChildren();
+          feedback.textContent="Списъкът временно не е достъпен. Можеш да въведеш офиса ръчно.";
+          showFallback(true);
+        }
+      }finally{loading[courierKey]=null}
     })();
-    return fetchInFlight;
+    return loading[courierKey];
   }
-  function refreshFields(resetOffice = false) {
-    const toOffice = deliveryType.value === "office";
-    tools.hidden = !toOffice;
-    if (locationLabel) {
-      locationLabel.firstChild.textContent = toOffice ? "Офис на куриера " : "Точен адрес ";
-    }
-    address.placeholder = toOffice ? "Посочи офис или избери от списъка" : "Улица, номер, вход, апартамент";
-    if (resetOffice) {
-      address.value="";
-      delete address.dataset.speedyOfficeId;
-      if (launcherLabel) launcherLabel.textContent="Избери офис";
-    }
-    if (launcherLabel) launcherLabel.textContent = courier.value==="speedy"
-      ? (address.dataset.speedyOfficeId ? "Промени избрания офис" : "Избери офис от списък")
-      : "Избери офис от карта";
-    if (courier.value==="econt") launcher.setAttribute("aria-haspopup","dialog");
-    else launcher.removeAttribute("aria-haspopup");
-    if (hint) hint.textContent = courier.value === "econt"
-      ? "Изборът от картата на Еконт попълва офиса автоматично."
-      : courier.value === "speedy"
-      ? "Избери офис на Спиди от падащия списък. Населеното място и адресът се попълват сами."
-      : "Първо избери куриер, за да се покажат офисите.";
-    if (dialog.open) closeMap();
-    closeSpeedy();
-  }
-  function openEcontMap() {
+  function openFallbackMap(){
+    if(courier.value!=="econt" || deliveryType.value!=="office")return;
     const url=getOfficeMapURL("econt",city.value,new URL("./",document.baseURI).href);
     $("#checkout-office-dialog-title").textContent="Офиси на Еконт";
-    instructions.textContent="Избери офис на картата — кодът, адресът и населеното място ще се попълнят автоматично. Ако картата не се зареди, отвори я в нов прозорец и попълни офиса ръчно.";
-    external.href=url;
+    if(instructions)instructions.textContent="Избери офис от картата, за да се попълнят данните автоматично.";
+    if(external)external.href=url;
     iframe.title="Официална карта на офисите на Еконт";
     iframe.src=url;
     if(typeof dialog.showModal==="function")dialog.showModal();
     else dialog.setAttribute("open","");
-    launcher.setAttribute("aria-expanded","true");
   }
-  function toggleSpeedy() {
-    if (!speedyPanel.hidden) {closeSpeedy();return;}
-    speedyPanel.hidden=false;
-    launcher.setAttribute("aria-expanded","true");
-    speedySearch.value=city.value.trim();
-    if (offices)renderSpeedy();
-    else loadSpeedy();
-    speedySearch.focus({preventScroll:true});
-    speedyPanel.scrollIntoView({block:"nearest",behavior:"smooth"});
-  }
+
   launcher.addEventListener("click",()=>{
     if(deliveryType.value!=="office")return;
-    if(courier.value==="speedy")return toggleSpeedy();
-    if(courier.value==="econt")return openEcontMap();
-    courier.focus();
-    if(hint)hint.textContent="Първо избери Еконт или Спиди.";
+    if(!courier.value){courier.focus();return;}
+    if(!city.value.trim()){city.focus();city.reportValidity();return;}
+    if(!panel.hidden){closePanel();return;}
+    panel.hidden=false;
+    launcher.setAttribute("aria-expanded","true");
+    if(directory[courier.value])render();else load(courier.value);
+    panel.scrollIntoView({block:"nearest",behavior:"smooth"});
   });
-  closer?.addEventListener("click",closeMap);
-  done?.addEventListener("click",closeMap);
-  dialog.addEventListener("click",(event)=>{
-    if (event.target===dialog)closeMap();
-  });
-  dialog.addEventListener("close",()=>iframe.removeAttribute("src"));
-  speedySearch.addEventListener("input",renderSpeedy);
-  speedySearch.addEventListener("keydown",(event)=>{
-    if(event.key==="Escape"){event.preventDefault();closeSpeedy();launcher.focus()}
-    if(event.key==="ArrowDown"){
-      const first=speedyOptions.querySelector("button");
-      if(first){event.preventDefault();first.focus()}
-    }
-  });
+  manual.addEventListener("click",showManual);
+  mapFallback.addEventListener("click",openFallbackMap);
   city.addEventListener("input",()=>{
-    if (!speedyPanel.hidden && !speedySearch.value.trim())renderSpeedy();
+    if(settingOffice)return;
+    clearOffice();
+    if(!panel.hidden)render();
   });
-  courier.addEventListener("change",()=>refreshFields(true));
-  deliveryType.addEventListener("change",()=>refreshFields(true));
+  courier.addEventListener("change",refreshFields);
+  deliveryType.addEventListener("change",refreshFields);
+  $("#checkout-office-close")?.addEventListener("click",closeMap);
+  $("#checkout-office-done")?.addEventListener("click",closeMap);
+  dialog.addEventListener("click",(event)=>{if(event.target===dialog)closeMap()});
+  dialog.addEventListener("close",()=>iframe.removeAttribute("src"));
   window.addEventListener("message",(event)=>{
     if(!dialog.open || courier.value!=="econt" || deliveryType.value!=="office")return;
     const chosen=readEcontSelection(event,iframe.contentWindow);
     if(!chosen)return;
+    settingOffice=true;
     city.value=chosen.city;
     address.value=chosen.location;
-    city.dispatchEvent(new Event("input",{bubbles:true}));
-    address.dispatchEvent(new Event("input",{bubbles:true}));
+    address.type="hidden";
+    address.required=false;
+    locationLabel.hidden=true;
+    address.dataset.selectedOfficeId="econt-map";
+    address.dataset.selectedCourier="econt";
+    selected.textContent="Избран офис: "+chosen.location;
+    selected.hidden=false;
+    settingOffice=false;
     closeMap();
-    address.focus();
+    closePanel();
+    launcher.focus({preventScroll:true});
   });
   refreshFields();
 }
