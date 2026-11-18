@@ -52,7 +52,6 @@ function applyCampaign(key, onCampaign) {
   const isNew = key !== currentCampaign;
   currentCampaign = key;
   document.documentElement.dataset.campaign = key;
-  document.documentElement.dataset.campaignReady = "true";
 
   // Every visitor sees the actual active campaign, including already-open tabs.
   for (const link of campaignLinks()) {
@@ -93,10 +92,12 @@ function applyCampaign(key, onCampaign) {
     window.dispatchEvent(new CustomEvent("sabrano:campaign-applied", { detail: { key, label: campaign.label } }));
   }
   onCampaign?.(campaign);
+  // Reveal holiday content only after every image, heading and link is updated.
+  document.documentElement.dataset.campaignReady = "true";
   return key;
 }
 async function fetchCampaign(onCampaign, force = false) {
-  if (!API || !KEY) { applyCampaign("christmas", onCampaign); return; }
+  if (!API || !KEY) { applyCampaign("everyday", onCampaign); return; }
   if (inflightCampaign) return inflightCampaign;
   if (!force && currentCampaign && Date.now() - lastReadAt < 800) return;
   inflightCampaign = (async () => {
@@ -113,7 +114,7 @@ async function fetchCampaign(onCampaign, force = false) {
     } catch (error) {
       console.warn("Неуспешна синхронизация на празничната визия:", error);
       // Never silently revert an already loaded campaign to Christmas.
-      if (!currentCampaign) applyCampaign("christmas", onCampaign);
+      if (!currentCampaign) applyCampaign("everyday", onCampaign);
     } finally { inflightCampaign = null; }
   })();
   return inflightCampaign;
