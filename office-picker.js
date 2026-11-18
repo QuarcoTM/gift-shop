@@ -149,7 +149,7 @@ export function initOfficePicker(form) {
         });
         if(!response.ok)throw Error("Office directory: "+response.status);
         const result=await response.json();
-        if(!Array.isArray(result?.offices)||result.offices.length<50)
+        if(!Array.isArray(result?.offices)||result.offices.length<1)
           throw Error("Invalid Speedy directory response");
         offices=result.offices;
         if (!speedyPanel.hidden && courier.value==="speedy")renderSpeedy();
