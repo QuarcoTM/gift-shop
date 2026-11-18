@@ -16,7 +16,7 @@ test("active holiday switches actual headlines, category links and local picture
     append(){}
   }
   class Link extends Element {
-    constructor(href){super();this.setAttribute("href",href)}
+    constructor(href){super();this.setAttribute("href",href);this.dataset.seasonLink="true"}
     get href(){return new URL(this.getAttribute("href"),base).href}
     set href(value){this.setAttribute("href",value)}
   }
@@ -70,6 +70,7 @@ test("active holiday switches actual headlines, category links and local picture
     addEventListener(name,fn){eventListeners.set("window:"+name,fn)},
     dispatchEvent(){}
   };
+  globalThis.history={state:null,replaceState(next){this.state=next}};
   globalThis.localStorage={getItem:()=>null,removeItem(){},setItem(){}};
   globalThis.sessionStorage={getItem:()=>null,removeItem(){},setItem(){}};
   globalThis.CustomEvent=class{constructor(name,init){this.type=name;this.detail=init?.detail}};
@@ -98,4 +99,5 @@ test("active holiday switches actual headlines, category links and local picture
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Любовта/);
   assert.ok(heroImg.src.endsWith("/assets/images/valentine.webp"));
   assert.ok(links.every(x=>x.href.includes("category=sveti-valentin")));
+  assert.equal(globalThis.history.state?.sabranoCampaign,"valentine");
 });
