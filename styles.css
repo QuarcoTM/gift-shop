@@ -611,3 +611,6 @@ html[data-campaign]:not([data-campaign="christmas"]) .collections-grid .collecti
   .analytics-choice-actions button{min-width:0;flex:1;padding:12px 9px;font-size:10px}
   html[data-campaign]:not([data-campaign="christmas"]) .home-season-image:after{font-size:180px}
 }
+
+/* A hidden previous-season photo must not remain visible or accessible. */
+html[data-campaign] .home-season-image img[hidden],html[data-campaign] .collections-grid .collection-card-large img[hidden]{display:none!important}
