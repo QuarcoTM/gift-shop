@@ -91,3 +91,46 @@ test("no fabricated contact data or delivery offers", () => {
     assert.doesNotMatch(content, /\bSale\b/i, name);
   }
 });
+
+
+test("home hero uses two identifiable buttons without false photo controls", () => {
+  const home = read("index.html");
+  assert.match(home, /class="button button-dark" href="\.\/collections\.html"/);
+  assert.match(home, /class="button button-outline" href="\.\/collection\.html\?category=koleda"/);
+  assert.doesNotMatch(home, /hero-stamp|hero-photo-caption|class="button button-text"/);
+});
+
+test("no decorative asterisks or arrow glyphs in site content", () => {
+  for (const { name, content } of pages) {
+    assert.doesNotMatch(content, /✳|↗|→|←|↑/, name);
+    assert.doesNotMatch(content, /topline-accent|collection-arrow|nav-sparkle/, name);
+  }
+});
+
+test("sale image has been removed from all storefront pages", () => {
+  for (const { name, content } of pages) {
+    assert.doesNotMatch(content, /photo-1607082350899-7e105aa886ae/, name);
+  }
+  assert.match(read("about.html"), /photo-1764385827316-c903082e0d1b/);
+});
+
+test("refresh logic is loaded everywhere and avoids scroll restoration jumps", () => {
+  const refresh = read("refresh.js");
+  assert.match(refresh, /isReload/);
+  assert.match(refresh, /history\.scrollRestoration = "manual"/);
+  assert.match(refresh, /window\.scrollTo\(0, 0\)/);
+  assert.match(refresh, /pageshow/);
+  for (const { name, content } of pages) {
+    assert.match(content, /src="\.\/refresh\.js"/, name);
+  }
+  const home = read("index.html");
+  assert.match(home, /home-products-section" id="products" hidden/);
+  assert.match(read("app.js"), /section\.hidden = items\.length === 0/);
+  assert.doesNotMatch(css, /html\{scroll-behavior:smooth/);
+});
+
+test("refresh script is valid JavaScript", () => {
+  assert.doesNotThrow(
+    () => execFileSync(process.execPath, ["--check", fileURLToPath(path("refresh.js"))], { stdio: "pipe" })
+  );
+});
