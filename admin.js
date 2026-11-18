@@ -171,16 +171,32 @@ function heading(label, title, description, action = "") {
 function primary(label, action) {
   return '<button type="button" class="primary-button" data-action="' + esc(action) + '">' + esc(label) + " <span aria-hidden=\"true\">＋</span></button>";
 }
+const ICON_SHAPES = {
+  package:'<path d="m12 3-9 5 9 5 9-5-9-5Z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/>',
+  check:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+  alert:'<path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v4m0 4h.01"/>',
+  layers:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M7 15v-4m5 4V7m5 8V5"/>',
+  users:'<circle cx="8" cy="8" r="3"/><path d="M2 20v-2a6 6 0 0 1 12 0v2"/><path d="M16 5a3 3 0 0 1 0 6m2 3c3 0 4 2 4 5v1"/>',
+  bag:'<path d="M6 7h12l1 13H5L6 7Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/>',
+  gift:'<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 13h18"/><path d="M12 8S6 8 6 5.5a2.5 2.5 0 0 1 5-1C11.5 5.6 12 8 12 8Zm0 0s6 0 6-2.5a2.5 2.5 0 0 0-5-1C12.5 5.6 12 8 12 8Z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>'
+};
+function uiIcon(kind) {
+  const aliases = {"▦":"package","◉":"check","◈":"alert","▤":"layers","◫":"chart","▥":"users","▧":"bag","◇":"gift","⌁":"chart","＋":"plus"};
+  const shape = ICON_SHAPES[aliases[kind] || kind];
+  return shape ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + shape + '</svg>' : esc(kind);
+}
 function badge(text, kind = "") {
   return '<span class="status-tag ' + esc(kind) + '">' + esc(text) + "</span>";
 }
 function blank(icon, title, content, action = "") {
-  return '<div class="empty-space"><span class="empty-icon" aria-hidden="true">' + icon + '</span><h3>' + esc(title) +
+  return '<div class="empty-space"><span class="empty-icon" aria-hidden="true">' + uiIcon(icon) + '</span><h3>' + esc(title) +
     '</h3><p>' + esc(content) + '</p>' + action + "</div>";
 }
 function metric(title, value, note, icon, alert = false) {
   return '<div class="metric-card' + (alert ? " alert" : "") + '"><div class="metric-head"><span class="metric-title">' + esc(title) +
-    '</span><span class="metric-symbol">' + icon + '</span></div><strong>' + esc(value) + '</strong><small>' + esc(note) + "</small></div>";
+    '</span><span class="metric-symbol">' + uiIcon(icon) + '</span></div><strong>' + esc(value) + '</strong><small>' + esc(note) + "</small></div>";
 }
 function localDay() {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Sofia", year:"numeric", month:"2-digit", day:"2-digit" }).formatToParts(new Date());
@@ -223,9 +239,9 @@ function dashboard() {
     '</span><span class="row-arrow">›</span></button>').join("") :
     blank("▧", "Все още няма поръчки", "Когато активираме приемането на поръчки, те ще се появяват тук.");
   html += '</section><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Бързи действия</h2><p class="panel-subtitle">Най-често използваните инструменти</p></div></div><div class="quick-actions">' +
-    '<button class="quick-action" type="button" data-action="new-product"><span class="quick-icon">＋</span><span><strong>Нов подаръчен комплект</strong><small>Добави информация, цена и снимки</small></span><span class="quick-chevron">›</span></button>' +
-    '<button class="quick-action" type="button" data-action="new-category"><span class="quick-icon">▤</span><span><strong>Нова колекция</strong><small>Организирай асортимента по поводи</small></span><span class="quick-chevron">›</span></button>' +
-    '<button class="quick-action" type="button" data-view="products"><span class="quick-icon">▦</span><span><strong>Управление на наличности</strong><small>Следи наличните и публикуваните артикули</small></span><span class="quick-chevron">›</span></button>' +
+    '<button class="quick-action" type="button" data-action="new-product"><span class="quick-icon">' + uiIcon("plus") + '</span><span><strong>Нов подаръчен комплект</strong><small>Добави информация, цена и снимки</small></span><span class="quick-chevron">›</span></button>' +
+    '<button class="quick-action" type="button" data-action="new-category"><span class="quick-icon">' + uiIcon("layers") + '</span><span><strong>Нова колекция</strong><small>Организирай асортимента по поводи</small></span><span class="quick-chevron">›</span></button>' +
+    '<button class="quick-action" type="button" data-view="products"><span class="quick-icon">' + uiIcon("package") + '</span><span><strong>Управление на наличности</strong><small>Следи наличните и публикуваните артикули</small></span><span class="quick-chevron">›</span></button>' +
     "</div></section></div>";
   if (!state.categories.length) html += '<div class="note-box"><strong>Първа стъпка:</strong> Създай колекция, преди да добавиш първия продукт. Продуктите остават скрити, докато не ги публикуваш.</div>';
   return html;
