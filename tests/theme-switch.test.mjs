@@ -50,7 +50,7 @@ test("active holiday switches actual headlines, category links and local picture
   footer.querySelector=(selector)=>null;
   selectors.set(".footer-bottom",footer);
   const page={
-    documentElement:{dataset:{}},
+    documentElement:{dataset:{staticCampaign:"valentine"}},
     baseURI:base,
     body:{append(){}},
     visibilityState:"visible",
@@ -70,7 +70,8 @@ test("active holiday switches actual headlines, category links and local picture
     addEventListener(name,fn){eventListeners.set("window:"+name,fn)},
     dispatchEvent(){}
   };
-  globalThis.history={state:null,replaceState(next){this.state=next}};
+  globalThis.location={href:base,pathname:"/gift-shop/",search:"",hash:""};
+  globalThis.history={state:null,replaceState(next,unused,url){this.state=next;this.lastURL=url}};
   globalThis.localStorage={getItem:()=>null,removeItem(){},setItem(){}};
   globalThis.sessionStorage={getItem:()=>null,removeItem(){},setItem(){}};
   globalThis.CustomEvent=class{constructor(name,init){this.type=name;this.detail=init?.detail}};
@@ -100,4 +101,5 @@ test("active holiday switches actual headlines, category links and local picture
   assert.ok(heroImg.src.endsWith("/assets/images/valentine.webp"));
   assert.ok(links.every(x=>x.href.includes("category=sveti-valentin")));
   assert.equal(globalThis.history.state?.sabranoCampaign,"valentine");
+  assert.equal(globalThis.history.lastURL, "/gift-shop/");
 });
