@@ -1,5 +1,5 @@
 import { config } from "./site-config.js";
-import { CAMPAIGNS, campaignOf } from "./campaigns.js?v=20261118-n";
+import { CAMPAIGNS, campaignOf } from "./campaigns.js?v=20261118-categories";
 import { initCookieManager, allowsStorage } from "./cookie-consent.js?v=20261118-i";
 
 const API = String(config.supabaseUrl || "").replace(/\/+$/, "");
@@ -85,12 +85,7 @@ function applyCampaign(key, onCampaign) {
   if (heroTitle && !heroTitle.querySelector?.("[data-season-content]")) heroTitle.innerHTML = campaign.heroTitle; // trusted static configuration
   setText(".hero-subtitle", campaign.heroSubtitle);
 
-  const label = $('.catalog-filters button[data-filter="koleda"]') || $('.catalog-filters button[data-season-filter]');
-  if (label) {
-    label.dataset.seasonFilter = "true";
-    label.dataset.filter = campaign.slug;
-    if (!label.querySelector?.("[data-season-content]")) label.textContent = campaign.label;
-  }
+  // The active holiday highlights its category, but never replaces other filters.
   const section = $(".home-season");
   if (section) {
     section.id = "campaign";
