@@ -2,7 +2,7 @@ import { config } from "./site-config.js";
 import { initSiteFeatures } from "./site-features.js?v=20261118-i";
 import { CAMPAIGNS } from "./campaigns.js?v=20261118-i";
 import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
-import { initOfficePicker } from "./office-picker.js?v=20261118-m";
+import { initOfficePicker } from "./office-picker.js?v=20261118-n";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
