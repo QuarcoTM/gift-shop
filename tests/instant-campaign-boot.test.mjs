@@ -32,14 +32,14 @@ test("all pages show a valid first-paint holiday without executing async JavaScr
     assert.match(html, /data-season-content="easter"/, route);
     assert.match(html, /data-season-content="valentine"/, route);
     assert.doesNotMatch(html, /Visible failsafe|instant-season-boot/, route);
-    const early = html.match(/<script>\/\* (?:Set active appearance before CSS|Choose before paint)[\s\S]*?<\/script>/)?.[0];
+    const early = html.match(/<script>\/\* (?:Set active appearance before CSS|Choose before paint|Active appearance before CSS, no fetch and no storage writes\.)[\s\S]*?<\/script>/)?.[0];
     assert.ok(early, "Missing early holiday selection script in " + route);
     assert.doesNotMatch(early,/fetch\(|localStorage|sessionStorage|document\.write|document\.body/);
   }
 });
 
 test("holiday choice is based on query and history without moving or blanking the page", () => {
-  const script = home.match(/<script>\/\* Set active appearance before CSS[\s\S]*?<\/script>/)?.[0];
+  const script = home.match(/<script>\/\* (?:Set active appearance before CSS|Active appearance before CSS, no fetch and no storage writes\.)[\s\S]*?<\/script>/)?.[0];
   assert.ok(script);
   const code = script.replace(/^<script>/,"").replace(/<\/script>$/,"");
   for (const key of keys) {
