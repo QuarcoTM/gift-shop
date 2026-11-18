@@ -70,7 +70,7 @@
             <select name="delivery_type" id="checkout-delivery-type" required><option value="office">До офис</option><option value="address">До адрес</option></select>
           </label>
           <label class="checkout-field">Населено място <input name="delivery_city" autocomplete="address-level2" maxlength="100" placeholder="Град или село" required /></label>
-          <label class="checkout-field" id="checkout-location-label">Офис на куриера <input name="delivery_location" id="checkout-location" maxlength="220" placeholder="Точен офис на Еконт или Спиди" required /></label>
+          <label class="checkout-field" id="checkout-location-label" hidden>Офис на куриера <input name="delivery_location" id="checkout-location" type="hidden" maxlength="220" /></label>
         </div>
         <div class="checkout-office-tools checkout-wide" id="checkout-office-tools">
           <button type="button" class="checkout-office-pick" id="checkout-office-picker" aria-controls="checkout-office-panel" aria-expanded="false">
