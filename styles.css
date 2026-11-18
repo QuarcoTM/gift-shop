@@ -870,3 +870,36 @@ html[data-campaign="everyday"] .hero-image{background-color:#d2c0ad}
   .checkout-office-panel{padding:13px}
   .checkout-office-options{max-height:44vh}
 }
+
+/* Permanent holiday categories: the active season is promoted, never substituted. */
+html[data-campaign="new_year"]{
+  --campaign-ink:#23414a;--campaign-art:#b4a084;--campaign-art-light:#ece4d0;
+  --instant-season-photo:url("./assets/images/occasions.webp");
+}
+html[data-campaign="new_year"] .home-season{background:#23414a}
+html[data-campaign="new_year"] .hero-image{background-color:#d2c0ad}
+html[data-campaign="new_year"] [data-season-content="new_year"]{display:contents!important}
+.catalog-filters .filter-button{flex-shrink:0}
+.catalog-filters .filter-button.is-featured:not(.is-active){
+  color:var(--wine);background:rgba(123,45,68,.07);
+  border-radius:6px;padding-inline:11px;
+}
+.catalog-filters .filter-button.is-featured:not(.is-active):after{left:11px;right:11px}
+.collection-card[hidden]{display:none!important}
+@media(max-width:620px){
+  /* All categories are visible without horizontal swiping on a phone. */
+  .catalog-filters{display:flex;flex-wrap:wrap;overflow-x:visible;white-space:normal;
+    gap:9px 8px;padding-bottom:12px;scrollbar-width:auto}
+  .catalog-filters .filter-button{
+    flex:none;white-space:nowrap;font-size:11px;line-height:1.25;
+    padding:9px 11px;border:1px solid #ddd4c8;border-radius:7px;
+    background:#f5f1e9;color:var(--forest);
+  }
+  .catalog-filters .filter-button:after{display:none!important}
+  .catalog-filters .filter-button.is-active{
+    background:var(--wine);color:#fff;border-color:var(--wine);
+  }
+  .catalog-filters .filter-button.is-featured:not(.is-active){
+    background:#f3e7e8;color:var(--wine);border-color:#b89197;padding-inline:11px;
+  }
+}
