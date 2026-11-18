@@ -110,9 +110,12 @@ create table if not exists gift_private.gift_admin_invites (
 );
 revoke all on gift_private.gift_admin_invites from public, anon, authenticated;
 
-insert into gift_private.gift_admin_invites (email, enabled)
-values ('t.miladinov@abv.bg', true)
-on conflict (email) do update set enabled = excluded.enabled;
+-- Populate the approved email only from a trusted, private management session.
+-- Do not commit an administrator's address to this public repository.
+-- Example executed privately:
+-- insert into gift_private.gift_admin_invites (email, enabled)
+-- values ('YOUR_APPROVED_ADMIN_EMAIL', true)
+-- on conflict (email) do update set enabled = excluded.enabled;
 
 create or replace function gift_private.activate_verified_gift_admin()
 returns trigger
