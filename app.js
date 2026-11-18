@@ -1,6 +1,7 @@
 import { config } from "./site-config.js";
 import { initSiteFeatures } from "./site-features.js";
 import { CAMPAIGNS } from "./campaigns.js";
+import { allowsStorage } from "./cookie-consent.js";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -21,8 +22,8 @@ const data = {
   products: [],
   filter: validFilter(params.get("category") || (params.get("favorites") === "1" ? "favorites" : "all")),
   search: params.get("q") || "",
-  favorites: new Set(loadSaved(FAVORITES_KEY).filter((x) => typeof x === "string")),
-  cart: loadSaved(CART_KEY).filter((x) => x && typeof x.id === "string" && Number.isInteger(x.qty) && x.qty > 0).slice(0, 100)
+  favorites: new Set((allowsStorage("functional") ? loadSaved(FAVORITES_KEY) : []).filter((x) => typeof x === "string")),
+  cart: (allowsStorage("necessary") ? loadSaved(CART_KEY) : []).filter((x) => x && typeof x.id === "string" && Number.isInteger(x.qty) && x.qty > 0).slice(0, 100)
 };
 
 function loadSaved(key) {
@@ -30,6 +31,8 @@ function loadSaved(key) {
   catch { return []; }
 }
 function save(key, items) {
+  const category = key === FAVORITES_KEY ? "functional" : "necessary";
+  if (!allowsStorage(category)) return; // Never persist before the visitor chooses.
   try { localStorage.setItem(key, JSON.stringify(items)); }
   catch { /* Browser storage may be disabled. */ }
 }
@@ -394,6 +397,23 @@ async function loadCatalog() {
   renderCart();
   renderProduct();
 }
+window.addEventListener("sabrano:consentchange", (event) => {
+  if (event.detail.necessary) {
+    // The cart is functional in memory before a decision and persists only afterwards.
+    const stored = loadSaved(CART_KEY).filter((item) =>
+      item && typeof item.id === "string" && Number.isInteger(item.qty) && item.qty > 0);
+    if (!data.cart.length && stored.length) data.cart = stored.slice(0, 100);
+    save(CART_KEY, data.cart);
+  }
+  if (event.detail.functional) {
+    const stored = loadSaved(FAVORITES_KEY).filter((id) => typeof id === "string");
+    for (const id of stored) data.favorites.add(id);
+    save(FAVORITES_KEY, [...data.favorites]);
+  }
+  updateCounters();
+  renderCart();
+  renderCatalog();
+});
 initUI();
 initSiteFeatures({
   onCampaign(campaign) {
