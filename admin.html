@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#243c33" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Управление | събрано.</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./admin.css" />
+  <script type="module" src="./admin.js"></script>
+</head>
+<body>
+  <div class="boot-screen" id="boot-screen" aria-live="polite">
+    <div class="loading-mark">събрано<span>.</span></div><p>Зареждане на управлението…</p>
+  </div>
+
+  <main id="login-screen" class="login-screen" hidden>
+    <div class="login-intro">
+      <a class="login-brand" href="./index.html">събрано<span>.</span></a>
+      <span class="login-badge">ВЪТРЕШНО УПРАВЛЕНИЕ</span>
+      <h1>Красивите подаръци<br />започват с <em>добра организация.</em></h1>
+      <p>Едно спокойно място за продукти, колекции и поръчки. Само за упълномощени администратори.</p>
+      <span class="login-footnote">събрано. / studio &amp; store</span>
+    </div>
+    <div class="login-panel">
+      <form id="login-form" class="login-card">
+        <div class="login-monogram" aria-hidden="true">✦</div>
+        <span class="overline">Добре дошъл</span>
+        <h2>Вход в панела</h2>
+        <p>Използвай администраторския си имейл и парола.</p>
+        <label for="login-email">Имейл адрес</label>
+        <input type="email" id="login-email" autocomplete="username" placeholder="name@example.com" required maxlength="254" />
+        <label for="login-password">Парола</label>
+        <input type="password" id="login-password" autocomplete="current-password" placeholder="Въведи парола" required minlength="1" />
+        <p id="login-error" class="form-error" role="alert" hidden></p>
+        <button class="primary-button login-submit" type="submit" id="login-submit">Влез в управлението <span aria-hidden="true">→</span></button>
+        <a class="return-link" href="./index.html">← Към магазина</a>
+      </form>
+    </div>
+  </main>
+
+  <div id="admin-root" class="admin-shell" hidden>
+    <div id="sidebar-shade" class="sidebar-shade" hidden></div>
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <a href="./index.html" class="sidebar-logo">събрано<span>.</span></a>
+        <p>СТУДИО ЗА ПОДАРЪЦИ</p>
+      </div>
+      <div class="sidebar-section-label">РАБОТНО ПРОСТРАНСТВО</div>
+      <nav class="sidebar-nav" aria-label="Административна навигация">
+        <button type="button" class="nav-item active" data-view="dashboard"><span class="nav-icon">◫</span><span>Общ преглед</span></button>
+        <button type="button" class="nav-item" data-view="products"><span class="nav-icon">▦</span><span>Продукти</span><span id="nav-product-count" class="nav-count">0</span></button>
+        <button type="button" class="nav-item" data-view="categories"><span class="nav-icon">▤</span><span>Колекции</span></button>
+        <button type="button" class="nav-item" data-view="orders"><span class="nav-icon">▧</span><span>Поръчки</span><span id="nav-order-count" class="nav-count">0</span></button>
+      </nav>
+      <div class="sidebar-section-label second-label">СИСТЕМА</div>
+      <nav class="sidebar-nav" aria-label="Системна навигация">
+        <button type="button" class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span>Настройки</span></button>
+        <a class="nav-item" href="./index.html" target="_blank" rel="noopener"><span class="nav-icon">↗</span><span>Виж магазина</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-user"><span class="user-avatar" id="sidebar-initial">А</span><div><strong>Администратор</strong><small id="sidebar-email">—</small></div></div>
+        <button type="button" class="logout-button" id="logout-button">Изход от профила <span aria-hidden="true">↗</span></button>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="workspace-header">
+        <div class="workspace-left">
+          <button type="button" class="mobile-menu-button" id="mobile-menu-button" aria-label="Отвори менюто" aria-expanded="false">☰</button>
+          <div class="workspace-breadcrumb"><span>събрано.</span><span class="breadcrumb-slash">/</span><strong id="breadcrumb-current">Общ преглед</strong></div>
+        </div>
+        <div class="workspace-right"><span class="connection-indicator"><span class="online-dot"></span> Свързан магазин</span><span class="header-avatar" id="header-initial">А</span></div>
+      </header>
+      <main id="workspace-content" class="workspace-content" aria-live="polite"></main>
+      <footer class="workspace-footer"><span>събрано. / Управление</span><span id="footer-year">2026</span></footer>
+    </div>
+  </div>
+
+  <dialog id="editor-dialog" class="editor-dialog">
+    <div class="dialog-header"><div><span id="dialog-overline" class="overline">РЕДАКТИРАНЕ</span><h2 id="dialog-title">Редактиране</h2></div><button type="button" id="dialog-close" class="dialog-close" aria-label="Затвори">×</button></div>
+    <div id="dialog-body" class="dialog-body"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
