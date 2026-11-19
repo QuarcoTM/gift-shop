@@ -8,10 +8,10 @@ const features = readFileSync(new URL("../site-features.js", import.meta.url), "
 const presets = readFileSync(new URL("../campaigns.js", import.meta.url), "utf8");
 const routes = ["index.html","collections/index.html","products/index.html","collection/index.html",
   "product/index.html","about/index.html","bulk/index.html","contact/index.html","cart/index.html","cookies/index.html"];
-const keys = ["christmas","easter","valentine","womens_day","martenitsa","everyday"];
+const keys = ["christmas","new_year","easter","valentine","womens_day","martenitsa","everyday"];
 const read = (name) => readFileSync(new URL("../" + name, import.meta.url), "utf8");
 
-test("all six holiday photographs and labels are pre-rendered for instant first paint", () => {
+test("all seven seasonal photographs and labels are pre-rendered for instant first paint", () => {
   for (const key of keys) {
     assert.match(home, new RegExp('data-season-content="' + key + '"'));
     assert.match(css, new RegExp('html\\[data-campaign="' + key + '"\\]\\{--instant-season-photo:url'));
@@ -30,6 +30,7 @@ test("all pages show a valid first-paint holiday without executing async JavaScr
     assert.match(html, /data-campaign="valentine"/, route);
     assert.match(html, /data-season-content="christmas"/, route);
     assert.match(html, /data-season-content="easter"/, route);
+    assert.match(html, /data-season-content="new_year"/, route);
     assert.match(html, /data-season-content="valentine"/, route);
     assert.doesNotMatch(html, /Visible failsafe|instant-season-boot/, route);
     const early = html.match(/<script>\/\* (?:Set active appearance before CSS|Choose before paint|Active appearance before CSS, no fetch and no storage writes\.)[\s\S]*?<\/script>/)?.[0];
