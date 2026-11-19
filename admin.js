@@ -469,9 +469,9 @@ function branding() {
     '<article class="brand-asset-card"><div class="brand-asset-visual"><img class="brand-asset-horizontal" src="./assets/brand/za-usmivka-main.avif" alt="Основно хоризонтално лого За усмивка." width="1415" height="415" /></div>' +
     '<div class="brand-asset-info"><span class="overline">ОСНОВНО ЛОГО · №4</span><h2>За сайта и комуникацията</h2><p>Хоризонталното лого се използва в горното меню и във футъра. PNG файлът е с прозрачен фон.</p>' +
     '<a class="primary-button brand-download" href="./assets/brand/za-usmivka-main.png" download="za-usmivka-main.png">Свали основното лого (PNG)</a></div></article>' +
-    '<article class="brand-asset-card"><div class="brand-asset-visual"><img class="brand-asset-sticker" src="./assets/brand/za-usmivka-sticker.avif" alt="Кръгло лого За усмивка. за стикери на кутии" width="1137" height="1138" /></div>' +
-    '<div class="brand-asset-info"><span class="overline">ЛОГО ЗА ОПАКОВКИ · №3</span><h2>Кръгъл стикер за кутиите</h2><p>Висококачествен PNG с прозрачен фон за печат на кръгли лепенки, опаковки и картички.</p>' +
-    '<a class="primary-button brand-download" href="./assets/brand/za-usmivka-sticker.png" download="za-usmivka-sticker.png">Свали стикера (PNG)</a></div></article>' +
+    '<article class="brand-asset-card"><div class="brand-asset-visual"><img class="brand-asset-sticker" src="./assets/brand/za-usmivka-sticker-print.png" alt="Пълно кръгло лого За усмивка. за стикери на кутии" width="1254" height="1254" loading="eager" decoding="async" /></div>' +
+    '<div class="brand-asset-info"><span class="overline">ЛОГО ЗА ОПАКОВКИ · №3</span><h2>Кръгъл стикер за кутиите</h2><p>Пълен PNG с прозрачен фон, 1254 × 1254 px, за кръгли лепенки, опаковки и картички.</p>' +
+    '<a class="primary-button brand-download" href="./assets/brand/za-usmivka-sticker-print.png" download="za-usmivka-sticker.png">Свали стикера (PNG)</a></div></article>' +
     '</div><p class="brand-asset-note">При поръчка на стикери изпрати PNG файла на печатницата и уточни желания диаметър и дали да има бял печат / подложка. Оригиналното изображение в сайта не се променя при избор на празнична визия.</p>';
 }
 
