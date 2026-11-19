@@ -31,16 +31,17 @@ test("Approved logo 4 appears consistently in every public header, and in existi
 
 test("Hero uses approved lightweight round logo without obscuring the seasonal photograph",()=>{
   const html=read("index.html"),css=read("styles.css");
-  const hero = html.match(/<div class="hero-image"[\\s\\S]*?<\\/section>/)?.[0];
-  assert.ok(hero,"Home hero must be present");
-  assert.match(hero,/class="hero-stamp"[^>]*aria-hidden="true"/);
-  assert.match(hero,/class="hero-stamp-logo"[^>]*za-usmivka-hero-badge\\.avif/);
-  assert.doesNotMatch(hero,/Подарък<br \\/>от сърце/);
+  const start=html.indexOf('<div class="hero-image"');
+  const hero=html.slice(start,html.indexOf("</section>",start));
+  assert.ok(start>=0 && hero.length>0,"Home hero must be present");
+  assert.ok(hero.includes('class="hero-stamp" aria-hidden="true"'),"Hero stamp must be decorative");
+  assert.ok(hero.includes('class="hero-stamp-logo" src="./assets/brand/za-usmivka-hero-badge.avif"'),"Must show round brand badge №3");
+  assert.ok(!hero.includes("Подарък<br />от сърце"),"Old generic stamp text must be removed");
   const picture=file("assets/brand/za-usmivka-hero-badge.avif");
   assert.ok(existsSync(picture),"Optimized badge for hero must exist");
   assert.ok(statSync(picture).size<45000,"Hero badge should remain small for mobile performance");
-  assert.match(css,/html\\[data-campaign\\] \\.hero-image \\.hero-stamp img/);
-  assert.match(css,/filter:drop-shadow\\(/);
+  assert.ok(css.includes("html[data-campaign] .hero-image .hero-stamp img"),"Campaign CSS must not turn badge into full-size hero image");
+  assert.ok(css.includes("filter:drop-shadow("),"Badge should keep contrast on all seasonal photos");
 });
 
 test("Original approved images remain available to administrators as high-resolution transparent PNGs",()=>{
