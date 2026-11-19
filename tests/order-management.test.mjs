@@ -92,7 +92,7 @@ test("admin exposes a searchable order queue, waybills and return requests",()=>
   }
   assert.match(admin,/rpc\/gift_admin_order_action/);
   assert.doesNotMatch(admin,/rest\("gift_orders\?id=eq\." \+ encodeURIComponent\(id\), "PATCH", \{ status \}\)/);
-  assert.match(html,/admin\.js\?v=20261118-m/);
+  assert.match(html,/admin\.js\?v=20261119-new-year/);
   assert.match(html,/admin\.css\?v=20261118-m/);
 });
 
