@@ -28,7 +28,7 @@ test("Approved logo 4 appears consistently in every public header, and in existi
   assert.match(css,/\.brand-footer\{[^\n]*background:transparent/);
   assert.match(css,/\.brand-footer \.brand-image\{[^\n]*filter:none;opacity:1/);
   assert.doesNotMatch(css,/\.brand-footer \.brand-image\{[^\n]*filter:brightness/);
-  const darkLogo=file("assets/brand/za-usmivka-footer-dark.avif");
+  const darkLogo=file("assets/brand/za-usmivka-footer-black-outline.avif");
   assert.ok(existsSync(darkLogo),"Footer must have its own high-contrast logo");
   assert.ok(statSync(darkLogo).size>10000 && statSync(darkLogo).size<100000,"Footer logo should remain optimized");
   for(const page of pages.filter(page=>page!=="order/index.html")){
