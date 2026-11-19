@@ -13,7 +13,7 @@ const date = (value) => value ? new Intl.DateTimeFormat("bg-BG", { day: "2-digit
 const escapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => escapes[c]);
 const statuses = { pending: "Нова", confirmed: "Потвърдена", preparing: "Подготовка", shipped: "Изпратена", delivered: "Доставена", cancelled: "Отказана" };
-const pages = { dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", settings: "Настройки" };
+const pages = { dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", branding: "Бранд материали", settings: "Настройки" };
 const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", orderSearch: "", orderFilter: "all", busy: false };
 let toastTimer = null;
 
@@ -435,7 +435,7 @@ function campaignsView() {
     Object.entries(CAMPAIGNS).map(([key,c]) => {
       const active = key === state.campaign;
       return '<article class="campaign-card campaign-' + esc(key) + (active?' is-active':'') + '">' +
-        '<div class="campaign-preview"><img src="' + esc(c.image) + '" alt="" loading="lazy" /><span class="campaign-preview-logo">събрано.</span><small>' + esc(c.eyebrow) + '</small></div><div class="campaign-card-body"><div class="campaign-title-row"><h2>' +
+        '<div class="campaign-preview"><img src="' + esc(c.image) + '" alt="" loading="lazy" /><span class="campaign-preview-logo">За усмивка.</span><small>' + esc(c.eyebrow) + '</small></div><div class="campaign-card-body"><div class="campaign-title-row"><h2>' +
         esc(c.label) + '</h2>' + (active?badge("Активна"):'')+'</div><p>' + esc(descriptions[key]) +
         '</p><button type="button" data-campaign-key="' + esc(key) + '" data-busy class="' + (active?'secondary-button':'primary-button') +
         '" '+(active?'disabled':'')+'>' + (active?'Текуща визия':'Активирай тази визия')+'</button></div></article>';
@@ -463,6 +463,18 @@ async function activateCampaign(key) {
   } catch(error) {toast(readableError(error));}
   finally {wait(false);}
 }
+function branding() {
+  return heading("БРАНД", "Лога и материали", "Двата одобрени варианта на логото „За усмивка.“. Файловете се пазят в сайта и са достъпни за сваляне по всяко време.") +
+    '<div class="brand-assets-grid">' +
+    '<article class="brand-asset-card"><div class="brand-asset-visual"><img class="brand-asset-horizontal" src="./assets/brand/za-usmivka-main.avif" alt="Основно хоризонтално лого За усмивка." width="1415" height="415" /></div>' +
+    '<div class="brand-asset-info"><span class="overline">ОСНОВНО ЛОГО · №4</span><h2>За сайта и комуникацията</h2><p>Хоризонталното лого се използва в горното меню и във футъра. PNG файлът е с прозрачен фон.</p>' +
+    '<a class="primary-button brand-download" href="./assets/brand/za-usmivka-main.png" download="za-usmivka-main.png">Свали основното лого (PNG)</a></div></article>' +
+    '<article class="brand-asset-card"><div class="brand-asset-visual"><img class="brand-asset-sticker" src="./assets/brand/za-usmivka-sticker.avif" alt="Кръгло лого За усмивка. за стикери на кутии" width="1137" height="1138" /></div>' +
+    '<div class="brand-asset-info"><span class="overline">ЛОГО ЗА ОПАКОВКИ · №3</span><h2>Кръгъл стикер за кутиите</h2><p>Висококачествен PNG с прозрачен фон за печат на кръгли лепенки, опаковки и картички.</p>' +
+    '<a class="primary-button brand-download" href="./assets/brand/za-usmivka-sticker.png" download="za-usmivka-sticker.png">Свали стикера (PNG)</a></div></article>' +
+    '</div><p class="brand-asset-note">При поръчка на стикери изпрати PNG файла на печатницата и уточни желания диаметър и дали да има бял печат / подложка. Оригиналното изображение в сайта не се променя при избор на празнична визия.</p>';
+}
+
 function settings() {
   const email = state.session?.user?.email || "—";
   return heading("ПРЕДПОЧИТАНИЯ", "Настройки", "Основна информация за управлението и сигурността на магазина.") +
@@ -475,7 +487,7 @@ function settings() {
 function render() {
   $("#breadcrumb-current").textContent = pages[state.view];
   document.querySelectorAll("[data-view].nav-item").forEach((item) => item.classList.toggle("active", item.dataset.view === state.view));
-  const content = { dashboard, products, categories, orders, analytics, campaigns: campaignsView, settings }[state.view]();
+  const content = { dashboard, products, categories, orders, analytics, campaigns: campaignsView, branding, settings }[state.view]();
   $("#workspace-content").innerHTML = content;
 }
 function closeMenu() {

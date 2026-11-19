@@ -3,5 +3,5 @@ export const config = Object.freeze({
   supabaseUrl: 'https://ycsjfsoijafepgslzzlz.supabase.co',
   supabasePublishableKey: "sb_publishable_3zo0mpAfjVzqeuvlwW1yng_uyPHO0El",
   contactEmail: '',
-  shopName: 'събрано.'
+  shopName: 'За усмивка.'
 });
