@@ -43,6 +43,25 @@ async function checks(id){
    } else if(page==="home"){
      check(all(".product-card").length===2,"featured");
      check(!$("#packed-story").hidden,"packaging");
+     const frame=document.createElement("iframe");
+     frame.style.cssText="width:320px;height:120px;border:0";
+     const ready=new Promise(resolve=>frame.addEventListener("load",resolve,{once:true}));
+     frame.srcdoc="<!doctype html><base href='"+document.baseURI+"'>"+$("link[href*='styles.css']").outerHTML+$("header").outerHTML;
+     document.body.append(frame);
+     await ready;
+     for(const width of [320,390]){
+       frame.style.width=width+"px";
+       const header=frame.contentDocument.querySelector("header");
+       const heart=header.querySelector(".favorites-trigger");
+       check(new URL(heart.href).searchParams.get("favorites")==="1","favorites link");
+       let previous=header.querySelector(".brand-image").getBoundingClientRect();
+       for(const control of header.querySelectorAll(".header-tools .icon-button")){
+         const rect=control.getBoundingClientRect();
+         check(rect.width>=24 && rect.left>=previous.right-1 && rect.right<=width,"header at "+width+"px: "+control.getAttribute("aria-label"));
+         previous=rect;
+       }
+     }
+     frame.remove();
    } else if(page==="cart"){
      check($("#cart-page-items").textContent.includes("Комплект 1"),"transferred gift");
      check($("#cart-page-total").textContent.includes("20"),"transferred quantity");

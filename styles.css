@@ -262,7 +262,7 @@ h2{font-size:clamp(39px,4.1vw,66px);letter-spacing:-.045em;line-height:1.17;marg
   html{scroll-padding-top:78px}
   .announcement{height:34px;font-size:9px;letter-spacing:.03em}.announcement-inner{gap:8px}.announcement-rule{display:none}.announcement a{display:none}
   .header-inner{min-height:69px;gap:6px}.brand-symbol{width:30px;height:30px}.brand-symbol svg{width:31px;height:31px}.brand-type{font-size:24px}.brand-type small{font-size:6px}
-  .header-tools{gap:3px;padding-left:7px;border:0}.header-tools .favorites-trigger{display:none}.icon-button{width:32px}.icon-button svg{width:19px;height:19px}
+  .header-tools{gap:3px;padding-left:7px;border:0}.icon-button{width:32px}.icon-button svg{width:19px;height:19px}
   .hero{display:flex;flex-direction:column-reverse;min-height:0}
   .hero-image{min-height:315px;height:315px;flex:none}.hero-image img{object-position:center 46%}
   .hero-stamp{width:93px;height:93px;right:19px;top:19px}.hero-stamp b{font-size:11px}.hero-stamp small{font-size:8px}.hero-stamp>span{font-size:12px}
