@@ -1,0 +1,78 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {createServer} from "node:http";
+import {readFile} from "node:fs/promises";
+import {existsSync} from "node:fs";
+import {resolve,extname} from "node:path";
+import {execFile} from "node:child_process";
+import {promisify} from "node:util";
+const run=promisify(execFile);
+const id="bca4b949-39c6-47cc-984d-4fa4c069e7ba";
+function fixtures(id){
+ const products=[1,2].map((n)=>({id:n===1?id:"other",name:"Комплект "+n,category_id:"cat",description:"",contents:"Чаша × 1",stock_quantity:3,price_eur:n*10,featured_slot:n,packed_photo:location.origin+"/assets/images/bulk.webp"}));
+ const images=["bulk","hero"].map((file,i)=>({product_id:id,image_url:location.origin+"/assets/images/"+file+".webp",sort_order:i}));
+ window.fetch=async(url,options)=>{
+   const u=String(url);let data=[];
+   if(u.includes("gift_products?"))data=products;
+   if(u.includes("gift_categories?"))data=[{id:"cat",name:"Коледа",slug:"koleda"}];
+   if(u.includes("gift_product_images?"))data=images;
+   if(u.includes("store-publication.json"))data={ids:[id],campaign:"christmas"};
+   if(u.includes("gift_ask_offer"))window.offer=JSON.parse(options.body);
+   return {ok:true,json:async()=>data};
+ };
+}
+async function checks(id){
+ const $=s=>document.querySelector(s),all=s=>Array.from(document.querySelectorAll(s));
+ const check=(ok,why)=>{if(!ok)throw Error(why)};
+ try{
+   const page=document.body.dataset.page;
+   if(page==="product"){
+     check(all(".gift-slide").length===2,"gallery");
+     $("[data-slide='1']").click();check($(".gift-slides").scrollLeft>0,"swipe track");
+     $("[data-enlarge='1']").click();check($("dialog.gift-lightbox").open,"zoom");
+     $(".gift-lightbox button").click();check(!$(".gift-lightbox").open,"close");
+     check($(".product-page-details li").textContent.includes("Чаша"),"contents");
+     check($(".product-page-buttons").textContent.includes("Сподели"),"share");
+   } else if(page==="products"){
+     check(all(".product-card").length===2,"catalog");
+     const select=$("#budget-filter");select.selectedIndex=1;select.dispatchEvent(new Event("change"));
+     check(all(".product-card").length===1,"budget");
+     $("#catalog-search").value="xxxxx";$("#catalog-search").dispatchEvent(new Event("input"));
+     check($("#product-grid").textContent.includes("Няма резултати"),"empty search");
+     $("[data-clear]").click();check(all(".product-card").length===2,"clear");
+   } else if(page==="home"){
+     check(all(".product-card").length===2,"featured");
+     check(!$("#packed-story").hidden,"packaging");
+   } else {
+     const f=$("#offer-form");for(const [name,v] of Object.entries({quantity:"18",budget:"8",needed_on:"2099-01-01",contact:"example@example.invalid"}))f.elements[name].value=v;
+     f.requestSubmit();await new Promise(r=>setTimeout(r,40));
+     check(window.offer?.p_quantity===18 && f.innerText.includes("Получихме"),"offer");
+   }
+   document.querySelector("#result").textContent="CHECK_OK";
+ }catch(e){document.querySelector("#result").textContent="FAIL "+e.message}
+}
+test("mobile and desktop storefront with a private fixture catalog",async()=>{
+ const browser=["/usr/bin/google-chrome","/usr/bin/google-chrome-stable","/usr/bin/chromium"].find(existsSync);
+ const root=process.cwd();
+ const server=createServer(async(req,res)=>{
+  try{
+   let path=decodeURIComponent(new URL(req.url,"http://localhost").pathname);
+   if(path.endsWith("/"))path+="index.html";
+   const file=resolve(root,"."+path);
+   if(!file.startsWith(root+"/"))throw Error();
+   let body=await readFile(file);
+   if(path.endsWith(".html")){
+     body=body.toString().replace("</head>","<script>("+fixtures.toString()+")("+JSON.stringify(id)+");</script></head>").replace("</body>",'<output id="result"></output><script>addEventListener("load",()=>setTimeout(()=>('+checks.toString()+')('+JSON.stringify(id)+'),200))</script></body>');
+   }
+   res.writeHead(200,{"Content-Type":({".html":"text/html; charset=utf-8",".js":"text/javascript",".css":"text/css",".webp":"image/webp",".avif":"image/avif"})[extname(path)]||"application/octet-stream"});res.end(body);
+  }catch{res.writeHead(404);res.end()}
+ });
+ await new Promise((done,reject)=>{server.once("error",reject);server.listen(0,"127.0.0.1",done)});
+ try{
+  const base="http://127.0.0.1:"+server.address().port;
+  for(const [width,path] of [[390,"/"],[390,"/product/?id="+id],[1366,"/product/?id="+id],[390,"/products/"],[1366,"/bulk/"]]){
+    const {stdout}=await run(browser,["--headless","--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--window-size="+width+",900","--virtual-time-budget=2000","--dump-dom",base+path],{timeout:25000,maxBuffer:2e6});
+    assert.equal(stdout.match(/<output id="result">([^<]*)</)?.[1],"CHECK_OK",path);
+  }
+ }finally{server.close()}
+});

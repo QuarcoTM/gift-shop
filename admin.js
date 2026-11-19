@@ -35,6 +35,7 @@ function imageThumb(product) {
 function readableError(error) {
   const text = String(error?.message || error || "Неизвестна грешка");
   if (/JWT|token.*expired|unauthorized|401/i.test(text)) return "Сесията е изтекла. Влез отново.";
+  if (/gift_featured_slot/i.test(text)) return "Тази позиция на началната е заета. Първо освободи позицията от другия комплект.";
   if (/duplicate key|23505/i.test(text)) return "Този идентификатор вече съществува. Използвай друг.";
   if (/foreign key|23503/i.test(text)) return "Записът се използва от други данни и не може да бъде изтрит.";
   return text.slice(0, 220);

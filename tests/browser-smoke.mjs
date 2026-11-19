@@ -15,12 +15,12 @@ const body=[
   '<script>',
   'document.addEventListener("DOMContentLoaded",function(){',
   'if(new URLSearchParams(location.search).has("test-reload")&&location.hash!=="#reloaded"){history.replaceState(history.state,"",location.pathname+location.search+"#reloaded");location.reload();return;}',
-  'var theme=new URL(location.href).searchParams.get("campaign")||"valentine";',
+  'var theme=new URL(location.href).searchParams.get("campaign")||document.documentElement.dataset.staticCampaign;',
   'var visible=Array.from(document.querySelectorAll(".hero-copy h1 [data-season-content]")).filter(function(e){return getComputedStyle(e).display!=="none"});',
   'var photo=document.querySelector(".hero-image .seasonal-photo");',
   'var bg=photo?getComputedStyle(photo).backgroundImage:"missing";',
   'var area=document.querySelector(".hero").getBoundingClientRect();',
-  'var passed=visible.length===1&&visible[0].dataset.seasonContent===theme&&bg.indexOf(theme+".webp")!==-1&&area.height>200;',
+  'var passed=visible.length===1&&visible[0].dataset.seasonContent===theme&&bg.indexOf(theme+(theme==="new_year"?".avif":".webp"))!==-1&&area.height>200;',
   'document.getElementById("smoke-result").textContent="SMOKE_RESULT:"+theme+":"+(passed?"PASS":"FAIL")+":visible="+visible.length+":photo="+bg+":height="+Math.round(area.height);',
   '});',
   '</script>'
@@ -30,7 +30,7 @@ const server=spawn("python3",["-m","http.server","8765","--bind","127.0.0.1"],{s
 try{
   let failures=0;
   for(const mode of ["initial","refresh"]){
-  for(const theme of ["christmas","easter","valentine","womens_day","martenitsa","everyday"]){
+  for(const theme of ["christmas","new_year","easter","valentine","womens_day","martenitsa","everyday"]){
     let output="";
     for(let n=0;n<4;n++){
       try{

@@ -211,7 +211,7 @@ function renderCatalog() {
 function configureMerchandising() {
   const story=$("#packed-story");
   if(story){
-    const packed=[...data.products].sort((a,b)=>(a.featured_slot||5)-(b.featured_slot||5)).find(p=>imageURL(p.packed_photo));
+    const packed=[...data.products].sort((a,b)=>(a.featured_slot||5)-(b.featured_slot||5)).find(p=>imageURL(p.packed_photo) && p.images.some(im=>im.image_url===p.packed_photo));
     story.hidden=!packed;
     if(packed){story.querySelector("img").src=packed.packed_photo;story.querySelector("a").href=productLink(packed.id)}
   }
