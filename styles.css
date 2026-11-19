@@ -916,3 +916,12 @@ html[data-campaign="new_year"] [data-season-content="new_year"]{display:contents
  .brand-footer .brand-image{width:214px;max-height:67px}
 }
 @media(max-width:360px){.brand-image{width:150px}}
+
+/* Hero badge: approved round №3 brand mark, not the former generic text seal. */
+.hero-image .hero-stamp{background:transparent;box-shadow:none;transform:none;pointer-events:none}
+.hero-image .hero-stamp img,html[data-campaign] .hero-image .hero-stamp img{
+  display:block;position:static;inset:auto;width:100%;height:100%;max-width:100%;max-height:100%;
+  object-fit:contain;object-position:center;transform:none;
+  filter:drop-shadow(0 8px 12px rgba(31,22,19,.22));border-radius:50%
+}
+@media(max-width:620px){.hero-image .hero-stamp{width:108px;height:108px;top:13px;right:13px}}

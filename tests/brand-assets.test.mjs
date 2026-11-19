@@ -20,13 +20,27 @@ test("Approved logo 4 appears consistently in every public header, and in existi
     assert.match(html,/alt="За усмивка\."/,page);
     assert.doesNotMatch(html, /class="brand-type"/,page);
     assert.doesNotMatch(html,/събрано\./i,page);
-    assert.match(html,/styles\.css\?v=20261119-footerfix/,page);
+    assert.match(html,/styles\.css\?v=20261119-hero-brand/,page);
   }
   assert.doesNotMatch(read("index.html"),/Private-to-the-link visual preview|Optional name review only/);
   const css = read("styles.css");
   assert.match(css,/\.brand-footer \.brand-image/);
   assert.match(css,/\.brand-footer\{[^\n]*background:transparent/);
   assert.match(css,/filter:brightness\(0\) invert\(1\)/);
+});
+
+test("Hero uses approved lightweight round logo without obscuring the seasonal photograph",()=>{
+  const html=read("index.html"),css=read("styles.css");
+  const hero = html.match(/<div class="hero-image"[\\s\\S]*?<\\/section>/)?.[0];
+  assert.ok(hero,"Home hero must be present");
+  assert.match(hero,/class="hero-stamp"[^>]*aria-hidden="true"/);
+  assert.match(hero,/class="hero-stamp-logo"[^>]*za-usmivka-hero-badge\\.avif/);
+  assert.doesNotMatch(hero,/Подарък<br \\/>от сърце/);
+  const picture=file("assets/brand/za-usmivka-hero-badge.avif");
+  assert.ok(existsSync(picture),"Optimized badge for hero must exist");
+  assert.ok(statSync(picture).size<45000,"Hero badge should remain small for mobile performance");
+  assert.match(css,/html\\[data-campaign\\] \\.hero-image \\.hero-stamp img/);
+  assert.match(css,/filter:drop-shadow\\(/);
 });
 
 test("Original approved images remain available to administrators as high-resolution transparent PNGs",()=>{
