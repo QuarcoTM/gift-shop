@@ -64,7 +64,7 @@ test("analytics and client storage are gated by granular consent", () => {
   assert.match(features, /crypto\.randomUUID\(\)/);
   assert.match(features, /gift_visit_events/);
   assert.match(features, /page_path: path/);
-  assert.match(consent, /sabrano_cookie_preferences_v2/);
+  assert.match(consent, /zausmivka_cookie_preferences_v2/);
   assert.match(consent, /functional.*analytics.*marketing|analytics.*marketing/);
   assert.match(consent, /if \(!prefs\.analytics\)/);
   assert.match(consent, /sessionStorage\.removeItem\(ANALYTICS_SESSION_KEY\)/);
@@ -86,7 +86,7 @@ test("preferences center has category choices, refusal and live reconfiguration"
   assert.match(consent, /data-cookie-action="save"/);
   assert.match(consent, /data-cookie-option/);
   assert.match(consent, /data-open-cookie-settings/);
-  assert.match(consent, /sabrano:consentchange/);
+  assert.match(consent, /zausmivka:consentchange/);
   assert.match(consent, /if \(!prefs\.functional\) localStorage\.removeItem\(FAVORITES_KEY\)/);
   assert.match(html, /<base href="\.\.\/" \/>/);
   assert.match(html, /Политика за|Политика/);
@@ -98,7 +98,7 @@ test("campaigns are read from DB and admin sets them with a confirmed protected 
   const admin = read("admin.js");
   const presets = read("campaigns.js");
   const sql = read("sql/gift-seasons-analytics.sql");
-  assert.match(features, /gift_shop_settings\?select=active_campaign/);
+  assert.match(read("scripts/publish-store.mjs"), /gift_shop_settings\?select=active_campaign/);
   assert.match(admin, /gift_shop_settings\?select=id,active_campaign/);
   assert.match(admin, /rest\("gift_shop_settings\?id=eq\.main","PATCH"/);
   assert.match(admin, /updated\[0\]\.active_campaign !== key/);

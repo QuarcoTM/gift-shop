@@ -47,8 +47,8 @@ test("All holiday pages render New Year directly without blank pre-paint content
     const newYear=(html.match(/data-season-content="new_year"/g)||[]).length;
     assert.ok(christmas>0 && newYear===christmas,page+" lost season copy");
     assert.match(html,/christmas\|new_year\|easter\|valentine/);
-    assert.match(html,page==="index.html" ? /styles\.css\?v=20261119-colored-footer/ : /styles\.css\?v=20261119-colored-footer/);
-    assert.match(html,/app\.js\?v=20261119-badge-persist/);
+    assert.match(html,page==="index.html" ? /styles\.css\?v=20261119-store/ : /styles\.css\?v=20261119-store/);
+    assert.match(html,/app\.js\?v=20261119-store/);
   }
 });
 

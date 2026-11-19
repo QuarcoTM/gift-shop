@@ -1,3 +1,4 @@
+import { createStockPanel } from "./admin-stock.js";
 import { config } from "./site-config.js";
 import { CAMPAIGNS } from "./campaigns.js?v=20261119-new-year";
 
@@ -13,8 +14,8 @@ const date = (value) => value ? new Intl.DateTimeFormat("bg-BG", { day: "2-digit
 const escapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => escapes[c]);
 const statuses = { pending: "Нова", confirmed: "Потвърдена", preparing: "Подготовка", shipped: "Изпратена", delivered: "Доставена", cancelled: "Отказана" };
-const pages = { dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", branding: "Бранд материали", settings: "Настройки" };
-const state = { session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", orderSearch: "", orderFilter: "all", busy: false };
+const pages = { stock:"Компоненти", inquiries:"Запитвания", dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", branding: "Бранд материали", settings: "Настройки" };
+const state = { components:[], recipes:[], inquiries:[], contactEmail:"", session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", orderSearch: "", orderFilter: "all", busy: false };
 let toastTimer = null;
 
 function safeImage(url) {
@@ -143,9 +144,11 @@ async function loadAll() {
     "gift_order_items?select=*&order=created_at.desc&limit=2000",
     "gift_daily_analytics?select=day,pageviews,unique_sessions&order=day.desc&limit=90",
     "gift_page_analytics?select=day,page_path,pageviews,unique_sessions&order=day.desc&limit=700",
-    "gift_shop_settings?select=id,active_campaign,checkout_enabled&id=eq.main&limit=1"
+    "gift_shop_settings?select=id,active_campaign,checkout_enabled,contact_email&id=eq.main&limit=1",
+    "gift_components?select=*&order=name","gift_recipes?select=*","gift_inquiries?select=*&order=created_at.desc&limit=500"
   ];
-  const [categories, products, images, orders, orderItems, dailyStats, pageStats, shopSettings] = await Promise.all(requests.map((path) => rest(path)));
+  const [categories, products, images, orders, orderItems, dailyStats, pageStats, shopSettings, components, recipes, inquiries] = await Promise.all(requests.map((path) => rest(path)));
+  Object.assign(state,{components,recipes,inquiries,contactEmail:shopSettings?.[0]?.contact_email||""});
   state.categories = categories || [];
   state.products = products || [];
   state.images = images || [];
@@ -459,7 +462,7 @@ async function activateCampaign(key) {
         channel.close();
       }
     } catch (error) { console.warn("Campaign live preview:", error); }
-    toast("Активирана е кампания „" + CAMPAIGNS[key].label + "“. Виж промяната в магазина.");
+    toast("Запазена е кампания „" + CAMPAIGNS[key].label + "“. Новата статична визия се публикува автоматично при следващата синхронизация.");
   } catch(error) {toast(readableError(error));}
   finally {wait(false);}
 }
@@ -478,16 +481,17 @@ function branding() {
 function settings() {
   const email = state.session?.user?.email || "—";
   return heading("ПРЕДПОЧИТАНИЯ", "Настройки", "Основна информация за управлението и сигурността на магазина.") +
-    '<div class="settings-grid"><article class="settings-card"><span class="overline">АДМИНИСТРАТОР</span><h3>Достъп до панела</h3><p>Вписан профил: <strong>' +
+    '<div class="settings-grid"><article class="settings-card"><h3>Публичен имейл</h3><p>'+esc(state.contactEmail||"Все още не е въведен.")+'</p><button class="secondary-button" data-action="edit-contact">Редактирай</button></article><article class="settings-card"><span class="overline">АДМИНИСТРАТОР</span><h3>Достъп до панела</h3><p>Вписан профил: <strong>' +
     esc(email) + '</strong>. Достъпът се проверява в Supabase и се ограничава от правила на базата данни.</p></article>' +
     '<article class="settings-card"><span class="overline">КАТАЛОГ</span><h3>Снимки и продукти</h3><p>Снимките се съхраняват в отделно хранилище за магазина. Непубликуваните продукти не се виждат от посетителите.</p></article>' +
-    '<article class="settings-card"><span class="overline">ПОРЪЧКИ</span><h3>Приемане на заявки</h3><p>Статус: <strong>' + (state.checkoutEnabled ? 'Активно' : 'Неактивно') + '</strong>. Сървърната проверка на цена и наличност, резервация на бройки и наложен платеж са изградени. Приемането остава изключено до публикуване на данните за търговеца и условията за доставка. Няма автоматично изпращане на имейли или товарителници.</p></article>' +
+    '<article class="settings-card"><span class="overline">ПОРЪЧКИ</span><h3>Приемане на заявки</h3><p>Статус: <strong>' + (state.checkoutEnabled ? 'Активно' : 'Неактивно') + '</strong>. Сървърната проверка на цена и наличност, резервация на бройки и наложен платеж са изградени. Приемането остава изключено до публикуване на данните за търговеца и условията за доставка. Потвърждение по имейл се изпраща при настроена служебна поща.</p></article>' +
     '<article class="settings-card"><span class="overline">СИСТЕМА</span><h3>Supabase</h3><p>Данните за магазина се управляват в отделен проект. <a href="https://supabase.com/dashboard/project/ycsjfsoijafepgslzzlz" rel="noopener" target="_blank">Отвори техническото табло</a>.</p></article></div>';
 }
+const stockPanel=createStockPanel({state,esc,money,formInput,dialog,dialogActions,heading,rest});
 function render() {
   $("#breadcrumb-current").textContent = pages[state.view];
   document.querySelectorAll("[data-view].nav-item").forEach((item) => item.classList.toggle("active", item.dataset.view === state.view));
-  const content = { dashboard, products, categories, orders, analytics, campaigns: campaignsView, branding, settings }[state.view]();
+  const content = {stock:stockPanel.stock,inquiries:stockPanel.inquiries, dashboard, products, categories, orders, analytics, campaigns: campaignsView, branding, settings }[state.view]();
   $("#workspace-content").innerHTML = content;
 }
 function closeMenu() {
@@ -545,9 +549,12 @@ function openProduct(id = null) {
     '<div class="field"><label for="field-category">Колекция</label><select id="field-category" name="category_id" required><option value="">Избери колекция</option>' +
     options + '</select>' + (!state.categories.length ? '<small>Първо създай колекция в раздел „Колекции“.</small>' : '') + '</div>' +
     '<div class="field"><label for="field-description">Описание</label><textarea id="field-description" name="description" maxlength="3500" placeholder="Какво съдържа комплектът?">' +
-    esc(p?.description || "") + '</textarea></div><div class="field-grid">' +
+    esc(p?.description || "") + '</textarea></div>' +
+    '<div class="field"><label>Какво има в кутията<textarea name="contents" maxlength="2000" placeholder="Един артикул и брой на ред">'+esc(p?.contents||"")+'</textarea></label></div>'+
+    '<div class="field"><label>Позиция на началната страница<select name="featured_slot"><option value="">Без позиция</option>'+[1,2,3,4].map(n=>'<option value="'+n+'" '+(p?.featured_slot===n?'selected':'')+'>'+n+'</option>').join("")+'</select></label></div>'+
+    '<div class="field"><label>Снимка „Как пристига подаръкът“<select name="packed_photo"><option value="">Без снимка</option>'+state.images.filter(im=>im.product_id===id).map((im,i)=>'<option value="'+esc(im.image_url)+'" '+(im.image_url===p?.packed_photo?'selected':'')+'>Снимка '+(i+1)+'</option>').join("")+'</select></label></div><div class="field-grid">'  +
     formInput("Цена (€)", "price_eur", p?.price_eur ?? "", "number", true, "0.00") +
-    formInput("Налични бройки", "stock_quantity", p?.stock_quantity ?? 0, "number", true, "0") + '</div>' +
+    formInput("Бройки за продажба (до наличните компоненти)", "stock_quantity", p?.stock_quantity ?? 0, "number", true, "0") + '</div>' +
     '<label class="switch-row"><span><strong>Публикуван продукт</strong><small>' +
     (p && state.images.some((image) => image.product_id === p.id) ? "Видим за посетителите, когато е включено" : "Добави снимка, за да активираш публикуване") +
     '</small></span><input type="checkbox" name="is_published"' +
@@ -775,6 +782,14 @@ async function saveForm(form) {
   wait(true);
   const kind = form.dataset.kind, id = form.dataset.id, f = new FormData(form);
   try {
+    if(kind==="part"||kind==="recipe"){
+      await stockPanel.save(kind,form,f);$("#editor-dialog").close();await loadAll();render();toast("Запазено.");return;
+    }
+    if(kind==="contact"){
+      const rows=await rest("gift_shop_settings?id=eq.main","PATCH",{contact_email:String(f.get("email")||"").trim()});
+      if(!rows?.length)throw Error("Промяната не е записана.");
+      $("#editor-dialog").close();await loadAll();render();toast("Публичният контакт е обновен.");return;
+    }
     if (kind === "product") {
       if (!state.categories.length) throw Error("Първо създай поне една колекция.");
       const name = String(f.get("name") || "").trim(), slug = String(f.get("slug") || "").trim();
@@ -788,7 +803,8 @@ async function saveForm(form) {
         throw Error("За публикуване са нужни активна колекция, цена над 0 € и поне една снимка.");
       }
       const payload = { name, slug, category_id: f.get("category_id"), description: String(f.get("description") || "").trim(),
-        price_eur: amount, stock_quantity: stock, is_published: publish };
+        price_eur: amount, contents:String(f.get("contents")||"").trim(), featured_slot:Number(f.get("featured_slot"))||null, packed_photo:f.get("packed_photo")||null, is_published: publish,
+        ...(!id || state.products.find(p=>p.id===id)?.stock_quantity!==stock ? {stock_quantity:stock}:{}) };
       const result = await rest("gift_products" + (id ? "?id=eq." + encodeURIComponent(id) : ""), id ? "PATCH" : "POST", payload);
       const savedId = id || result?.[0]?.id;
       await loadAll();
@@ -892,6 +908,10 @@ async function removeImage(id) {
 function handleClick(event) {
   const button = event.target.closest("button");
   if (!button) return;
+  if(button.dataset.editPart || button.dataset.action==="new-part")return stockPanel.editPart(button.dataset.editPart);
+  if(button.dataset.recipe)return stockPanel.editRecipe(button.dataset.recipe);
+  if(button.dataset.handleInquiry)return rest("gift_inquiries?id=eq."+button.dataset.handleInquiry,"PATCH",{handled:true}).then(reload).catch(e=>toast(readableError(e)));
+  if(button.dataset.action==="edit-contact")return dialog("Публичен контакт","НАСТРОЙКИ",'<form data-kind="contact">'+formInput("Имейл за клиенти","email",state.contactEmail,"email")+dialogActions()+'</form>');
   if (button.dataset.view) return setView(button.dataset.view);
   if (button.dataset.editProduct) return openProduct(button.dataset.editProduct);
   if (button.dataset.editCategory) return openCategory(button.dataset.editCategory);

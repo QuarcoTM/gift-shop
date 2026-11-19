@@ -28,7 +28,7 @@ function carryCampaignAcrossNavigation(key) {
   // Pages served by GitHub Pages are static. Carry the current public campaign
   // in internal links until the published HTML catches up, without cookies,
   // localStorage, blocking network calls or a splash screen.
-  const baked = document.documentElement.dataset.staticCampaign || "valentine";
+  const baked = document.documentElement.dataset.staticCampaign || "christmas";
   for (const link of $$('a[href^="./"]')) {
     const href = link.getAttribute("href");
     const prefix = href.split(/[?#]/)[0];
@@ -80,7 +80,7 @@ function applyCampaign(key, onCampaign) {
   setText(".desktop-nav .nav-season", campaign.nav);
   setText(".mobile-nav a:first-child", campaign.nav);
   setText(".announcement a", campaign.announcement);
-  setText(".hero-actions .button-outline", campaign.heroButton);
+
   const footer = $(".footer-nav a[data-season-link]");
   if (footer && !footer.querySelector?.("[data-season-content]")) footer.textContent = campaign.nav;
 
@@ -111,7 +111,7 @@ function applyCampaign(key, onCampaign) {
   try {
     const previous = (history.state && typeof history.state === "object") ? history.state : {};
     const address = new URL(location.href);
-    const baked = document.documentElement.dataset.staticCampaign || "valentine";
+    const baked = document.documentElement.dataset.staticCampaign || "christmas";
     if (key !== baked) address.searchParams.set("campaign", key);
     else address.searchParams.delete("campaign");
     const next = address.pathname + address.search + address.hash;
@@ -132,18 +132,12 @@ async function fetchCampaign(onCampaign, force = false) {
       const deadline = setTimeout(() => controller.abort(), 2400);
       let response;
       try {
-        response = await fetch(API + "/rest/v1/gift_shop_settings?select=active_campaign&id=eq.main&limit=1", {
-          headers: { apikey: KEY, Accept: "application/json", "Cache-Control": "no-cache" },
-          cache: "no-store",
-          signal: controller.signal
-        });
-      } finally {
-        clearTimeout(deadline);
-      }
-      if (!response.ok) throw Error("Campaign settings HTTP " + response.status);
-      const result = await response.json();
-      if (!result?.[0]?.active_campaign) throw Error("Missing active campaign record");
-      applyCampaign(result[0].active_campaign, onCampaign);
+        response=await fetch(new URL("./store-publication.json",document.baseURI),{cache:"no-store",signal:controller.signal});
+      } finally {clearTimeout(deadline)}
+      if(!response.ok)throw Error("Publication unavailable");
+      const result=await response.json();
+      if(!Object.hasOwn(CAMPAIGNS,result.campaign))throw Error("Invalid published campaign");
+      applyCampaign(result.campaign,onCampaign);
       lastReadAt = Date.now();
     } catch (error) {
       console.warn("Неуспешна синхронизация на празничната визия:", error);
@@ -179,12 +173,10 @@ export function initSiteFeatures(options = {}) {
   // The HTML already contains the currently published campaign. No loader.
   // The pre-paint inline code also handles a campaign passed from the admin
   // preview or retained in browser history during refresh.
-  const inline = document.documentElement.dataset.campaign;
-  if (Object.hasOwn(CAMPAIGNS, inline) && inline !== currentCampaign) {
-    applyCampaign(inline, options.onCampaign);
-  }
-  const sync = () => fetchCampaign(options.onCampaign, true);
-  fetchCampaign(options.onCampaign);
+  const inline=document.documentElement.dataset.campaign || document.documentElement.dataset.staticCampaign;
+  if(Object.hasOwn(CAMPAIGNS,inline))applyCampaign(inline,options.onCampaign);
+  const preview=new URL(location.href).searchParams.has("campaign");
+  const sync=()=>{if(!preview)fetchCampaign(options.onCampaign,true)};
   initCookieManager();
   if (allowsStorage("analytics")) {
     recordVisit().catch((error) => console.warn("Anonymous analytics:", error));
@@ -200,7 +192,7 @@ export function initSiteFeatures(options = {}) {
     channel.addEventListener("message", (event) => {
       if (event.data?.type !== "campaign-changed") return;
       if (Object.hasOwn(CAMPAIGNS, event.data.key)) applyCampaign(event.data.key, options.onCampaign);
-      sync(); // Reconcile with the database, which is the source of truth.
+
     });
   }
   // Product cards are created after the catalogue loads. Keep their links
@@ -215,7 +207,7 @@ export function initSiteFeatures(options = {}) {
       if (!Object.hasOwn(CAMPAIGNS, key)) return;
       const url = new URL(link.getAttribute("href"), document.baseURI);
       if (!url.pathname.startsWith("/gift-shop/") || url.pathname.startsWith("/gift-shop/admin/")) return;
-      if (key !== (document.documentElement.dataset.staticCampaign || "valentine")) url.searchParams.set("campaign", key);
+      if (key !== (document.documentElement.dataset.staticCampaign || "christmas")) url.searchParams.set("campaign", key);
       else url.searchParams.delete("campaign");
       const relative = link.getAttribute("href").split(/[?#]/)[0];
       link.setAttribute("href", relative + url.search + url.hash);

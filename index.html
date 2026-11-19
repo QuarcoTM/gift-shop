@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="bg" data-campaign="valentine" data-static-campaign="valentine" data-campaign-ready="true">
+<html lang="bg" data-campaign="christmas" data-static-campaign="christmas" data-campaign-ready="true">
 <head>
   <script>if (location.pathname.endsWith("/index.html")) location.replace("./" + location.search + location.hash);</script>
   <meta charset="UTF-8" />
-  <script>/* Active appearance before CSS, no fetch and no storage writes. */(function(){try{var q=new URLSearchParams(location.search).get("campaign");var h=history.state&&history.state.zausmivkaCampaign;var re=/^(christmas|new_year|easter|valentine|womens_day|martenitsa|everyday)$/;var key=re.test(q)?q:(re.test(h)?h:null);if(key)document.documentElement.dataset.campaign=key}catch(e){}})();</script>
+  <script>/* Active appearance before CSS, no fetch and no storage writes. */(function(){try{var q=new URLSearchParams(location.search).get("campaign");var h=null;var re=/^(christmas|new_year|easter|valentine|womens_day|martenitsa|everyday)$/;var key=re.test(q)?q:(re.test(h)?h:null);if(key)document.documentElement.dataset.campaign=key}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7f2e9" />
   <meta name="description" content="Стилни подаръчни комплекти за деца, бебета, Коледа и специални поводи." />
@@ -15,20 +15,20 @@
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
   
 
-  <link rel="stylesheet" href="./styles.css?v=20261119-colored-footer" />
+  <link rel="stylesheet" href="./styles.css?v=20261119-store" />
   <script src="./refresh.js"></script>
-  <script type="module" src="./app.js?v=20261119-brand-guard"></script>
+  <script type="module" src="./app.js?v=20261119-store"></script>
 </head>
 <body data-page="home">
   <a class="skip-link" href="#content">Към съдържанието</a>
-  <div class="announcement"><div class="container announcement-inner"><span>Подаръци, които оставят спомен.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледна колекция</span><span data-season-content="new_year">Новогодишна колекция</span><span data-season-content="easter">Великденска колекция</span><span data-season-content="valentine">Колекция за любовта</span><span data-season-content="womens_day">Подаръци за 8 март</span><span data-season-content="martenitsa">Колекция Баба Марта</span><span data-season-content="everyday">Подаръци за всеки повод</span></a></div></div>
+  <div class="announcement"><div class="container announcement-inner"><span>Подаръци, които оставят спомен.</span><span class="announcement-rule"></span><a data-season-link href="./collection/?category=koleda"><span data-season-content="christmas">Коледна колекция</span><span data-season-content="new_year">Новогодишна колекция</span><span data-season-content="easter">Великденска колекция</span><span data-season-content="valentine">Колекция за любовта</span><span data-season-content="womens_day">Подаръци за 8 март</span><span data-season-content="martenitsa">Колекция Баба Марта</span><span data-season-content="everyday">Подаръци за всеки повод</span></a></div></div>
   <header class="site-header" id="top">
     <div class="container header-inner">
       <a class="brand" href="./" aria-label="ЗА УСМИВКА. — начало">
         <img class="brand-image" src="./assets/brand/za-usmivka-main.avif" alt="За усмивка." width="1415" height="415" decoding="async" />
       </a>
       <nav class="desktop-nav" aria-label="Основна навигация">
-        <a data-season-link href="./collection/?category=sveti-valentin" class="nav-season"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a>
+        <a data-season-link href="./collection/?category=koleda" class="nav-season"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a>
         <a href="./collections/">Колекции</a>
         <a href="./collection/?category=deca">За деца</a>
         <a href="./products/">Подаръци</a>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Мобилна навигация" hidden>
-      <a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
+      <a data-season-link href="./collection/?category=koleda"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции </a><a href="./collection/?category=deca">За деца </a><a href="./products/">Подаръци </a><a href="./about/">Нашата идея </a><a href="./bulk/">За събития </a>
     </nav>
   </header>
     <main id="content">
@@ -53,7 +53,7 @@
           <p class="eyebrow"><span class="eyebrow-line"></span> подаръци с отношение</p>
           <h1><span data-season-content="christmas">Коледа, която<br/>събира <em>сърцата.</em></span><span data-season-content="new_year">Нова година,<br/><em>нови желания.</em></span><span data-season-content="easter">Великден с<br/><em>повече светлина.</em></span><span data-season-content="valentine">Любовта се<br/>познава по <em>жестовете.</em></span><span data-season-content="womens_day">За нея.<br/>С <em>благодарност.</em></span><span data-season-content="martenitsa">Добре дошла,<br/><em>Баба Марта.</em></span><span data-season-content="everyday">Всеки повод<br/><em>е специален.</em></span></h1>
           <p class="hero-subtitle"><span data-season-content="christmas">Празнични подаръци, които носят настроение и радост.</span><span data-season-content="new_year">Подаръци за посрещането на Нова година.</span><span data-season-content="easter">Пролетно настроение и подаръци, споделени с обич.</span><span data-season-content="valentine">Изненади за човека, който прави всеки ден специален.</span><span data-season-content="womens_day">Красиви жестове за жените, които ни вдъхновяват.</span><span data-season-content="martenitsa">Пожелания за здраве, късмет и пролетно настроение.</span><span data-season-content="everyday">Подаръци, които оставят впечатление. За личните поводи и спонтанните изненади.</span></p>
-          <div class="hero-actions"><a class="button button-dark" href="./collections/">Открий колекциите </a><a data-season-link class="button button-outline" href="./collection/?category=sveti-valentin"><span data-season-content="christmas">За Коледа</span><span data-season-content="new_year">За Нова година</span><span data-season-content="easter">За Великден</span><span data-season-content="valentine">За любовта</span><span data-season-content="womens_day">За 8 март</span><span data-season-content="martenitsa">За Баба Марта</span><span data-season-content="everyday">За всеки повод</span></a></div>
+          <div class="hero-actions"><a data-season-link class="button button-dark" href="./collection/?category=koleda"><span data-season-content="christmas">Виж коледните комплекти</span><span data-season-content="new_year">Виж новогодишните комплекти</span><span data-season-content="easter">Виж великденските комплекти</span><span data-season-content="valentine">Виж комплектите за двама</span><span data-season-content="womens_day">Виж комплектите за 8 март</span><span data-season-content="martenitsa">Виж комплектите за Баба Марта</span><span data-season-content="everyday">Разгледай комплектите</span></a><a class="button button-outline" href="./products/">Всички подаръци</a></div>
           <div class="hero-footnote"><span>За малки хора. За големи чувства. За всеки повод.</span></div>
         </div>
         
@@ -66,11 +66,19 @@
       </div>
     </section>
 
+    <section class="section products-section home-products-section" id="products" hidden>
+      <div class="container">
+        <div class="section-topline"><span class="eyebrow">За теб и твоите близки</span></div>
+        <div class="section-heading-row"><h2>Избрани <em>комплекти.</em></h2></div>
+
+        <div id="product-grid" class="product-grid" aria-live="polite"></div>
+        <div class="section-link"><a class="text-link" href="./products/">Всички подаръци </a></div></div></section>
+
     <section class="section collections-section container" id="collections">
       <div class="section-topline"><span class="eyebrow">Избери повод</span></div>
       <div class="section-heading-row"><h2>Поводите са различни.<br /><em>Жестът остава.</em></h2><p>Не е нужен голям повод, за да направиш някого щастлив.</p></div>
       <div class="collections-grid">
-        <a class="collection-card collection-card-large" data-season-link href="./collection/?category=sveti-valentin">
+        <a class="collection-card collection-card-large" data-season-link href="./collection/?category=koleda">
           <div class="seasonal-photo" role="img" aria-label="Празнична колекция"></div>
           <span class="collection-shade"></span><span class="collection-number"><span data-season-content="christmas">Празнична колекция</span><span data-season-content="new_year">Новогодишна колекция</span><span data-season-content="easter">Пролетна колекция</span><span data-season-content="valentine">За любимите хора</span><span data-season-content="womens_day">С благодарност към нея</span><span data-season-content="martenitsa">Подаръци за пролетта</span><span data-season-content="everyday">Всеки ден е повод</span></span><span class="collection-title"><span data-season-content="christmas">Коледа,<br />с много обич.</span><span data-season-content="new_year">Нова година,<br />ново начало.</span><span data-season-content="easter">Великден,<br />споделен с обич.</span><span data-season-content="valentine">Любовта,<br />събрана в подарък.</span><span data-season-content="womens_day">За нея,<br />с много обич.</span><span data-season-content="martenitsa">За късмет,<br />с обич.</span><span data-season-content="everyday">Подаръци.<br />Истински емоции.</span></span>
         </a>
@@ -86,27 +94,15 @@
       </div>
     </section>
 
-    <section class="section products-section home-products-section" id="products" hidden>
-      <div class="container">
-        <div class="section-topline"><span class="eyebrow">За теб и твоите близки</span></div>
-        <div class="section-heading-row"><h2>Подаръци, които<br /><em>казват повече.</em></h2><p>Подаръци, готови да впечатлят още от първия поглед.</p></div>
-        
-        <div id="product-grid" class="product-grid" aria-live="polite"></div>
-        <div class="section-link"><a class="text-link" href="./products/">Всички подаръци </a></div></div></section>
-
-    <section class="home-season" id="campaign">
-  <div class="container home-season-inner">
-    <div class="home-season-copy"><span class="eyebrow"><span data-season-content="christmas">Празнична колекция</span><span data-season-content="new_year">Новогодишна колекция</span><span data-season-content="easter">Пролетна колекция</span><span data-season-content="valentine">За любимите хора</span><span data-season-content="womens_day">С благодарност към нея</span><span data-season-content="martenitsa">Подаръци за пролетта</span><span data-season-content="everyday">Всеки ден е повод</span></span><h2><span data-season-content="christmas">Коледа е в<br /><em>споделената радост.</em></span><span data-season-content="new_year">Нова година.<br /><em>Нови поводи за радост.</em></span><span data-season-content="easter">Великден е в<br /><em>споделените жестове.</em></span><span data-season-content="valentine">Любовта е в<br /><em>личното внимание.</em></span><span data-season-content="womens_day">Благодаря,<br /><em>казано с подарък.</em></span><span data-season-content="martenitsa">Пролетта идва<br /><em>с настроение.</em></span><span data-season-content="everyday">Всеки ден е<br /><em>повод за радост.</em></span></h2><p><span data-season-content="christmas">Празнични подаръци, готови да зарадват.</span><span data-season-content="new_year">Подаръци за новогодишните празници.</span><span data-season-content="easter">Пролетни подаръци за любимите хора.</span><span data-season-content="valentine">Нежни жестове, които казват повече.</span><span data-season-content="womens_day">Подаръци за жените, които обичаме.</span><span data-season-content="martenitsa">Подаръци с пожелание за здраве и късмет.</span><span data-season-content="everyday">Подаръци за всеки човек и всеки повод.</span></p><a class="button button-cream" data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Виж коледните подаръци</span><span data-season-content="new_year">Виж новогодишните подаръци</span><span data-season-content="easter">Виж великденските подаръци</span><span data-season-content="valentine">Виж подаръците за любовта</span><span data-season-content="womens_day">Виж подаръците за 8 март</span><span data-season-content="martenitsa">Виж пролетните подаръци</span><span data-season-content="everyday">Разгледай подаръците</span></a></div>
-    <div class="home-season-image"><div class="seasonal-photo" role="img" aria-label="Подаръчна композиция"></div></div>
-  </div>
-</section><section class="home-more container">
+    <section id="packed-story" class="packed-story container" hidden><div><h2>Ето как пристига <em>подаръкът.</em></h2><a class="text-link">Виж комплекта</a></div><img alt="Затворена подаръчна кутия" loading="lazy"></section>
+    <section class="home-more container">
   <div><span class="eyebrow">Подаръци за повече хора</span><h2>Радост за<br /><em>цялата компания.</em></h2><p>Комплекти за групи, събития и специални поводи.</p><a href="./bulk/" class="text-link">Подаръци в количество </a></div>
 </section>
   </main>
 <footer class="footer" id="contact">
     <div class="container footer-main">
       <div class="footer-brand"><a class="brand brand-footer" href="./"><img class="brand-image" src="./assets/brand/za-usmivka-footer-black-outline.avif" alt="За усмивка." width="1415" height="415" decoding="async" /></a><p>Подаръци с отношение. За хората и поводите, които имат значение.</p></div>
-      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=sveti-valentin"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./order/">Отказ и връщане</a><a href="./about/">Историята ни</a></div></div>
+      <div class="footer-nav"><div><span class="footer-heading">Разгледай</span><a data-season-link href="./collection/?category=koleda"><span data-season-content="christmas">Коледа</span><span data-season-content="new_year">Нова година</span><span data-season-content="easter">Великден</span><span data-season-content="valentine">Свети Валентин</span><span data-season-content="womens_day">8 март</span><span data-season-content="martenitsa">Баба Марта</span><span data-season-content="everyday">За поводи</span></a><a href="./collections/">Колекции</a><a href="./products/">Подаръци</a></div><div><span class="footer-heading">За нас</span><a href="./about/">Нашата идея</a><a href="./bulk/">Подаръци в количество</a><a href="./order/">Отказ и връщане</a><a href="./about/">Историята ни</a></div></div>
       <div class="footer-contact"><span class="footer-heading">Да останем във връзка</span><p>Имаш въпрос за подарък или поръчка в количество?</p><a class="footer-email" id="public-email" hidden></a><p id="contact-coming" class="footer-hint">Контактите ще бъдат публикувани при отварянето на магазина.</p></div>
     </div>
     <div class="container footer-bottom"><span>© <span id="current-year">2026</span> За усмивка.</span><span>С внимание към всеки повод.</span><a href="./">Обратно нагоре </a></div>

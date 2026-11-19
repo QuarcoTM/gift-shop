@@ -1,0 +1,42 @@
+name: Publish shop catalog and campaign
+on:
+  schedule:
+    - cron: '3-58/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['scripts/publish-store.mjs', 'product/index.html', 'campaigns.js', '.github/workflows/publish-store.yml']
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: publish-shop-snapshot
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/publish-store.mjs
+      - name: Publish changed pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -- '*.html' store-publication.json
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Publish active campaign and product sharing pages'
+            git push origin HEAD:main
+          fi
+          # A push with GITHUB_TOKEN does not start a branch-based Pages build.
+          target=$(git rev-parse HEAD)
+          built=$(gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest" --jq '.commit + ":" + .status')
+          if [[ "$built" != "$target:built" && "$built" != "$target:building" && "$built" != "$target:queued" ]]; then
+            gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
+          fi

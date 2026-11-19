@@ -129,8 +129,8 @@ test("no fabricated contact data or delivery offers", () => {
 
 test("home hero uses two identifiable buttons without false photo controls", () => {
   const home = read("index.html");
-  assert.match(home, /class="button button-dark" href="\.\/collections\/"/);
-  assert.match(home, /data-season-link class="button button-outline" href="\.\/collection\/\?category=sveti-valentin"/);
+  assert.match(home, /class="button button-outline" href="\.\/products\/"/);
+  assert.match(home, /data-season-link class="button button-dark" href="\.\/collection\/\?category=[a-z-]+"/);
   assert.match(home, /class="hero-stamp"/);
   assert.doesNotMatch(home, /hero-photo-caption|class="button button-text"/);
 });
@@ -174,7 +174,7 @@ test("storefront uses locally hosted realistic photography, not image CDNs", () 
   const home = read("index.html");
   assert.match(css, /assets\/images\/christmas\.webp/);
   assert.match(home, /assets\/images\/kids\.webp/);
-  assert.match(home, /data-static-campaign="valentine"/);
+  assert.ok(home.includes('data-static-campaign="'+JSON.parse(read("store-publication.json")).campaign+'"'));
   assert.match(home, /assets\/images\/baby\.webp/);
   assert.match(home, /assets\/images\/occasions\.webp/);
   const uniqueNames = ["hero","baby","kids","occasions","christmas","easter","valentine","womens_day","martenitsa","everyday","bulk","about"];
@@ -210,7 +210,7 @@ test("all holiday variants paint from static HTML with no white screen", () => {
   const home = read("index.html");
   const css = read("styles.css");
   const features = read("site-features.js");
-  assert.match(home, /data-campaign="valentine"/);
+  assert.ok(home.includes('data-campaign="'+JSON.parse(read("store-publication.json")).campaign+'"'));
   assert.match(home, /class="seasonal-photo"/);
   assert.match(css, /data-season-content="valentine"/);
   assert.doesNotMatch(home, /instant-season-boot|Visible failsafe/);

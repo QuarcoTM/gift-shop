@@ -85,10 +85,11 @@ test("active holiday switches actual headlines, category links and local picture
     addEventListener(name,fn){this.messageHandler=fn}
   }
   globalThis.BroadcastChannel=Channel;
-  const response=(active_campaign)=>({ok:true,json:async()=>[{active_campaign}]});
+  const response=(active_campaign)=>({ok:true,json:async()=>({campaign:active_campaign})});
   globalThis.fetch=async()=>response("easter");
   const { initSiteFeatures } = await import("../site-features.js");
   initSiteFeatures({onCampaign(){}});
+  eventListeners.get("window:focus")();
   await new Promise((resolve)=>setTimeout(resolve,0));
 
   assert.equal(page.documentElement.dataset.campaign,"easter");
@@ -113,6 +114,6 @@ test("active holiday switches actual headlines, category links and local picture
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Любовта/);
   assert.equal(heroImg.src,permanentBadge,"Valentine must not overwrite the hero logo");
   assert.ok(links.every(x=>x.href.includes("category=sveti-valentin")));
-  assert.equal(globalThis.history.state?.sabranoCampaign,"valentine");
+  assert.equal(globalThis.history.state?.zausmivkaCampaign,"valentine");
   assert.equal(globalThis.history.lastURL, "/gift-shop/");
 });

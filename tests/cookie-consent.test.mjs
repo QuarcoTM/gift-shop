@@ -53,15 +53,15 @@ test("first visit does not write client storage; consent can be granted and revo
   assert.equal(allowsStorage("functional"), true);
   assert.equal(allowsStorage("marketing"), true);
   assert.equal(created.get("cookie-consent-banner").hidden, true);
-  assert.ok(data.has("sabrano_cookie_preferences_v2"));
+  assert.ok(data.has("zausmivka_cookie_preferences_v2"));
 
-  temp.set("sabrano_analytics_session_v1", "stale-session");
-  data.set("sabrano_favorites_v1", '["test-product"]');
+  temp.set("zausmivka_analytics_session_v1", "stale-session");
+  data.set("zausmivka_favorites_v1", '["test-product"]');
   choose("necessary");
   assert.equal(allowsStorage("necessary"), true);
   assert.equal(allowsStorage("analytics"), false);
   assert.equal(allowsStorage("marketing"), false);
   assert.equal(allowsStorage("functional"), false);
-  assert.equal(temp.has("sabrano_analytics_session_v1"), false, "Revocation must clear session ID");
-  assert.equal(data.has("sabrano_favorites_v1"), false, "Revocation must clear functional storage");
+  assert.equal(temp.has("zausmivka_analytics_session_v1"), false, "Revocation must clear session ID");
+  assert.equal(data.has("zausmivka_favorites_v1"), false, "Revocation must clear functional storage");
 });

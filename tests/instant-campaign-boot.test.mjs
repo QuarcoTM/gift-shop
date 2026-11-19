@@ -18,7 +18,7 @@ test("all seven seasonal photographs and labels are pre-rendered for instant fir
     assert.ok(presets.includes(key + ": {"));
   }
   assert.match(home, /class="seasonal-photo"/);
-  assert.match(home, /data-campaign="valentine"/);
+  assert.ok(home.includes('data-campaign="'+JSON.parse(read("store-publication.json")).campaign+'"'));
   assert.doesNotMatch(home, /id="instant-season-boot"/);
   assert.doesNotMatch(css, /Campaign boot screen|body\[data-page\]::before/);
   assert.doesNotMatch(features, /mainPhoto\.decode\(\)/);
@@ -27,7 +27,7 @@ test("all seven seasonal photographs and labels are pre-rendered for instant fir
 test("all pages show a valid first-paint holiday without executing async JavaScript", () => {
   for (const route of routes) {
     const html = read(route);
-    assert.match(html, /data-campaign="valentine"/, route);
+    assert.ok(html.includes('data-campaign="'+JSON.parse(read("store-publication.json")).campaign+'"'), route);
     assert.match(html, /data-season-content="christmas"/, route);
     assert.match(html, /data-season-content="easter"/, route);
     assert.match(html, /data-season-content="new_year"/, route);

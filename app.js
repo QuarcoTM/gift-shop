@@ -1,5 +1,6 @@
+import { gallery, wireGallery, initOffer } from "./store-ui.js";
 import { config } from "./site-config.js";
-import { initSiteFeatures } from "./site-features.js?v=20261119-brand-guard";
+import { initSiteFeatures } from "./site-features.js?v=20261119-store";
 import { CAMPAIGNS } from "./campaigns.js?v=20261119-new-year";
 import { allowsStorage } from "./cookie-consent.js?v=20261119-brand-guard";
 import { initOfficePicker } from "./office-picker.js?v=20261118-o";
@@ -22,6 +23,7 @@ const data = {
   categories: [],
   products: [],
   filter: validFilter(params.get("category") || (params.get("favorites") === "1" ? "favorites" : "all")),
+  budget: "", catalogState: "loading",
   search: params.get("q") || "",
   favorites: new Set((allowsStorage("functional") ? loadSaved(FAVORITES_KEY) : []).filter((x) => typeof x === "string")),
   cart: (allowsStorage("necessary") ? loadSaved(CART_KEY) : []).filter((x) => x && typeof x.id === "string" && Number.isInteger(x.qty) && x.qty > 0).slice(0, 100)
@@ -142,21 +144,42 @@ function catalogProducts() {
   if (data.search.trim()) {
     const term = data.search.trim().toLocaleLowerCase("bg-BG");
     items = items.filter((item) =>
-      [item.name, item.description, item.category?.name].some((value) => String(value || "").toLocaleLowerCase("bg-BG").includes(term))
+      [item.name, item.description, item.contents, item.category?.name].some((value) => String(value || "").toLocaleLowerCase("bg-BG").includes(term))
     );
   }
-  return page === "home" ? items.slice(0, 4) : items;
+  if (page==="home") return items.filter(p=>p.featured_slot && p.stock_quantity>0).sort((a,b)=>a.featured_slot-b.featured_slot).slice(0,4);
+  if (data.budget) {
+    const [low,high]=data.budget.split("|").map(Number);
+    items=items.filter(p=>p.price_eur>=low && p.price_eur<=high);
+  }
+  return items;
+}
+let publishedProducts=new Set();
+const productLink=id=>publishedProducts.has(id) ? "./p/"+encodeURIComponent(id)+"/" : "./product/?id="+encodeURIComponent(id);
+function setupShare(wrapper,item) {
+  if(!publishedProducts.has(item.id) && !document.body.dataset.productId)return;
+  const button=document.createElement("button");
+  button.className="text-link";button.type="button";button.textContent="Сподели комплекта";
+  const url=new URL("./p/"+encodeURIComponent(item.id)+"/",document.baseURI).href;
+  button.onclick=async()=>{
+    try{
+      if(navigator.share) await navigator.share({title:item.name,url});
+      else {await navigator.clipboard.writeText(url);notify("Линкът е копиран.")}
+    }catch(error){if(error.name!=="AbortError")window.prompt("Линк към комплекта",url)}
+  };
+  wrapper.querySelector(".product-page-buttons").append(button);
 }
 function productCard(item) {
   const liked = data.favorites.has(item.id);
   return '<article class="product-card">' +
-    '<a href="./product/?id=' + encodeURIComponent(item.id) + '" class="product-image-link" aria-label="Виж ' + escapeHTML(item.name) + '">' +
+    '<a href="' + productLink(item.id) + '" class="product-image-link" aria-label="Виж ' + escapeHTML(item.name) + '">' +
       '<div class="product-image-wrap">' + photo(productPhoto(item), item.name) +
         '<span class="product-tag">' + escapeHTML(groupInfo(item.group).label) + '</span></div></a>' +
       '<button class="favorite-button' + (liked ? ' is-liked' : '') + '" type="button" data-favorite="' + escapeHTML(item.id) + '" aria-label="' + (liked ? "Премахни от любими" : "Добави в любими") + '">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.5c0 4.4-8.5 10.2-8.5 10.2S3.5 12.9 3.5 8.5a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg></button>' +
-    '<div class="product-info"><div class="product-kicker">' + escapeHTML(groupInfo(item.group).label) + '</div>' +
-      '<h3 class="product-title"><a href="./product/?id=' + encodeURIComponent(item.id) + '">' + escapeHTML(item.name) + '</a></h3>' +
+    '<div class="product-info">' +
+      '<h3 class="product-title"><a href="' + productLink(item.id) + '">' + escapeHTML(item.name) + '</a></h3>' +
+      (item.contents ? '<p class="gift-summary">'+escapeHTML(item.contents.split(/\n+/).join(" · "))+'</p>' : '') +
       '<div class="product-row"><strong class="price">' + escapeHTML(price(item.price_eur)) + '</strong>' +
       '<button class="product-cta" type="button" data-add="' + escapeHTML(item.id) + '"' + (item.stock_quantity > 0 ? "" : " disabled") + '>' +
         (item.stock_quantity > 0 ? "Добави +": "Изчерпан") + '</button></div></div></article>';
@@ -174,12 +197,37 @@ function renderCatalog() {
     if (!items.length) return;
   }
   if (!items.length) {
-    grid.innerHTML = '<div class="catalog-empty"><span class="catalog-empty-mark" aria-hidden="true">♡</span><h3>Тук скоро ще откриеш подаръци.</h3>' +
-      '<p>Разгледай останалите колекции.</p><a class="button button-dark" href="./collections/">Виж колекциите <span aria-hidden="true"></span></a></div>';
+    let title="Тук скоро ще откриеш подаръци.",action='<a class="text-link" href="./collections/">Виж колекциите</a>';
+    if(data.catalogState==="loading"){title="Зареждаме подаръците…";action=""}
+    else if(data.catalogState==="error"){title="Подаръците не се заредиха.";action='<button class="text-link" data-retry>Опитай отново</button>'}
+    else if(data.search.trim() || data.budget){title="Няма резултати";action='<button class="text-link" data-clear>Изчисти търсенето и бюджета</button>'}
+    else if(data.filter==="favorites"){title="Още нямаш любими подаръци.";action='<a class="text-link" href="./products/">Разгледай подаръците</a>'}
+    grid.innerHTML='<div class="catalog-empty"><h3>'+title+'</h3>'+action+'</div>';
     return;
   }
   grid.innerHTML = items.map(productCard).join("");
   $$("[data-filter]").forEach((btn) => btn.classList.toggle("is-active", btn.dataset.filter === data.filter));
+}
+function configureMerchandising() {
+  const story=$("#packed-story");
+  if(story){
+    const packed=[...data.products].sort((a,b)=>(a.featured_slot||5)-(b.featured_slot||5)).find(p=>imageURL(p.packed_photo));
+    story.hidden=!packed;
+    if(packed){story.querySelector("img").src=packed.packed_photo;story.querySelector("a").href=productLink(packed.id)}
+  }
+  const select=$("#budget-filter");
+  if(!select)return;
+  const prices=[...new Set(data.products.map(p=>p.price_eur))].sort((a,b)=>a-b);
+  const count=Math.min(3,prices.length);
+  const options=[];
+  for(let i=0;i<count;i++){
+    const low=prices[Math.floor(i*prices.length/count)],high=prices[Math.floor((i+1)*prices.length/count)-1];
+    options.push('<option value="'+low+'|'+high+'">'+(low===high?price(low):price(low)+' – '+price(high))+'</option>');
+  }
+  select.innerHTML='<option value="">Всички цени</option>'+options.join("");
+  select.value=data.budget;if(select.value!==data.budget)data.budget="";
+  select.parentElement.hidden=count<2;
+  select.onchange=()=>{data.budget=select.value;renderCatalog()};
 }
 function renderCustomCategories() {
   const campaign = CAMPAIGNS[document.documentElement.dataset.campaign];
@@ -269,23 +317,30 @@ function renderProduct() {
   if (page !== "product") return;
   const wrapper = $("#product-page-content");
   if (!wrapper) return;
-  const item = productById(params.get("id"));
+  const item = productById(document.body.dataset.productId || params.get("id"));
+  if (!item && data.catalogState!=="ready") {
+    wrapper.textContent=data.catalogState==="error"?"Не успяхме да заредим комплекта. Обнови страницата.":"Зареждаме комплекта…";
+    return;
+  }
   if (!item) {
     wrapper.innerHTML = '<div class="catalog-empty"><h2>Не открихме този подарък.</h2><p>Разгледай останалите предложения.</p><a class="button button-dark" href="./products/">Всички подаръци <span aria-hidden="true"></span></a></div>';
     return;
   }
   document.title = item.name + " | За усмивка.";
   const liked = data.favorites.has(item.id);
-  wrapper.innerHTML = '<div class="product-page-photo">' + photo(productPhoto(item), item.name, "eager") + '</div>' +
+  wrapper.innerHTML = gallery(item.images.filter(im=>imageURL(im.image_url)),item.name,escapeHTML,photo) +
     '<div class="product-page-details"><span class="eyebrow">' + escapeHTML(groupInfo(item.group).label) + '</span>' +
       '<h1>' + escapeHTML(item.name) + '</h1><p class="product-page-description">' + escapeHTML(item.description || "Подаръчен комплект за специален повод.") + '</p>' +
+      (item.contents ? '<h2 class="gift-contents-title">Какво има в кутията</h2><ul>'+item.contents.split(/\n+/).filter(Boolean).map(line=>'<li>'+escapeHTML(line)+'</li>').join("")+'</ul>':'')+
       '<div class="product-page-price">' + escapeHTML(price(item.price_eur)) + '</div>' +
       '<div class="product-page-buttons"><button type="button" class="button button-dark" data-add="' + escapeHTML(item.id) + '"' + (item.stock_quantity > 0 ? "" : " disabled") + '>' +
         (item.stock_quantity > 0 ? "Добави в количката" : "Временно изчерпан") + ' <span aria-hidden="true"></span></button>' +
         '<button type="button" class="detail-favorite' + (liked ? " is-liked" : "") + '" data-favorite="' + escapeHTML(item.id) + '">' +
         (liked ? "♥ В любими" : "♡ Добави в любими") + '</button></div>' +
-      '<div class="product-page-footnote">Готов за подаряване. Доставката и плащането ще бъдат активирани при откриването на магазина.</div>' +
+      '<div class="product-page-footnote">Готов за подаряване.</div>' +
     '</div>';
+  wireGallery(wrapper);
+  setupShare(wrapper,item);
 }
 function renderCart() {
   if (page !== "cart") return;
@@ -304,8 +359,8 @@ function renderCart() {
   grid.innerHTML = data.cart.map((entry) => {
     const item = productById(entry.id);
     if (!item) return "";
-    return '<article class="cart-page-line"><a href="./product/?id=' + encodeURIComponent(item.id) + '" class="cart-line-image">' + photo(productPhoto(item), item.name) + '</a>' +
-      '<div><a class="cart-line-name" href="./product/?id=' + encodeURIComponent(item.id) + '">' + escapeHTML(item.name) + '</a>' +
+    return '<article class="cart-page-line"><a href="' + productLink(item.id) + '" class="cart-line-image">' + photo(productPhoto(item), item.name) + '</a>' +
+      '<div><a class="cart-line-name" href="' + productLink(item.id) + '">' + escapeHTML(item.name) + '</a>' +
         '<span class="cart-line-price">' + escapeHTML(price(item.price_eur * entry.qty)) + '</span>' +
         '<div class="cart-line-controls"><button class="qty-button" type="button" data-qty="-1" data-id="' + escapeHTML(item.id) + '" aria-label="Намали">−</button>' +
         '<span>' + entry.qty + '</span><button class="qty-button" type="button" data-qty="1" data-id="' + escapeHTML(item.id) + '" aria-label="Увеличи">+</button>' +
@@ -477,9 +532,11 @@ function setupCheckout() {
   checkoutStatus();
 }
 
-function configureContact() {
-  const email = String(config.contactEmail || "").trim();
+function configureContact(value=config.contactEmail) {
+  const email = String(value || "").trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+  const block=$("[data-contact-address]");
+  if(block){block.hidden=false;block.innerHTML='<a href="mailto:'+escapeHTML(email)+'">'+escapeHTML(email)+'</a>'}
   const link = $("#public-email");
   if (!link) return;
   link.href = "mailto:" + email;
@@ -504,6 +561,8 @@ function initUI() {
   }
   $("#current-year").textContent = String(new Date().getFullYear());
   configureContact();
+  publicTable("gift_shop_settings?select=contact_email&id=eq.main").then(rows=>configureContact(rows[0]?.contact_email)).catch(()=>{});
+  initOffer(config);
   const menuButton = $(".menu-trigger"), mobileMenu = $("#mobile-nav");
   if (menuButton && mobileMenu) {
     menuButton.addEventListener("click", () => {
@@ -529,6 +588,8 @@ function initUI() {
     }
   }
   document.addEventListener("click", (event) => {
+    if(event.target.closest("[data-retry]")){loadCatalog();return}
+    if(event.target.closest("[data-clear]")){data.search="";data.budget="";if($("#catalog-search"))$("#catalog-search").value="";if($("#budget-filter"))$("#budget-filter").value="";renderCatalog();return}
     const add = event.target.closest("[data-add]");
     if (add) return addToCart(add.dataset.add);
     const favorite = event.target.closest("[data-favorite]");
@@ -563,12 +624,23 @@ async function publicTable(query) {
 async function loadCatalog() {
   if (!config.supabaseUrl || !config.supabasePublishableKey) return;
   try {
-    const [categories, products, images] = await Promise.all([
+    const [categories, products, images, capacities, publication] = await Promise.all([
       publicTable("gift_categories?select=id,name,slug,description&is_active=eq.true&order=sort_order.asc"),
-      publicTable("gift_products?select=id,name,slug,description,price_eur,stock_quantity,category_id,is_published&is_published=eq.true&order=created_at.desc&limit=100"),
-      publicTable("gift_product_images?select=id,product_id,image_url,alt_text,sort_order&order=sort_order.asc&limit=500")
+      publicTable("gift_products?select=id,name,slug,description,price_eur,stock_quantity,category_id,is_published,contents,featured_slot,packed_photo&is_published=eq.true&order=created_at.desc&limit=100"),
+      publicTable("gift_product_images?select=id,product_id,image_url,alt_text,sort_order&order=sort_order.asc&limit=500"),
+      publicTable("rpc/gift_store_capacity"),
+      fetch(new URL("./store-publication.json",document.baseURI),{cache:"no-cache"}).then(r=>r.json()).catch(()=>({}))
     ]);
+    publishedProducts=new Set(publication.ids||[]);
+    const available=new Map(capacities.map(row=>[row.product_id,row.available]));
+    data.catalogState="ready";
     const catById = new Map(categories.map((item) => [item.id, item]));
+    const requested=document.body.dataset.productId||params.get("id");
+    if(page==="product" && /^[0-9a-f-]{36}$/i.test(requested||"")){
+      const [detail,pictures]=await Promise.all([publicTable("gift_products?select=*&is_published=eq.true&id=eq."+requested),publicTable("gift_product_images?select=*&product_id=eq."+requested+"&order=sort_order.asc")]);
+      if(detail.length && !products.some(p=>p.id===requested))products.push(detail[0]);
+      images.splice(0,images.length,...images.filter(im=>im.product_id!==requested),...pictures);
+    }
     const imagesById = new Map();
     for (const image of images) {
       if (!imagesById.has(image.product_id)) imagesById.set(image.product_id, []);
@@ -580,17 +652,19 @@ async function loadCatalog() {
       const product = {
         ...item,
         price_eur: Number(item.price_eur),
-        stock_quantity: Math.max(0, Number(item.stock_quantity) || 0),
+        stock_quantity: Math.max(0, Number(available.get(item.id) ?? item.stock_quantity) || 0),
         images: imagesById.get(item.id) || [],
         category: catById.get(item.category_id) || null
       };
       product.group = productGroup(product);
       return product;
     });
+    configureMerchandising();
     syncCart();
     renderCustomCategories();
     renderCollectionHeading();
   } catch (error) {
+    data.catalogState="error";
     console.error("Store catalog:", error);
     // Do not erase saved cart entries when the catalog is temporarily offline.
     updateCounters();
