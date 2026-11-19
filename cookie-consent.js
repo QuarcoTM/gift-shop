@@ -1,13 +1,13 @@
 /**
- * Събрано: consent manager.
+ * За усмивка: consent manager.
  * No first-party cookies are created by this module.
  * No localStorage / sessionStorage writes occur until an explicit choice.
  * Non-essential processing is disabled by default.
  */
-export const PREFERENCE_KEY = "sabrano_cookie_preferences_v2";
-const LEGACY_ANALYTICS_KEY = "sabrano_analytics_consent_v1";
-const ANALYTICS_SESSION_KEY = "sabrano_analytics_session_v1";
-const FAVORITES_KEY = "sabrano_favorites_v1";
+export const PREFERENCE_KEY = "zausmivka_cookie_preferences_v2";
+const LEGACY_ANALYTICS_KEY = "zausmivka_analytics_consent_v1";
+const ANALYTICS_SESSION_KEY = "zausmivka_analytics_session_v1";
+const FAVORITES_KEY = "zausmivka_favorites_v1";
 const VERSION = 2;
 
 const $ = (sel) => document.querySelector(sel);
@@ -59,7 +59,7 @@ function saveChoice(options) {
   if (!prefs.analytics) {
     try { sessionStorage.removeItem(ANALYTICS_SESSION_KEY); } catch { /* blocked */ }
   }
-  window.dispatchEvent(new CustomEvent("sabrano:consentchange", {
+  window.dispatchEvent(new CustomEvent("zausmivka:consentchange", {
     detail: { ...prefs, previous: old }
   }));
   document.querySelectorAll("[data-cookie-summary]").forEach((node) => { node.textContent = summary(prefs); });
