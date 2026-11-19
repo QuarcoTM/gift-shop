@@ -1,7 +1,7 @@
 import { config } from "./site-config.js";
-import { initSiteFeatures } from "./site-features.js?v=20261119-badge-persist";
+import { initSiteFeatures } from "./site-features.js?v=20261119-brand-guard";
 import { CAMPAIGNS } from "./campaigns.js?v=20261119-new-year";
-import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
+import { allowsStorage } from "./cookie-consent.js?v=20261119-brand-guard";
 import { initOfficePicker } from "./office-picker.js?v=20261118-o";
 
 const $ = (selector) => document.querySelector(selector);
@@ -9,8 +9,8 @@ const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 const page = document.body.dataset.page || "home";
 const params = new URLSearchParams(window.location.search);
 const priceFormatter = new Intl.NumberFormat("bg-BG", { style: "currency", currency: "EUR" });
-const CART_KEY = "sabrano_cart_v1";
-const FAVORITES_KEY = "sabrano_favorites_v1";
+const CART_KEY = "zausmivka_cart_v1";
+const FAVORITES_KEY = "zausmivka_favorites_v1";
 const groups = {
   koleda: { label: "Коледа", title: "Коледа с <em>повече сърце.</em>", subtitle: "Празнични подаръци за незабравими моменти." },
   bebe: { label: "За бебе", title: "За най-малките <em>с обич.</em>", subtitle: "Нежни подаръци за първите специални моменти." },
@@ -388,6 +388,11 @@ function setupCheckout() {
     event.preventDefault();
     if (checkoutBusy || !checkoutEnabled) return;
     checkoutError("");
+    // A hidden field catches basic form-filling bots without affecting normal users.
+    if (String(form.elements.company_website?.value || "").trim()) {
+      checkoutError("Заявката не може да бъде изпратена.");
+      return;
+    }
     if (!form.checkValidity()) {form.reportValidity();return;}
     if (form.elements.delivery_type.value==="office" &&
         !String(form.elements.delivery_location.value||"").trim()) {
@@ -596,7 +601,7 @@ async function loadCatalog() {
   checkoutAction();
   renderProduct();
 }
-window.addEventListener("sabrano:consentchange", (event) => {
+window.addEventListener("zausmivka:consentchange", (event) => {
   if (event.detail.necessary) {
     // The cart is functional in memory before a decision and persists only afterwards.
     const stored = loadSaved(CART_KEY).filter((item) =>
