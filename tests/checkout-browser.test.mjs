@@ -8,8 +8,8 @@ test("checkout with a sample catalog works in mobile Chromium without submitting
   if(!browser)throw Error("Chromium unavailable");
   const original=readFileSync("cart/index.html","utf8");
   const fakeHead='<script>'+
-    'localStorage.setItem("sabrano_cookie_preferences_v2",JSON.stringify({version:2,necessary:true,functional:false,analytics:false,marketing:false}));'+
-    'localStorage.setItem("sabrano_cart_v1",JSON.stringify([{id:"08b9dab4-b860-44ad-8ecf-57ee12002000",qty:2}]));'+
+    'localStorage.setItem("zausmivka_cookie_preferences_v2",JSON.stringify({version:2,necessary:true,functional:false,analytics:false,marketing:false}));'+
+    'localStorage.setItem("zausmivka_cart_v1",JSON.stringify([{id:"08b9dab4-b860-44ad-8ecf-57ee12002000",qty:2}]));'+
     'window.fetch=async function(url,opts){var u=String(url);var response=function(value){return{ok:true,status:200,json:async function(){return value}}};'+
     'if(u.includes("gift_shop_settings")&&u.includes("checkout_enabled"))return response([{checkout_enabled:true}]);'+
     'if(u.includes("gift_shop_settings"))return response([{active_campaign:"valentine"}]);'+
@@ -18,7 +18,7 @@ test("checkout with a sample catalog works in mobile Chromium without submitting
     'if(u.includes("gift_product_images"))return response([]);'+
     'if(u.includes("/functions/v1/econt-offices"))return response({offices:[{id:"1234",name:"София Център",city:"София",address:"София, ул. Тест 123"},{id:"9022",name:"Варна Център",city:"Варна",address:"Варна, ул. Тест 7"}]});'+
     'if(u.includes("/functions/v1/speedy-offices"))return response({offices:[{id:"23",name:"КЮСТЕНДИЛ",address:"гр. Кюстендил [2500] ул. Христо Ботев No 51"},{id:"385",name:"КЮСТЕНДИЛ - ЦЕНТЪР",address:"гр. Кюстендил [2500] ул. Цар Симеон I No 23"}]});'+
-    'if(u.includes("gift_submit_order"))return response({order_code:"SBR-TEST-OK",subtotal_eur:39.8,shipping_pending:true});'+
+    'if(u.includes("gift_submit_order"))return response({order_code:"ZU-TEST-OK",subtotal_eur:39.8,shipping_pending:true});'+
     'return response([])};'+
     '</script>';
   const testBody='<output id="checkout-test-result"></output><script>window.addEventListener("load",function(){setTimeout(async function(){try{'+
@@ -43,7 +43,7 @@ test("checkout with a sample catalog works in mobile Chromium without submitting
     'if(f.elements.delivery_city.value.toLocaleLowerCase("bg-BG")!=="кюстендил")throw Error("Speedy city not filled");'+
     'f.elements.shipping_ack.checked=true;f.elements.contact_ack.checked=true;'+
     'f.requestSubmit();await new Promise(function(r){setTimeout(r,300)});'+
-    'if(document.getElementById("checkout-order-code").textContent!=="SBR-TEST-OK"||document.getElementById("checkout-success").hidden)throw Error("no success");'+
+    'if(document.getElementById("checkout-order-code").textContent!=="ZU-TEST-OK"||document.getElementById("checkout-success").hidden)throw Error("no success");'+
     'document.getElementById("checkout-test-result").textContent="CHECKOUT_SMOKE:PASS";'+
     '}catch(e){document.getElementById("checkout-test-result").textContent="CHECKOUT_SMOKE:FAIL:"+e.message}},400)});</script>';
   const temporary="cart/checkout-smoke-tmp.html";
