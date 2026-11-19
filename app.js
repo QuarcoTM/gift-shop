@@ -621,26 +621,29 @@ async function publicTable(query) {
   if (!Array.isArray(rows)) throw new Error("Catalog response invalid");
   return rows;
 }
+async function catalogRows(query,limit) {
+  const separator=query.includes("?")?"&":"?";
+  const rows=[];
+  for(let offset=0;;offset+=limit){
+    const batch=await publicTable(query+separator+"limit="+limit+"&offset="+offset);
+    rows.push(...batch);
+    if(batch.length<limit)return rows;
+  }
+}
 async function loadCatalog() {
   if (!config.supabaseUrl || !config.supabasePublishableKey) return;
   try {
     const [categories, products, images, capacities, publication] = await Promise.all([
-      publicTable("gift_categories?select=id,name,slug,description&is_active=eq.true&order=sort_order.asc"),
-      publicTable("gift_products?select=id,name,slug,description,price_eur,stock_quantity,category_id,is_published,contents,featured_slot,packed_photo&is_published=eq.true&order=created_at.desc&limit=100"),
-      publicTable("gift_product_images?select=id,product_id,image_url,alt_text,sort_order&order=sort_order.asc&limit=500"),
-      publicTable("rpc/gift_store_capacity"),
+      catalogRows("gift_categories?select=id,name,slug,description&is_active=eq.true&order=sort_order.asc,id.asc",250),
+      catalogRows("gift_products?select=id,name,slug,description,price_eur,stock_quantity,category_id,is_published,contents,featured_slot,packed_photo&is_published=eq.true&order=created_at.desc,id.asc",100),
+      catalogRows("gift_product_images?select=id,product_id,image_url,alt_text,sort_order&order=sort_order.asc,id.asc",500),
+      catalogRows("rpc/gift_store_capacity?order=product_id.asc",500),
       fetch(new URL("./store-publication.json",document.baseURI),{cache:"no-cache"}).then(r=>r.json()).catch(()=>({}))
     ]);
     publishedProducts=new Set(publication.ids||[]);
     const available=new Map(capacities.map(row=>[row.product_id,row.available]));
     data.catalogState="ready";
     const catById = new Map(categories.map((item) => [item.id, item]));
-    const requested=document.body.dataset.productId||params.get("id");
-    if(page==="product" && /^[0-9a-f-]{36}$/i.test(requested||"")){
-      const [detail,pictures]=await Promise.all([publicTable("gift_products?select=*&is_published=eq.true&id=eq."+requested),publicTable("gift_product_images?select=*&product_id=eq."+requested+"&order=sort_order.asc")]);
-      if(detail.length && !products.some(p=>p.id===requested))products.push(detail[0]);
-      images.splice(0,images.length,...images.filter(im=>im.product_id!==requested),...pictures);
-    }
     const imagesById = new Map();
     for (const image of images) {
       if (!imagesById.has(image.product_id)) imagesById.set(image.product_id, []);

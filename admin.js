@@ -15,7 +15,7 @@ const escapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => escapes[c]);
 const statuses = { pending: "Нова", confirmed: "Потвърдена", preparing: "Подготовка", shipped: "Изпратена", delivered: "Доставена", cancelled: "Отказана" };
 const pages = { stock:"Компоненти", inquiries:"Запитвания", dashboard: "Общ преглед", products: "Продукти", categories: "Колекции", orders: "Поръчки", analytics: "Статистика", campaigns: "Празнична визия", branding: "Бранд материали", settings: "Настройки" };
-const state = { components:[], recipes:[], inquiries:[], contactEmail:"", session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", orderSearch: "", orderFilter: "all", busy: false };
+const state = { publishedCampaign:null, components:[], recipes:[], inquiries:[], contactEmail:"", session: null, categories: [], products: [], images: [], orders: [], orderItems: [], dailyStats: [], pageStats: [], campaign: "christmas", checkoutEnabled: false, view: "dashboard", search: "", productFilter: "all", orderSearch: "", orderFilter: "all", busy: false };
 let toastTimer = null;
 
 function safeImage(url) {
@@ -158,6 +158,10 @@ async function loadAll() {
   state.dailyStats = dailyStats || [];
   state.pageStats = pageStats || [];
   state.campaign = shopSettings?.[0]?.active_campaign || "christmas";
+  try {
+    const response=await fetch(new URL("./store-publication.json",document.baseURI),{cache:"no-cache"});
+    state.publishedCampaign=response.ok ? (await response.json()).campaign : null;
+  } catch {state.publishedCampaign=null}
   state.checkoutEnabled = shopSettings?.[0]?.checkout_enabled===true;
   $("#nav-product-count").textContent = number(products.length);
   $("#nav-order-count").textContent = number(orders.filter((item) => item.status === "pending" || returnNeedsAction(item)).length);
@@ -434,7 +438,9 @@ function campaignsView() {
     everyday:"Универсален облик без конкретен празник."
   };
   let html = heading("ВИЗИЯ НА МАГАЗИНА", "Празнични кампании", "Избери кампания и я активирай с един бутон. Обновяват се празничните текстове, акценти и връзки в целия публичен магазин.");
-  html += '<div class="campaign-live-preview"><div><strong>Текуща кампания: ' + esc(CAMPAIGNS[state.campaign]?.label || "Коледа") + '</strong><small>Промените се отразяват в отворените прозорци на магазина. Изборът се запазва в Supabase.</small></div><a href="./?campaign=' + encodeURIComponent(state.campaign) + '" target="_blank" rel="noopener">Виж магазина ↗</a></div>';
+  const published=CAMPAIGNS[state.publishedCampaign]?.label;
+  const status=state.campaign===state.publishedCampaign?"Публикувана в магазина.":published?"В магазина още се вижда „"+published+"“. Предстои автоматично публикуване.":"Публикуваната визия не е потвърдена.";
+  html += '<div class="campaign-live-preview"><div><strong>Избрана визия · '+esc(CAMPAIGNS[state.campaign]?.label)+'</strong><small>'+esc(status)+'</small></div><a href="./?campaign='+encodeURIComponent(state.campaign)+'" target="_blank" rel="noopener">Преглед на избраната визия ↗</a></div>';
   html += '<div class="campaign-grid">' +
     Object.entries(CAMPAIGNS).map(([key,c]) => {
       const active = key === state.campaign;
