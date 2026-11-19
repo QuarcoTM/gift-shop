@@ -263,7 +263,7 @@ function renderCollectionHeading() {
   if (title) title.innerHTML = group.title;
   if (description) description.textContent = group.subtitle;
   if (eyebrow) eyebrow.textContent = group.label;
-  document.title = group.label + " | събрано.";
+  document.title = group.label + " | За усмивка.";
 }
 function renderProduct() {
   if (page !== "product") return;
@@ -274,7 +274,7 @@ function renderProduct() {
     wrapper.innerHTML = '<div class="catalog-empty"><h2>Не открихме този подарък.</h2><p>Разгледай останалите предложения.</p><a class="button button-dark" href="./products/">Всички подаръци <span aria-hidden="true"></span></a></div>';
     return;
   }
-  document.title = item.name + " | събрано.";
+  document.title = item.name + " | За усмивка.";
   const liked = data.favorites.has(item.id);
   wrapper.innerHTML = '<div class="product-page-photo">' + photo(productPhoto(item), item.name, "eager") + '</div>' +
     '<div class="product-page-details"><span class="eyebrow">' + escapeHTML(groupInfo(item.group).label) + '</span>' +
