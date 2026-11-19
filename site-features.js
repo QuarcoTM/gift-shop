@@ -1,11 +1,11 @@
 import { config } from "./site-config.js";
 import { CAMPAIGNS, campaignOf } from "./campaigns.js?v=20261119-new-year";
-import { initCookieManager, allowsStorage } from "./cookie-consent.js?v=20261118-i";
+import { initCookieManager, allowsStorage } from "./cookie-consent.js?v=20261119-brand-guard";
 
 const API = String(config.supabaseUrl || "").replace(/\/+$/, "");
 const KEY = config.supabasePublishableKey;
-const SESSION_KEY = "sabrano_analytics_session_v1";
-const CAMPAIGN_CHANNEL = "sabrano-campaign-updates-v1";
+const SESSION_KEY = "zausmivka_analytics_session_v1";
+const CAMPAIGN_CHANNEL = "zausmivka-campaign-updates-v1";
 const PAGES = new Set(["/","/products/","/collections/","/collection/","/product/","/cart/","/about/","/bulk/","/contact/","/cookies/"]);
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -101,7 +101,7 @@ function applyCampaign(key, onCampaign) {
     if (art) art.setAttribute("aria-label", campaign.label);
   }
   if (isNew) {
-    window.dispatchEvent(new CustomEvent("sabrano:campaign-applied", { detail: { key, label: campaign.label } }));
+    window.dispatchEvent(new CustomEvent("zausmivka:campaign-applied", { detail: { key, label: campaign.label } }));
   }
   // Campaign state must remain usable even if an optional catalog rendering callback fails.
   try { onCampaign?.(campaign); }
@@ -115,8 +115,8 @@ function applyCampaign(key, onCampaign) {
     if (key !== baked) address.searchParams.set("campaign", key);
     else address.searchParams.delete("campaign");
     const next = address.pathname + address.search + address.hash;
-    if (previous.sabranoCampaign !== key || next !== location.pathname + location.search + location.hash) {
-      history.replaceState({ ...previous, sabranoCampaign: key }, "", next);
+    if (previous.zausmivkaCampaign !== key || next !== location.pathname + location.search + location.hash) {
+      history.replaceState({ ...previous, zausmivkaCampaign: key }, "", next);
     }
   } catch { /* Navigation and the currently rendered campaign remain functional. */ }
   document.documentElement.dataset.campaignReady = "true";
@@ -189,7 +189,7 @@ export function initSiteFeatures(options = {}) {
   if (allowsStorage("analytics")) {
     recordVisit().catch((error) => console.warn("Anonymous analytics:", error));
   }
-  window.addEventListener("sabrano:consentchange", (event) => {
+  window.addEventListener("zausmivka:consentchange", (event) => {
     if (event.detail.analytics && event.detail.previous?.analytics !== true) {
       recordVisit().catch((error) => console.warn("Anonymous analytics:", error));
     }
