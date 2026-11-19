@@ -20,13 +20,22 @@ test("Approved logo 4 appears consistently in every public header, and in existi
     assert.match(html,/alt="За усмивка\."/,page);
     assert.doesNotMatch(html, /class="brand-type"/,page);
     assert.doesNotMatch(html,/събрано\./i,page);
-    assert.match(html,page==="index.html" ? /styles\.css\?v=20261119-hero-brand/ : /styles\.css\?v=20261119-footerfix/,page);
+    assert.match(html,page==="index.html" ? /styles\.css\?v=20261119-colored-footer/ : /styles\.css\?v=20261119-colored-footer/,page);
   }
   assert.doesNotMatch(read("index.html"),/Private-to-the-link visual preview|Optional name review only/);
   const css = read("styles.css");
   assert.match(css,/\.brand-footer \.brand-image/);
   assert.match(css,/\.brand-footer\{[^\n]*background:transparent/);
-  assert.match(css,/filter:brightness\(0\) invert\(1\)/);
+  assert.match(css,/\.brand-footer \.brand-image\{[^\n]*filter:none;opacity:1/);
+  assert.doesNotMatch(css,/\.brand-footer \.brand-image\{[^\n]*filter:brightness/);
+  const darkLogo=file("assets/brand/za-usmivka-footer-dark.avif");
+  assert.ok(existsSync(darkLogo),"Footer must have its own high-contrast logo");
+  assert.ok(statSync(darkLogo).size>10000 && statSync(darkLogo).size<100000,"Footer logo should remain optimized");
+  for(const page of pages.filter(page=>page!=="order/index.html")){
+    const html=read(page);
+    assert.match(html,/<a class="brand brand-footer"[^>]*><img class="brand-image" src="\.\/assets\/brand\/za-usmivka-footer-dark\.avif"/,page);
+    assert.match(html,/<a class="brand"[^>]*>[\s\S]*?za-usmivka-main\.avif/,page);
+  }
 });
 
 test("Hero uses approved lightweight round logo without obscuring the seasonal photograph",()=>{
