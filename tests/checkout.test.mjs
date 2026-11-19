@@ -48,9 +48,9 @@ test("order admin exposes delivery details, order reference and stock-safe cance
   assert.match(admin,/gift_order_items\?select=/);
   assert.match(admin,/order_number/);
   assert.match(admin,/shipping_quote_pending/);
-  assert.match(admin,/Сума за продукти/);
-  assert.match(admin,/Наложен платеж/);
-  assert.match(admin,/rest\("gift_orders\?id=eq\."/);
+  assert.match(admin,/Продукти \(наложен платеж\)/);
+  assert.match(admin,/rpc\/gift_admin_order_action/);
+  assert.doesNotMatch(admin,/rest\("gift_orders\?id=eq\." \+ encodeURIComponent\(id\), "PATCH", \{ status \}\)/);
 });
 
 test("checkout policy is separate from cookie consent, and public form does not store contact data",()=>{
