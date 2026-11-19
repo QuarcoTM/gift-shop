@@ -8,6 +8,7 @@ const main = "assets/brand/za-usmivka-main.avif";
 const badge = "assets/brand/za-usmivka-sticker.avif";
 const mainPng = "assets/brand/za-usmivka-main.png";
 const badgePng = "assets/brand/za-usmivka-sticker.png";
+const printPng = "assets/brand/za-usmivka-sticker-print.png";
 const pages = ["index.html","products/index.html","collections/index.html","collection/index.html",
   "product/index.html","cart/index.html","about/index.html","bulk/index.html",
   "contact/index.html","privacy/index.html","cookies/index.html","order/index.html"];
@@ -19,26 +20,31 @@ test("Approved logo 4 appears consistently in every public header, and in existi
     assert.match(html,/alt="За усмивка\."/,page);
     assert.doesNotMatch(html, /class="brand-type"/,page);
     assert.doesNotMatch(html,/събрано\./i,page);
-    assert.match(html,/styles\.css\?v=20261119-brand/,page);
+    assert.match(html,/styles\.css\?v=20261119-footerfix/,page);
   }
   assert.doesNotMatch(read("index.html"),/Private-to-the-link visual preview|Optional name review only/);
-  assert.match(read("styles.css"),/\.brand-footer \.brand-image/);
+  const css = read("styles.css");
+  assert.match(css,/\.brand-footer \.brand-image/);
+  assert.match(css,/\.brand-footer\{[^\n]*background:transparent/);
+  assert.match(css,/filter:brightness\(0\) invert\(1\)/);
 });
 
 test("Original approved images remain available to administrators as high-resolution transparent PNGs",()=>{
-  for(const path of [main,badge,mainPng,badgePng]){
+  for(const path of [main,badge,mainPng,badgePng,printPng]){
     assert.ok(existsSync(file(path)),"Missing approved logo asset: "+path);
     assert.ok(statSync(file(path)).size>10000,"Logo asset is unexpectedly tiny: "+path);
   }
-  for(const path of [mainPng,badgePng]){
+  for(const path of [mainPng,badgePng,printPng]){
     const bytes=readFileSync(file(path));
     assert.equal(bytes.subarray(0,8).toString("hex"),"89504e470d0a1a0a","Must be a real PNG: "+path);
     assert.equal(bytes[25],6,"Must preserve transparent RGBA logo: "+path);
+    assert.equal(bytes.subarray(-12).toString("hex"),"0000000049454e44ae426082","PNG must be complete: "+path);
   }
   const admin=read("admin.js"),markup=read("admin/index.html");
   assert.match(admin,/function branding\(\)/);
   assert.match(admin,/za-usmivka-main\.png/);
-  assert.match(admin,/za-usmivka-sticker\.png/);
+  assert.match(admin,/za-usmivka-sticker-print\.png/);
+  assert.match(admin,/width="1254" height="1254"/);
   assert.match(admin,/download="za-usmivka-sticker\.png"/);
   assert.match(markup,/data-view="branding"/);
   assert.match(markup,/Бранд материали/);
