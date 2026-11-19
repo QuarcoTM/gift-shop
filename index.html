@@ -16,6 +16,15 @@
   
 
   <link rel="stylesheet" href="./styles.css?v=20261119-new-year" />
+  <style>
+    /* Optional name review only. Regular visitors always see the current brand. */
+    html[data-brand-preview="za-usmivka"] .brand-type{font-size:clamp(22px,2.25vw,27px);letter-spacing:-.065em}
+    html[data-brand-preview="za-usmivka"] .brand-footer .brand-type{font-size:30px}
+    @media(max-width:600px){
+      html[data-brand-preview="za-usmivka"] .brand-type{font-size:22px}
+      html[data-brand-preview="za-usmivka"] .brand-footer .brand-type{font-size:28px}
+    }
+  </style>
   <script src="./refresh.js"></script>
   <script type="module" src="./app.js?v=20261119-new-year"></script>
 </head>
@@ -116,5 +125,29 @@
   
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script>
+    /* Private-to-the-link visual preview: no permanent rename, no backend changes. */
+    (function(){
+      if(new URLSearchParams(window.location.search).get("brand")!=="za-usmivka")return;
+      document.documentElement.dataset.brandPreview="za-usmivka";
+      document.title="За усмивка. | Преглед на име";
+      document.querySelectorAll(".brand-type").forEach(function(el){
+        var text=Array.from(el.childNodes).find(function(node){return node.nodeType===3});
+        if(text)text.nodeValue="за усмивка";
+      });
+      document.querySelectorAll(".footer-brand p").forEach(function(el){
+        el.textContent="Подаръци за специалните хора и поводи. За всеки момент, който заслужава усмивка.";
+      });
+      document.querySelectorAll(".footer-bottom > span").forEach(function(el){
+        if(el.textContent.includes("събрано."))el.innerHTML='© <span id="current-year">2026</span> За усмивка.';
+      });
+      document.querySelectorAll(".footer-nav a").forEach(function(a){
+        if(a.textContent.trim()==="Защо събрано.")a.textContent="За нас";
+      });
+      document.querySelectorAll(".brand").forEach(function(a){
+        a.setAttribute("aria-label","За усмивка — начало");
+      });
+    })();
+  </script>
 </body>
 </html>
