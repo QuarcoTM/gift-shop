@@ -33,7 +33,7 @@ test("Approved logo 4 appears consistently in every public header, and in existi
   assert.ok(statSync(darkLogo).size>10000 && statSync(darkLogo).size<100000,"Footer logo should remain optimized");
   for(const page of pages.filter(page=>page!=="order/index.html")){
     const html=read(page);
-    assert.match(html,/<a class="brand brand-footer"[^>]*><img class="brand-image" src="\.\/assets\/brand\/za-usmivka-footer-dark\.avif"/,page);
+    assert.match(html,/<a class="brand brand-footer"[^>]*><img class="brand-image" src="\.\/assets\/brand\/za-usmivka-footer-black-outline\.avif"/,page);
     assert.match(html,/<a class="brand"[^>]*>[\s\S]*?za-usmivka-main\.avif/,page);
   }
 });
