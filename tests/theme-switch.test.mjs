@@ -95,6 +95,14 @@ test("active holiday switches actual headlines, category links and local picture
   assert.ok(links.every(x=>x.href.includes("category=velikden")));
   assert.match(card.children.get(".collection-title").innerHTML,/Великден/);
 
+  Channel.current.messageHandler({data:{type:"campaign-changed",key:"new_year"}});
+  assert.equal(page.documentElement.dataset.campaign,"new_year");
+  assert.match(selectors.get(".hero-copy h1").innerHTML,/Нова година/);
+  assert.ok(heroImg.src.endsWith("/assets/images/new_year.avif"));
+  assert.ok(cardImg.src.endsWith("/assets/images/new_year.avif"));
+  assert.ok(seasonImg.src.endsWith("/assets/images/new_year.avif"));
+  assert.ok(links.every(x=>x.href.includes("category=nova-godina")));
+
   Channel.current.messageHandler({data:{type:"campaign-changed",key:"valentine"}});
   assert.equal(page.documentElement.dataset.campaign,"valentine");
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Любовта/);
