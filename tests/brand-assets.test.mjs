@@ -1,0 +1,54 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync, existsSync, statSync } from "node:fs";
+
+const file = path => new URL("../"+path, import.meta.url);
+const read = path => readFileSync(file(path),"utf8");
+const main = "assets/brand/za-usmivka-main.avif";
+const badge = "assets/brand/za-usmivka-sticker.avif";
+const mainPng = "assets/brand/za-usmivka-main.png";
+const badgePng = "assets/brand/za-usmivka-sticker.png";
+const pages = ["index.html","products/index.html","collections/index.html","collection/index.html",
+  "product/index.html","cart/index.html","about/index.html","bulk/index.html",
+  "contact/index.html","privacy/index.html","cookies/index.html","order/index.html"];
+
+test("Approved logo 4 appears consistently in every public header, and in existing footers",()=>{
+  for(const page of pages) {
+    const html = read(page);
+    assert.match(html,/class="brand-image"[^>]*za-usmivka-main\.avif/,page);
+    assert.match(html,/alt="За усмивка\."/,page);
+    assert.doesNotMatch(html, /class="brand-type"/,page);
+    assert.doesNotMatch(html,/събрано\./i,page);
+    assert.match(html,/styles\.css\?v=20261119-brand/,page);
+  }
+  assert.doesNotMatch(read("index.html"),/Private-to-the-link visual preview|Optional name review only/);
+  assert.match(read("styles.css"),/\.brand-footer \.brand-image/);
+});
+
+test("Original approved images remain available to administrators as high-resolution transparent PNGs",()=>{
+  for(const path of [main,badge,mainPng,badgePng]){
+    assert.ok(existsSync(file(path)),"Missing approved logo asset: "+path);
+    assert.ok(statSync(file(path)).size>10000,"Logo asset is unexpectedly tiny: "+path);
+  }
+  for(const path of [mainPng,badgePng]){
+    const bytes=readFileSync(file(path));
+    assert.equal(bytes.subarray(0,8).toString("hex"),"89504e470d0a1a0a","Must be a real PNG: "+path);
+    assert.equal(bytes[25],6,"Must preserve transparent RGBA logo: "+path);
+  }
+  const admin=read("admin.js"),markup=read("admin/index.html");
+  assert.match(admin,/function branding\(\)/);
+  assert.match(admin,/za-usmivka-main\.png/);
+  assert.match(admin,/za-usmivka-sticker\.png/);
+  assert.match(admin,/download="za-usmivka-sticker\.png"/);
+  assert.match(markup,/data-view="branding"/);
+  assert.match(markup,/Бранд материали/);
+  assert.match(read("admin.html"),/data-view="branding"/);
+});
+
+test("The storefront title, admin and shop name use За усмивка without changing storage identities",()=>{
+  assert.match(read("site-config.js"),/shopName: 'За усмивка\.'/);
+  assert.match(read("admin/index.html"),/За усмивка\./);
+  assert.match(read("index.html"),/<title>Подаръци за специални моменти \| За усмивка\.<\/title>/);
+  assert.match(read("app.js"),/\| За усмивка\./);
+  assert.match(read("app.js"),/sabrano:consentchange/);
+});
