@@ -1,6 +1,6 @@
 import { config } from "./site-config.js";
-import { initSiteFeatures } from "./site-features.js?v=20261118-categories";
-import { CAMPAIGNS } from "./campaigns.js?v=20261118-categories";
+import { initSiteFeatures } from "./site-features.js?v=20261119-new-year";
+import { CAMPAIGNS } from "./campaigns.js?v=20261119-new-year";
 import { allowsStorage } from "./cookie-consent.js?v=20261118-i";
 import { initOfficePicker } from "./office-picker.js?v=20261118-o";
 
