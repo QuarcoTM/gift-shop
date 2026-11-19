@@ -10,8 +10,8 @@ export const CAMPAIGNS = Object.freeze({
     collectionSubtitle:"Празнични подаръци за незабравими моменти.", mark:"✦"
   },
   new_year: {
-    // Existing neutral celebration photo; no Christmas artwork is reused.
-    image:"./assets/images/occasions.webp", heroTitle:"Нова година,<br/><em>нови желания.</em>", heroSubtitle:"Подаръци за посрещането на Нова година и началото на нещо хубаво.",
+    // Original New Year gift-box photography in the same visual style as other holidays.
+    image:"./assets/images/new_year.avif", heroTitle:"Нова година,<br/><em>нови желания.</em>", heroSubtitle:"Подаръци за посрещането на Нова година и началото на нещо хубаво.",
     label:"Нова година", slug:"nova-godina", nav:"Нова година", announcement:"Новогодишна колекция",
     heroButton:"За Нова година", cardTitle:"Нова година,<br />ново начало.",
     eyebrow:"Новогодишна колекция", title:"Нова година.<br /><em>Нови поводи за радост.</em>",
