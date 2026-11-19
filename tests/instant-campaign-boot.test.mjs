@@ -14,7 +14,7 @@ const read = (name) => readFileSync(new URL("../" + name, import.meta.url), "utf
 test("all seven seasonal photographs and labels are pre-rendered for instant first paint", () => {
   for (const key of keys) {
     assert.match(home, new RegExp('data-season-content="' + key + '"'));
-    assert.match(css, new RegExp('html\\\\[data-campaign="' + key + '"\\\\]\\\\{[^}]*--instant-season-photo:url'));
+    assert.match(css, new RegExp('html\\[data-campaign="' + key + '"\\]\\{[^}]*--instant-season-photo:url'));
     assert.ok(presets.includes(key + ": {"));
   }
   assert.match(home, /class="seasonal-photo"/);
