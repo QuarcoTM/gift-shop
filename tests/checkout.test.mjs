@@ -17,6 +17,7 @@ test("guest cart displays a real checkout with shipping, courier, COD and clear 
   assert.match(html,/Наложен платеж/);
   assert.match(html,/не е включена/);
   assert.match(html,/id="checkout-submit"/);
+  assert.match(html,/name="company_website"/);
   assert.match(html,/id="checkout-button"[^>]*disabled/);
   assert.doesNotMatch(html,/въведи номер на карта|CVV|Плати с карта/);
 });
@@ -40,6 +41,12 @@ test("checkout is a public RPC with server-side price and stock, not anonymous t
   assert.match(sql,/p_shipping_ack is distinct from true/);
   assert.match(sql,/gift_restore_cancelled_stock/);
   assert.match(sql,/request_key=p_request_key/);
+  assert.match(sql,/gift-order-global-burst/);
+  assert.match(sql,/lower\(customer_email\)=v_email/);
+  assert.match(sql,/delivery_address\)\)=lower\(v_place\)/);
+  assert.match(app,/form\.elements\.company_website/);
+  assert.match(sql,/ZU-/);
+  assert.doesNotMatch(sql,/SBR-/);
   assert.doesNotMatch(app,/rest\/v1\/gift_orders/);
 });
 
