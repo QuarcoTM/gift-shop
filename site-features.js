@@ -49,7 +49,10 @@ function updateSeasonalImages(campaign) {
     img.alt = alt;
     img.hidden = false;
   };
-  assign($(".hero-image img"), "Подаръчни комплекти за " + campaign.label);
+  // The main hero photograph is a CSS .seasonal-photo layer, while the
+  // img nested inside .hero-stamp is the permanent brand badge.
+  // Only change an explicitly marked campaign photo, never the logo.
+  assign($(".hero-image > img[data-campaign-photo]"), "Подаръчни комплекти за " + campaign.label);
   assign($(".home-season-image img"), "Подаръци за " + campaign.label);
   for (const card of $$(".collections-grid .collection-card-large")) {
     assign(card.querySelector("img"), "Празнична колекция: " + campaign.label);

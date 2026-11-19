@@ -31,7 +31,12 @@ test("active holiday switches actual headlines, category links and local picture
   for(const sel of textElements) selectors.set(sel,new Element());
   selectors.set(".hero-copy h1",new Element());
   const heroImg=new Img(), cardImg=new Img(), seasonImg=new Img();
+  // Mirror the real page: its only <img> in .hero-image is the brand badge;
+  // the campaign photograph is a separate CSS .seasonal-photo div.
+  const permanentBadge=base+"assets/brand/za-usmivka-hero-badge.avif";
+  heroImg.src=permanentBadge;
   selectors.set(".hero-image img",heroImg);
+  selectors.set(".hero-image .hero-stamp img",heroImg);
   selectors.set(".home-season-image img",seasonImg);
   selectors.set(".home-season",new Element());
   selectors.set(".home-season-copy h2",new Element());
@@ -89,7 +94,7 @@ test("active holiday switches actual headlines, category links and local picture
   assert.equal(page.documentElement.dataset.campaign,"easter");
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Великден/);
   assert.match(selectors.get(".desktop-nav .nav-season").textContent,/Великден/);
-  assert.ok(heroImg.src.endsWith("/assets/images/easter.webp"));
+  assert.equal(heroImg.src,permanentBadge,"Seasonal changes must never overwrite the hero logo");
   assert.ok(cardImg.src.endsWith("/assets/images/easter.webp"));
   assert.ok(seasonImg.src.endsWith("/assets/images/easter.webp"));
   assert.ok(links.every(x=>x.href.includes("category=velikden")));
@@ -98,7 +103,7 @@ test("active holiday switches actual headlines, category links and local picture
   Channel.current.messageHandler({data:{type:"campaign-changed",key:"new_year"}});
   assert.equal(page.documentElement.dataset.campaign,"new_year");
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Нова година/);
-  assert.ok(heroImg.src.endsWith("/assets/images/new_year.avif"));
+  assert.equal(heroImg.src,permanentBadge,"New Year must not overwrite the hero logo");
   assert.ok(cardImg.src.endsWith("/assets/images/new_year.avif"));
   assert.ok(seasonImg.src.endsWith("/assets/images/new_year.avif"));
   assert.ok(links.every(x=>x.href.includes("category=nova-godina")));
@@ -106,7 +111,7 @@ test("active holiday switches actual headlines, category links and local picture
   Channel.current.messageHandler({data:{type:"campaign-changed",key:"valentine"}});
   assert.equal(page.documentElement.dataset.campaign,"valentine");
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Любовта/);
-  assert.ok(heroImg.src.endsWith("/assets/images/valentine.webp"));
+  assert.equal(heroImg.src,permanentBadge,"Valentine must not overwrite the hero logo");
   assert.ok(links.every(x=>x.href.includes("category=sveti-valentin")));
   assert.equal(globalThis.history.state?.sabranoCampaign,"valentine");
   assert.equal(globalThis.history.lastURL, "/gift-shop/");

@@ -42,6 +42,9 @@ test("Hero uses approved lightweight round logo without obscuring the seasonal p
   assert.ok(statSync(picture).size<45000,"Hero badge should remain small for mobile performance");
   assert.ok(css.includes("html[data-campaign] .hero-image .hero-stamp img"),"Campaign CSS must not turn badge into full-size hero image");
   assert.ok(css.includes("filter:drop-shadow("),"Badge should keep contrast on all seasonal photos");
+  const features=read("site-features.js");
+  assert.ok(!features.includes('assign($(".hero-image img")'),"Seasonal script must never replace the logo");
+  assert.ok(features.includes('img[data-campaign-photo]'),"Only marked campaign photos may be replaced");
 });
 
 test("Original approved images remain available to administrators as high-resolution transparent PNGs",()=>{
