@@ -20,7 +20,7 @@ test("Approved logo 4 appears consistently in every public header, and in existi
     assert.match(html,/alt="За усмивка\."/,page);
     assert.doesNotMatch(html, /class="brand-type"/,page);
     assert.doesNotMatch(html,/събрано\./i,page);
-    assert.match(html,/styles\.css\?v=20261119-hero-brand/,page);
+    assert.match(html,page==="index.html" ? /styles\.css\?v=20261119-hero-brand/ : /styles\.css\?v=20261119-footerfix/,page);
   }
   assert.doesNotMatch(read("index.html"),/Private-to-the-link visual preview|Optional name review only/);
   const css = read("styles.css");
