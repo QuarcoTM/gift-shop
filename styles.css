@@ -909,7 +909,7 @@ html[data-campaign="new_year"] [data-season-content="new_year"]{display:contents
 .brand-image{display:block;width:clamp(178px,20vw,250px);height:auto;max-height:74px;aspect-ratio:1415/415;object-fit:contain;object-position:left center}
 /* Footer: the logo sits directly on the dark background, without a pale plaque. */
 .brand-footer{display:inline-flex;align-items:center;width:max-content;max-width:100%;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
-.brand-footer .brand-image{width:min(228px,72vw);max-height:70px;filter:brightness(0) invert(1);opacity:.96}
+.brand-footer .brand-image{width:min(228px,72vw);max-height:70px;filter:none;opacity:1}
 @media(max-width:620px){
  .header-inner{gap:8px}
  .brand-image{width:clamp(150px,43vw,202px);max-height:60px}
