@@ -33,7 +33,7 @@ test("all pages have correct semantic structure and unique route", () => {
 });
 
 test("public links use extension-free routes and resolve to existing directory index pages", () => {
-  const routes = new Set(["./", "./collections/", "./products/", "./collection/", "./product/", "./about/", "./bulk/", "./contact/", "./cart/", "./cookies/"]);
+  const routes = new Set(["./", "./collections/", "./products/", "./collection/", "./product/", "./about/", "./bulk/", "./contact/", "./cart/", "./cookies/", "./order/", "./privacy/"]);
   for (const { name, content } of pages) {
     for (const match of content.matchAll(/<a\b[^>]*href="([^"]+)"/g)) {
       const href = match[1];
