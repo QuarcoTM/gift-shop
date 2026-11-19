@@ -1,5 +1,5 @@
 import { config } from "./site-config.js";
-import { CAMPAIGNS } from "./campaigns.js?v=20261118-categories";
+import { CAMPAIGNS } from "./campaigns.js?v=20261119-new-year";
 
 /* Store operations use only the public publishable key. Authorization is enforced
    by Supabase Auth + database/storage RLS; never by hiding interface elements. */
