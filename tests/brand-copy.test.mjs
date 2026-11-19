@@ -42,5 +42,5 @@ test("Seasonal copy is updated in both static HTML and the campaign module", () 
   assert.match(home, /Коледа,<br \/>с много обич/);
   assert.match(categories, /Коледа,<br \/>с много обич/);
   for (const path of pages.filter(x=>x!=="order/index.html"))
-    assert.match(read(path), /app\.js\?v=20261119-brand/, "Refresh the storefront module on " + path);
+    assert.match(read(path), /app\.js\?v=20261119-badge-persist/, "Refresh the storefront module on " + path);
 });
