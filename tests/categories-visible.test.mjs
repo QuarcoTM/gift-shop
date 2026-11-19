@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,existsSync,statSync} from "node:fs";
 const read = name=>readFileSync(new URL("../"+name,import.meta.url),"utf8");
 const holidaySlugs=["koleda","nova-godina","velikden","sveti-valentin","osmi-mart","baba-marta"];
 const everydaySlugs=["bebe","deca","povodi"];
@@ -26,7 +26,10 @@ test("New Year is an independent campaign and category, not a variant of Christm
   const campaigns=read("campaigns.js");
   assert.match(campaigns,/new_year:\s*\{/);
   assert.match(campaigns,/label:"Нова година", slug:"nova-godina"/);
-  assert.match(campaigns,/occasions\.webp/);
+  assert.match(campaigns,/new_year\.avif/);
+  const photo = new URL("../assets/images/new_year.avif", import.meta.url);
+  assert.ok(existsSync(photo), "New Year must have its own image asset");
+  assert.ok(statSync(photo).size > 10000, "New Year asset should be a real photograph");
   assert.doesNotMatch(campaigns,/label:"Без празнична кампания"/);
   const sql=read("sql/gift-new-year-category.sql");
   assert.match(sql,/nova-godina/);
@@ -44,8 +47,8 @@ test("All holiday pages render New Year directly without blank pre-paint content
     const newYear=(html.match(/data-season-content="new_year"/g)||[]).length;
     assert.ok(christmas>0 && newYear===christmas,page+" lost season copy");
     assert.match(html,/christmas\|new_year\|easter\|valentine/);
-    assert.match(html,/styles\.css\?v=20261118-categories/);
-    assert.match(html,/app\.js\?v=20261118-categories/);
+    assert.match(html,/styles\.css\?v=20261119-new-year/);
+    assert.match(html,/app\.js\?v=20261119-new-year/);
   }
 });
 
