@@ -1,5 +1,5 @@
 import nodemailer from "npm:nodemailer@10.6.0";
-// "събрано." — secure guest order management; bearer = unpredictable checkout UUID.
+// "За усмивка." — secure guest order management; bearer = unpredictable checkout UUID.
 // Never expose server keys in the browser. Public endpoint does not return contact details.
 // Transactional emails use Jump.bg SMTP over TLS/465 when configured; Resend is optional fallback.
 // Checkout must remain disabled until email configuration and legal merchant data are complete.
@@ -42,7 +42,7 @@ function validToken(value:unknown):value is string{
   return typeof value==="string"&&/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value);
 }
 function clean(value:unknown,max=600){return typeof value==="string"?value.trim().slice(0,max):""}
-function code(order:Order){return "SBR-"+String(order.order_number).padStart(6,"0")}
+function code(order:Order){return "ZU-"+String(order.order_number).padStart(6,"0")}
 function manageUrl(token:string){return SHOP_URL+"order/#token="+encodeURIComponent(token)}
 function escapeHtml(value:unknown){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]||ch))}
 function formattedDate(value:string){return new Date(value).toLocaleString("bg-BG",{timeZone:"Europe/Sofia",dateStyle:"medium",timeStyle:"short"}).replace(/\.$/,"")}
@@ -111,7 +111,7 @@ function emailLayout(order:Order,title:string,body:string){
   const url=manageUrl(order.request_key);
   return '<!doctype html><html lang="bg"><meta charset="UTF-8">'+
     '<body style="font-family:Arial,sans-serif;line-height:1.6;color:#263a2d;max-width:600px;margin:auto;padding:24px">'+
-    '<h1 style="font-weight:500">събрано.</h1><h2>'+escapeHtml(title)+'</h2>'+
+    '<h1 style="font-weight:500">За усмивка.</h1><h2>'+escapeHtml(title)+'</h2>'+
     '<p>Поръчка <strong>'+escapeHtml(code(order))+'</strong></p>'+body+
     '<p style="margin:28px 0"><a href="'+escapeHtml(url)+'" style="background:#293e35;color:#fff;padding:14px 19px;text-decoration:none;border-radius:4px">Управление на поръчката</a></p>'+
     '<p style="font-size:12px;color:#667268">Този личен линк дава достъп до поръчката ти. Не го споделяй с други хора.</p>'+
@@ -126,7 +126,7 @@ function recoveryEmail(orders:Order[]):string{
   }).join("");
   return '<!doctype html><html lang="bg"><meta charset="UTF-8">'+
     '<body style="font-family:Arial,sans-serif;line-height:1.6;color:#263a2d;max-width:600px;margin:auto;padding:24px">'+
-    '<h1 style="font-weight:500">събрано.</h1><h2>Твоите номера на поръчки</h2>'+
+    '<h1 style="font-weight:500">За усмивка.</h1><h2>Твоите номера на поръчки</h2>'+
     '<p>Получихме заявка за възстановяване на достъпа до поръчките, направени с този имейл адрес.</p>'+
     '<p>По-долу са последните '+orders.length+' поръчки и личните линкове за всяка от тях:</p>'+
     '<ul style="padding-left:22px">'+entries+'</ul>'+
@@ -206,7 +206,7 @@ Deno.serve(async(request:Request):Promise<Response>=>{
             "&or=(link_email_last_sent_at.is.null,link_email_last_sent_at.lt."+cutoff+")"+
             "&select=id","PATCH",{link_email_last_sent_at:new Date().toISOString()},true);
           if(allowed?.length){
-            await email(customerEmail,"Твоите номера на поръчки | събрано.",recoveryEmail(orders));
+            await email(customerEmail,"Твоите номера на поръчки | За усмивка.",recoveryEmail(orders));
           }
         }
       }
