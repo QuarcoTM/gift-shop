@@ -52,7 +52,7 @@ begin
     if regexp_replace(v_old.customer_phone,'[^0-9+]','','g')<>v_phone then
       raise exception 'Невалидна повторна заявка.';
     end if;
-    return pg_catalog.jsonb_build_object('order_code','SBR-'||pg_catalog.lpad(v_old.order_number::text,6,'0'),
+    return pg_catalog.jsonb_build_object('order_code','ZU-'||pg_catalog.lpad(v_old.order_number::text,6,'0'),
       'subtotal_eur',v_old.subtotal_eur,'shipping_pending',true,'already_submitted',true);
   end if;
   if not exists (select 1 from public.gift_shop_settings where id='main' and checkout_enabled=true) then
@@ -88,13 +88,34 @@ begin
   if (select count(distinct (el.value->>'id')) from pg_catalog.jsonb_array_elements(p_items) el) <> v_n then
     raise exception 'Повтарящ се продукт в количката.';
   end if;
-  -- Per-number throttle; does not replace CAPTCHA or network-layer anti-abuse.
-  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('gift-order-phone:'||v_phone,0));
+  -- Transactional anti-abuse limits: server-enforced even when JavaScript is bypassed.
+  -- The global advisory lock serializes counters, including simultaneous requests.
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('gift-order-global-burst',0));
+  if (select count(*) from public.gift_orders
+      where created_at>pg_catalog.now()-interval '5 minutes')>=20
+  then raise exception 'Твърде много заявки в момента. Опитай по-късно.'; end if;
+  if (select count(*) from public.gift_orders
+      where customer_phone=v_phone and created_at>pg_catalog.now()-interval '90 seconds')>=1
+  then raise exception 'Изчакай малко преди нова поръчка.'; end if;
   if (select count(*) from public.gift_orders
       where customer_phone=v_phone and created_at>pg_catalog.now()-interval '1 hour')>=3
   then raise exception 'Твърде много заявки. Опитай по-късно.'; end if;
+  if (select count(*) from public.gift_orders
+      where customer_phone=v_phone and created_at>pg_catalog.now()-interval '24 hours')>=6
+  then raise exception 'Достигнат е дневният лимит за поръчки.'; end if;
+  if (select count(*) from public.gift_orders
+      where lower(customer_email)=v_email and created_at>pg_catalog.now()-interval '1 hour')>=3
+  then raise exception 'Твърде много заявки за този имейл. Опитай по-късно.'; end if;
+  if (select count(*) from public.gift_orders
+      where lower(customer_email)=v_email and created_at>pg_catalog.now()-interval '24 hours')>=6
+  then raise exception 'Достигнат е дневният лимит за този имейл.'; end if;
+  if (select count(*) from public.gift_orders
+      where lower(btrim(delivery_city))=lower(v_city)
+        and lower(btrim(delivery_address))=lower(v_place)
+        and created_at>pg_catalog.now()-interval '24 hours')>=8
+  then raise exception 'Твърде много заявки за този адрес или офис. Опитай по-късно.'; end if;
 
-  -- Lock available products in stable UUID order. Neither prices nor stock
+    -- Lock available products in stable UUID order. Neither prices nor stock
   -- are taken from the browser. Any error rolls the entire transaction back.
   for v_line in
     select p.id,p.name,p.price_eur,p.stock_quantity,x.qty
@@ -142,7 +163,7 @@ begin
       values (v_id,v_line.id,v_line.name,v_line.qty,v_line.price_eur);
   end loop;
   return pg_catalog.jsonb_build_object(
-    'order_code','SBR-'||pg_catalog.lpad(v_code::text,6,'0'),
+    'order_code','ZU-'||pg_catalog.lpad(v_code::text,6,'0'),
     'subtotal_eur',v_subtotal,'shipping_pending',true,'already_submitted',false);
 end;
 $function$
