@@ -43,10 +43,26 @@ async function checks(id){
    } else if(page==="home"){
      check(all(".product-card").length===2,"featured");
      check(!$("#packed-story").hidden,"packaging");
+   } else if(page==="cart"){
+     check($("#cart-page-items").textContent.includes("Комплект 1"),"transferred gift");
+     check($("#cart-page-total").textContent.includes("20"),"transferred quantity");
+     check(!location.hash.includes("selection"),"clean cart address");
    } else {
      const f=$("#offer-form");for(const [name,v] of Object.entries({quantity:"18",budget:"8",needed_on:"2099-01-01",contact:"example@example.invalid"}))f.elements[name].value=v;
      f.requestSubmit();await new Promise(r=>setTimeout(r,40));
      check(window.offer?.p_quantity===18 && f.innerText.includes("Получихме"),"offer");
+   }
+   if(["home","products","product"].includes(page)){
+     const button=$("[data-add]");
+     button.focus();button.click();
+     const panel=$("#added-gift");
+     check(panel.open && panel.querySelector("[data-added-name]").textContent==="Комплект 1","added dialog");
+     check(panel.querySelector(".added-photo img") && panel.querySelector("[data-added-quantity]").textContent.startsWith("1 бр."),"quantity and photo");
+     const cartLink=panel.querySelector("[data-open-cart]");
+     check(new URL(cartLink.href).pathname==="/cart/" && decodeURIComponent(new URL(cartLink.href).hash).includes(id+":1"),"in-memory cart link");
+     panel.querySelector(".added-continue").click();check(!panel.open && document.activeElement===button,"resume shopping");
+     button.click();check(panel.querySelector("[data-added-total]").textContent.includes("20") && panel.querySelector("[data-added-quantity]").textContent.startsWith("2 бр."),"updated subtotal");
+     panel.close();
    }
    document.querySelector("#result").textContent="CHECK_OK";
  }catch(e){document.querySelector("#result").textContent="FAIL "+e.message}
@@ -70,7 +86,7 @@ test("mobile and desktop storefront with a private fixture catalog",async()=>{
  await new Promise((done,reject)=>{server.once("error",reject);server.listen(0,"127.0.0.1",done)});
  try{
   const base="http://127.0.0.1:"+server.address().port;
-  for(const [width,path] of [[390,"/"],[390,"/product/?id="+id],[1366,"/product/?id="+id],[390,"/products/"],[1366,"/bulk/"]]){
+  for(const [width,path] of [[390,"/"],[390,"/product/?id="+id],[1366,"/product/?id="+id],[390,"/products/"],[390,"/cart/#selection="+id+"%3A2"],[1366,"/bulk/"]]){
     const {stdout}=await run(browser,["--headless","--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--window-size="+width+",900","--virtual-time-budget=2000","--dump-dom",base+path],{timeout:25000,maxBuffer:2e6});
     assert.equal(stdout.match(/<output id="result">([^<]*)</)?.[1],"CHECK_OK",path);
   }

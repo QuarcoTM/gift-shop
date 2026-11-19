@@ -98,6 +98,51 @@ function syncCart() {
   save(CART_KEY, data.cart);
   updateCounters();
 }
+// Carry the current selection to the cart when browser storage is unavailable.
+function cartDestination() {
+  if (allowsStorage("necessary") && JSON.stringify(loadSaved(CART_KEY)) === JSON.stringify(data.cart)) return "./cart/";
+  const selection = data.cart.map(entry => entry.id + ":" + entry.qty).join(",");
+  return "./cart/#selection=" + encodeURIComponent(selection);
+}
+if (page === "cart" && location.hash.startsWith("#selection=")) {
+  const selection = new URLSearchParams(location.hash.slice(1)).get("selection") || "";
+  history.replaceState(history.state, "", location.pathname + location.search);
+  if (!data.cart.length && selection.length <= 5800) {
+    const lines = new Map();
+    for (const line of selection.split(",").slice(0,100)) {
+      const match = /^([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}):([1-9]\d{0,9})$/i.exec(line);
+      if (match) lines.set(match[1],Number(match[2]));
+    }
+    data.cart = [...lines].map(([id,qty]) => ({id,qty}));
+  }
+}
+function showAddedGift(item, quantity) {
+  let panel = $("#added-gift");
+  if (!panel) {
+    panel = document.createElement("dialog");
+    panel.id = "added-gift";
+    panel.className = "added-gift";
+    panel.setAttribute("aria-labelledby","added-title");
+    panel.innerHTML = '<h2 id="added-title">Добавено в количката</h2>' +
+      '<div class="added-line"><div class="added-photo"></div><div><strong data-added-name></strong><p data-added-quantity></p></div></div>' +
+      '<p class="added-total"><span>Продукти в количката</span><strong data-added-total></strong></p>' +
+      '<a class="button button-dark" data-open-cart href="./cart/">Към количката</a>' +
+      '<button type="button" class="added-continue">Продължи с избора</button>';
+    document.body.append(panel);
+    panel.querySelector(".added-continue").addEventListener("click", () => panel.close());
+    panel.addEventListener("click", event => {
+      if (event.target !== panel) return;
+      const rect=panel.getBoundingClientRect();
+      if (event.clientX<rect.left || event.clientX>rect.right || event.clientY<rect.top || event.clientY>rect.bottom) panel.close();
+    });
+  }
+  panel.querySelector(".added-photo").innerHTML=photo(productPhoto(item), "", "eager");
+  panel.querySelector("[data-added-name]").textContent=item.name;
+  panel.querySelector("[data-added-quantity]").textContent=quantity+" бр. × "+price(item.price_eur);
+  panel.querySelector("[data-added-total]").textContent=price(cartSubtotal());
+  panel.querySelector("[data-open-cart]").setAttribute("href",cartDestination());
+  if (!panel.open) panel.showModal();
+}
 function addToCart(id) {
   const item = productById(id);
   if (!item || item.stock_quantity <= 0) { notify("Продуктът не е наличен."); return; }
@@ -107,7 +152,7 @@ function addToCart(id) {
   else data.cart.push({ id, qty: 1 });
   save(CART_KEY, data.cart);
   updateCounters();
-  notify("Подаръкът е добавен в количката.");
+  showAddedGift(item, existing ? existing.qty : 1);
   if (page === "cart") renderCart();
 }
 function changeQty(id, change) {

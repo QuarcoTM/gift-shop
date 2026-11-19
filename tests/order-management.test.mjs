@@ -126,7 +126,7 @@ test("waybill appears on the private customer order page after dispatch",()=>{
 test("the public footer exposes withdrawal link from every storefront page",()=>{
   for(const p of ["index.html","about/index.html","bulk/index.html","cart/index.html",
     "collection/index.html","collections/index.html","products/index.html",
-    "product/index.html","cookies/index.html","privacy/index.html","contact/index.html"]){
-    assert.match(read(p),/href="\.\/order\/">Отказ и връщане<\/a>/,"Missing public withdrawal link in "+p);
+    "product/index.html","cookies/index.html","privacy/index.html","contact/index.html","order/index.html"]){
+    assert.match(read(p),/href="\.\/order\/">Моята поръчка<small>Проследяване, отказ и връщане<\/small><\/a>/,"Missing public withdrawal link in "+p);
   }
 });
