@@ -102,12 +102,13 @@ test("campaigns are read from DB and admin sets them with a confirmed protected 
   assert.match(admin, /gift_shop_settings\?select=id,active_campaign/);
   assert.match(admin, /rest\("gift_shop_settings\?id=eq\.main","PATCH"/);
   assert.match(admin, /updated\[0\]\.active_campaign !== key/);
-  for (const campaign of ["christmas","easter","valentine","womens_day","martenitsa","everyday"]) {
+  for (const campaign of ["christmas","new_year","easter","valentine","womens_day","martenitsa","everyday"]) {
     assert.ok(presets.includes(campaign + ": {"));
   }
   assert.match(sql, /security_invoker=true/);
   assert.match(sql, /gift_private\.is_gift_admin\(\)/);
-  assert.match(features, /assign\(\$\("\.hero-image img"\)/);
+  assert.doesNotMatch(features, /assign\(\$\("\.hero-image img"\)/);
+  assert.match(features, /assign\(\$\("\.hero-image > img\[data-campaign-photo\]"\)/);
   assert.match(features, /new BroadcastChannel\(CAMPAIGN_CHANNEL\)/);
   assert.match(admin, /channel\.postMessage\(\{ type: "campaign-changed", key \}\)/);
   assert.match(presets, /assets\/images\/easter\.webp/);
