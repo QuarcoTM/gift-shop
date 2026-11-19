@@ -5,7 +5,7 @@ import { CAMPAIGNS } from "./campaigns.js?v=20261119-new-year";
    by Supabase Auth + database/storage RLS; never by hiding interface elements. */
 const base = String(config.supabaseUrl || "").replace(/\/+$/, "");
 const key = String(config.supabasePublishableKey || "");
-const STORE_KEY = "sabrano_admin_session_v1";
+const STORE_KEY = "zausmivka_admin_session_v1";
 const $ = (selector) => document.querySelector(selector);
 const money = (amount) => new Intl.NumberFormat("bg-BG", { style: "currency", currency: "EUR" }).format(Number(amount) || 0);
 const number = (value) => new Intl.NumberFormat("bg-BG").format(value || 0);
@@ -297,7 +297,7 @@ function categories() {
   return html + "</section>";
 }
 function orderCode(o) {
-  return o.order_number ? "SBR-" + String(o.order_number).padStart(6, "0") : "#" + String(o.id).slice(0,8).toUpperCase();
+  return o.order_number ? "ZU-" + String(o.order_number).padStart(6, "0") : "#" + String(o.id).slice(0,8).toUpperCase();
 }
 function returnLabel(o) {
   if (!o.withdrawal_requested_at) return "";
@@ -454,7 +454,7 @@ async function activateCampaign(key) {
     render();
     try {
       if (typeof BroadcastChannel !== "undefined") {
-        const channel = new BroadcastChannel("sabrano-campaign-updates-v1");
+        const channel = new BroadcastChannel("zausmivka-campaign-updates-v1");
         channel.postMessage({ type: "campaign-changed", key });
         channel.close();
       }
