@@ -45,10 +45,13 @@ async function checks(id){
      check(!$("#packed-story").hidden,"packaging");
      const frame=document.createElement("iframe");
      frame.style.cssText="width:320px;height:120px;border:0";
-     const ready=new Promise(resolve=>frame.addEventListener("load",resolve,{once:true}));
-     frame.srcdoc="<!doctype html><base href='"+document.baseURI+"'>"+$("link[href*='styles.css']").outerHTML+$("header").outerHTML;
      document.body.append(frame);
-     await ready;
+     const layout=frame.contentDocument;
+     const styles=layout.createElement("style");
+     const sheet=$("link[href*='styles.css']").sheet;
+     styles.textContent=Array.from(sheet.cssRules,rule=>rule.cssText).join("\n");
+     layout.head.append(styles);
+     layout.body.append(layout.importNode($("header"),true));
      for(const width of [320,390]){
        frame.style.width=width+"px";
        const header=frame.contentDocument.querySelector("header");
