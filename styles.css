@@ -874,7 +874,7 @@ html[data-campaign="everyday"] .hero-image{background-color:#d2c0ad}
 /* Permanent holiday categories: the active season is promoted, never substituted. */
 html[data-campaign="new_year"]{
   --campaign-ink:#23414a;--campaign-art:#b4a084;--campaign-art-light:#ece4d0;
-  --instant-season-photo:url("./assets/images/occasions.webp");
+  --instant-season-photo:url("./assets/images/new_year.avif");
 }
 html[data-campaign="new_year"] .home-season{background:#23414a}
 html[data-campaign="new_year"] .hero-image{background-color:#d2c0ad}
