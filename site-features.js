@@ -12,7 +12,7 @@ const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 const setText = (selector, value) => { const el = $(selector); if (el && !el.querySelector?.("[data-season-content]")) el.textContent = value; };
 let currentCampaign = document.documentElement.dataset.campaign || null;
 let inflightCampaign = null;
-let lastReadAt = 0;
+let campaignRevision = 0;
 
 function sitePath() {
   const relative = window.location.pathname.replace(/^\/gift-shop\/?/, "/");
@@ -122,29 +122,26 @@ function applyCampaign(key, onCampaign) {
   document.documentElement.dataset.campaignReady = "true";
   return key;
 }
-async function fetchCampaign(onCampaign, force = false) {
-  if (!API || !KEY) return;
-  if (inflightCampaign) return inflightCampaign;
-  if (!force && currentCampaign && Date.now() - lastReadAt < 800) return;
-  inflightCampaign = (async () => {
-    try {
-      const controller = new AbortController();
-      const deadline = setTimeout(() => controller.abort(), 2400);
-      let response;
-      try {
-        response=await fetch(new URL("./store-publication.json",document.baseURI),{cache:"no-store",signal:controller.signal});
-      } finally {clearTimeout(deadline)}
-      if(!response.ok)throw Error("Publication unavailable");
-      const result=await response.json();
-      if(!Object.hasOwn(CAMPAIGNS,result.campaign))throw Error("Invalid published campaign");
-      applyCampaign(result.campaign,onCampaign);
-      lastReadAt = Date.now();
-    } catch (error) {
-      console.warn("Неуспешна синхронизация на празничната визия:", error);
-      // Never silently revert an already loaded campaign to Christmas.
-      // Preserve the static campaign if the API is temporarily unavailable.
-    } finally { inflightCampaign = null; }
-  })();
+function fetchCampaign(onCampaign) {
+  if (!API || !KEY || inflightCampaign) return inflightCampaign;
+  const revision = campaignRevision;
+  const controller = new AbortController();
+  const deadline = setTimeout(() => controller.abort(), 8000);
+  inflightCampaign = fetch(API + "/rest/v1/gift_shop_settings?select=active_campaign&id=eq.main", {
+    headers: { apikey: KEY }, cache: "no-store", signal: controller.signal
+  }).then(async response => {
+    if (!response.ok) throw Error("Campaign HTTP " + response.status);
+    const rows = await response.json();
+    const key = rows[0]?.active_campaign;
+    if (!Object.hasOwn(CAMPAIGNS, key)) throw Error("Invalid active campaign");
+    // A confirmed admin save takes precedence over an older in-flight read.
+    if (revision === campaignRevision && currentCampaign !== key) applyCampaign(key, onCampaign);
+  }).catch(error => {
+    console.warn("Неуспешна синхронизация на празничната визия:", error);
+  }).finally(() => {
+    clearTimeout(deadline);
+    inflightCampaign = null;
+  });
   return inflightCampaign;
 }
 function sessionId() {
@@ -175,8 +172,8 @@ export function initSiteFeatures(options = {}) {
   // preview or retained in browser history during refresh.
   const inline=document.documentElement.dataset.campaign || document.documentElement.dataset.staticCampaign;
   if(Object.hasOwn(CAMPAIGNS,inline))applyCampaign(inline,options.onCampaign);
-  const preview=new URL(location.href).searchParams.has("campaign");
-  const sync=()=>{if(!preview)fetchCampaign(options.onCampaign,true)};
+  const sync = () => fetchCampaign(options.onCampaign);
+  sync();
   initCookieManager();
   if (allowsStorage("analytics")) {
     recordVisit().catch((error) => console.warn("Anonymous analytics:", error));
@@ -191,8 +188,9 @@ export function initSiteFeatures(options = {}) {
     const channel = new BroadcastChannel(CAMPAIGN_CHANNEL);
     channel.addEventListener("message", (event) => {
       if (event.data?.type !== "campaign-changed") return;
-      if (Object.hasOwn(CAMPAIGNS, event.data.key)) applyCampaign(event.data.key, options.onCampaign);
-
+      if (!Object.hasOwn(CAMPAIGNS, event.data.key)) return;
+      campaignRevision++;
+      applyCampaign(event.data.key, options.onCampaign);
     });
   }
   // Product cards are created after the catalogue loads. Keep their links
@@ -214,6 +212,9 @@ export function initSiteFeatures(options = {}) {
     } catch { /* Keep the original working link. */ }
   }, true);
   window.addEventListener("focus", sync);
+  window.setInterval(() => {
+    if (document.visibilityState === "visible") sync();
+  }, 60000);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") sync();
   });

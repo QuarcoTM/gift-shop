@@ -73,9 +73,10 @@ test("active holiday switches actual headlines, category links and local picture
   globalThis.window={
     location:{pathname:"/gift-shop/"},
     addEventListener(name,fn){eventListeners.set("window:"+name,fn)},
+    setInterval(){},
     dispatchEvent(){}
   };
-  globalThis.location={href:base,pathname:"/gift-shop/",search:"",hash:""};
+  globalThis.location={href:base+"?campaign=valentine",pathname:"/gift-shop/",search:"",hash:""};
   globalThis.history={state:null,replaceState(next,unused,url){this.state=next;this.lastURL=url}};
   globalThis.localStorage={getItem:()=>null,removeItem(){},setItem(){}};
   globalThis.sessionStorage={getItem:()=>null,removeItem(){},setItem(){}};
@@ -85,11 +86,13 @@ test("active holiday switches actual headlines, category links and local picture
     addEventListener(name,fn){this.messageHandler=fn}
   }
   globalThis.BroadcastChannel=Channel;
-  const response=(active_campaign)=>({ok:true,json:async()=>({campaign:active_campaign})});
-  globalThis.fetch=async()=>response("easter");
+  const response=(active_campaign)=>({ok:true,json:async()=>[{active_campaign}]});
+  globalThis.fetch=async url=>{
+    assert.match(String(url),/gift_shop_settings[?]select=active_campaign/);
+    return response("easter");
+  };
   const { initSiteFeatures } = await import("../site-features.js");
   initSiteFeatures({onCampaign(){}});
-  eventListeners.get("window:focus")();
   await new Promise((resolve)=>setTimeout(resolve,0));
 
   assert.equal(page.documentElement.dataset.campaign,"easter");
@@ -101,7 +104,12 @@ test("active holiday switches actual headlines, category links and local picture
   assert.ok(links.every(x=>x.href.includes("category=velikden")));
   assert.match(card.children.get(".collection-title").innerHTML,/Великден/);
 
+  let finishRead;
+  globalThis.fetch=()=>new Promise(resolve=>{finishRead=resolve});
+  const pending=eventListeners.get("window:focus")();
   Channel.current.messageHandler({data:{type:"campaign-changed",key:"new_year"}});
+  finishRead(response("christmas"));
+  await pending;
   assert.equal(page.documentElement.dataset.campaign,"new_year");
   assert.match(selectors.get(".hero-copy h1").innerHTML,/Нова година/);
   assert.equal(heroImg.src,permanentBadge,"New Year must not overwrite the hero logo");

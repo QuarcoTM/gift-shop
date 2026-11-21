@@ -1,6 +1,6 @@
 import { gallery, wireGallery, initOffer } from "./store-ui.js";
 import { config } from "./site-config.js";
-import { initSiteFeatures } from "./site-features.js?v=20261119-store";
+import { initSiteFeatures } from "./site-features.js?v=20261121-live";
 import { CAMPAIGNS } from "./campaigns.js?v=20261119-new-year";
 import { allowsStorage } from "./cookie-consent.js?v=20261119-brand-guard";
 import { initOfficePicker } from "./office-picker.js?v=20261118-o";

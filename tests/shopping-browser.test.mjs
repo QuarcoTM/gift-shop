@@ -13,6 +13,7 @@ function fixtures(id){
  const images=["bulk","hero"].map((file,i)=>({product_id:id,image_url:location.origin+"/assets/images/"+file+".webp",sort_order:i}));
  window.fetch=async(url,options)=>{
    const u=String(url);let data=[];
+   if(u.includes("gift_shop_settings?select=active_campaign"))data=[{active_campaign:"easter"}];
    if(u.includes("gift_products?"))data=products;
    if(u.includes("gift_categories?"))data=[{id:"cat",name:"Коледа",slug:"koleda"}];
    if(u.includes("gift_product_images?"))data=images;
@@ -41,6 +42,10 @@ async function checks(id){
      check($("#product-grid").textContent.includes("Няма резултати"),"empty search");
      $("[data-clear]").click();check(all(".product-card").length===2,"clear");
    } else if(page==="home"){
+     check(document.documentElement.dataset.campaign==="easter","saved campaign wins on opening");
+     const headline=$(".hero-copy h1 [data-season-content='easter']");
+     check(getComputedStyle(headline).display!=="none","saved holiday headline");
+     check(getComputedStyle($(".hero-image .seasonal-photo")).backgroundImage.includes("easter.webp"),"saved holiday photo");
      check(all(".product-card").length===2,"featured");
      check(!$("#packed-story").hidden,"packaging");
      const frame=document.createElement("iframe");
@@ -108,7 +113,7 @@ test("mobile and desktop storefront with a private fixture catalog",async()=>{
  await new Promise((done,reject)=>{server.once("error",reject);server.listen(0,"127.0.0.1",done)});
  try{
   const base="http://127.0.0.1:"+server.address().port;
-  for(const [width,path] of [[390,"/"],[390,"/product/?id="+id],[1366,"/product/?id="+id],[390,"/products/"],[390,"/cart/#selection="+id+"%3A2"],[1366,"/bulk/"]]){
+  for(const [width,path] of [[390,"/"],[390,"/?campaign=christmas"],[390,"/product/?id="+id],[1366,"/product/?id="+id],[390,"/products/"],[390,"/cart/#selection="+id+"%3A2"],[1366,"/bulk/"]]){
     const {stdout}=await run(browser,["--headless","--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--window-size="+width+",900","--virtual-time-budget=2000","--dump-dom",base+path],{timeout:25000,maxBuffer:2e6});
     assert.equal(stdout.match(/<output id="result">([^<]*)</)?.[1],"CHECK_OK",path);
   }
